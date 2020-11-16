@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/mkyc/go-stucts-versioning-tests/pkg/azbi"
 	"io/ioutil"
 	"log"
@@ -10,34 +9,40 @@ import (
 )
 
 const (
-	azbiConfigName = "azbi-config.json"
+	configName = "azbi-config.json"
 )
 
 func main() {
-
 	pwd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	b, err := ioutil.ReadFile(filepath.Join(pwd, azbiConfigName))
+	b, err := ioutil.ReadFile(filepath.Join(pwd, configName))
+	if err != nil {
+		return
+	}
+
+	existingConfig, err := azbi.Load(b)
 	if err != nil {
 		log.Fatal(err)
 	}
-	var existingConfig azbi.Config
-	err = json.Unmarshal(b, &existingConfig)
+	if existingConfig.Unused != nil && len(existingConfig.Unused) > 0 {
+		for _, u := range existingConfig.Unused {
+			log.Println(u)
+		}
+	}
+
+	upgradedConfig, err := performBusinessLogic(*existingConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	upgradedConfig, err := performBusinessLogic(existingConfig)
-
-	b2, err := json.MarshalIndent(upgradedConfig, "", "\t")
+	b, err = upgradedConfig.Save()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	err = ioutil.WriteFile(filepath.Join(pwd, azbiConfigName), b2, 0644)
+	err = ioutil.WriteFile(filepath.Join(pwd, configName), b, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
