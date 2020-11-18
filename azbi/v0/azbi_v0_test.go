@@ -3,7 +3,7 @@ package v0
 import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/mkyc/go-stucts-versioning-tests/pkg/to"
+	"github.com/mkyc/go-stucts-versioning-tests/utils/to"
 	"testing"
 )
 

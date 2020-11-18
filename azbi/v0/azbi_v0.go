@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/Masterminds/semver"
 	maps "github.com/mitchellh/mapstructure"
-	"github.com/mkyc/go-stucts-versioning-tests/pkg/to"
+	"github.com/mkyc/go-stucts-versioning-tests/utils/to"
 )
 
 const (

@@ -3,8 +3,8 @@ package v0
 import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	azbi "github.com/mkyc/go-stucts-versioning-tests/pkg/azbi/v0"
-	"github.com/mkyc/go-stucts-versioning-tests/pkg/to"
+	azbi "github.com/mkyc/go-stucts-versioning-tests/azbi/v0"
+	"github.com/mkyc/go-stucts-versioning-tests/utils/to"
 	"testing"
 )
 

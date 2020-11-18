@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/Masterminds/semver"
 	maps "github.com/mitchellh/mapstructure"
-	azbi "github.com/mkyc/go-stucts-versioning-tests/pkg/azbi/v0"
-	"github.com/mkyc/go-stucts-versioning-tests/pkg/to"
+	azbi "github.com/mkyc/go-stucts-versioning-tests/azbi/v0"
+	"github.com/mkyc/go-stucts-versioning-tests/utils/to"
 )
 
 type Status string
