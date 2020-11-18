@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/Masterminds/semver"
 	maps "github.com/mitchellh/mapstructure"
-	"github.com/mkyc/go-stucts-versioning-tests/utils/to"
+	"github.com/mkyc/go-structs-versioning-tests/utils/to"
 )
 
 const (
@@ -31,6 +31,7 @@ type Config struct {
 	Unused  []string `json:"-"`
 }
 
+//TODO test
 func NewConfig() *Config {
 	return &Config{
 		Kind:    to.StrPtr(kind),

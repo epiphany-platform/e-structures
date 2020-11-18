@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/Masterminds/semver"
 	maps "github.com/mitchellh/mapstructure"
-	azbi "github.com/mkyc/go-stucts-versioning-tests/azbi/v0"
-	"github.com/mkyc/go-stucts-versioning-tests/utils/to"
+	azbi "github.com/mkyc/go-structs-versioning-tests/azbi/v0"
+	"github.com/mkyc/go-structs-versioning-tests/utils/to"
 )
 
 type Status string
@@ -34,6 +34,7 @@ type State struct {
 	AzBI    *AzBIState `json:"azbi"`
 }
 
+//TODO test
 func NewState() *State {
 	return &State{
 		Kind:    to.StrPtr(kind),

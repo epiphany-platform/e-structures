@@ -1,4 +1,4 @@
-module github.com/mkyc/go-stucts-versioning-tests
+module github.com/mkyc/go-structs-versioning-tests
 
 go 1.15
 
