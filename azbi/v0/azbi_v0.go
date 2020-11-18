@@ -11,7 +11,7 @@ import (
 
 const (
 	kind    = "azbi"
-	version = "v0.0.1-alfa"
+	version = "v0.0.1-alpha"
 )
 
 type Params struct {
