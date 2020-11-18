@@ -1,4 +1,4 @@
-package azbi
+package v0
 
 import (
 	"github.com/google/go-cmp/cmp"
@@ -224,6 +224,69 @@ func TestLoad(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+		{
+			name: "major version mismatch",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "1.0.0",
+	"params": {
+		"vms_count": 3,
+		"location": "northeurope",
+		"name": "epiphany"
+	}
+}
+`),
+			want:    nil,
+			wantErr: MajorVersionMismatchError,
+		},
+		{
+			name: "minor version mismatch",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "0.1.0",
+	"params": {
+		"vms_count": 3,
+		"location": "northeurope",
+		"name": "epiphany"
+	}
+}
+`),
+			want: &Config{
+				Kind:    to.StrPtr("azbi"),
+				Version: to.StrPtr("0.1.0"),
+				Params: &Params{
+					VmsCount: to.IntPtr(3),
+					Location: to.StrPtr("northeurope"),
+					Name:     to.StrPtr("epiphany"),
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "patch version mismatch",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "0.0.2",
+	"params": {
+		"vms_count": 3,
+		"location": "northeurope",
+		"name": "epiphany"
+	}
+}
+`),
+			want: &Config{
+				Kind:    to.StrPtr("azbi"),
+				Version: to.StrPtr("0.0.2"),
+				Params: &Params{
+					VmsCount: to.IntPtr(3),
+					Location: to.StrPtr("northeurope"),
+					Name:     to.StrPtr("epiphany"),
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -237,6 +300,9 @@ func TestLoad(t *testing.T) {
 			} else {
 				if diff := cmp.Diff(tt.want, got); diff != "" {
 					t.Errorf("Load() mismatch (-want +got):\n%s", diff)
+				}
+				if err != nil {
+					t.Errorf("Load() unexpected error occured: %v", err)
 				}
 			}
 		})

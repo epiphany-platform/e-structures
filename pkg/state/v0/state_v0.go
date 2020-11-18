@@ -1,10 +1,12 @@
-package state
+package v0
 
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/Masterminds/semver"
 	maps "github.com/mitchellh/mapstructure"
-	"github.com/mkyc/go-stucts-versioning-tests/pkg/azbi"
+	azbi "github.com/mkyc/go-stucts-versioning-tests/pkg/azbi/v0"
 	"github.com/mkyc/go-stucts-versioning-tests/pkg/to"
 )
 
@@ -12,7 +14,7 @@ type Status string
 
 const (
 	kind    = "state"
-	version = "0.0.1"
+	version = "v0.0.1-alfa"
 
 	Initialized Status = "initialized"
 	Applied     Status = "applied"
@@ -70,8 +72,9 @@ func (s *State) Load(b []byte) (err error) {
 }
 
 var (
-	KindMissingValidationError    error = errors.New("field 'Kind' cannot be nil")
-	VersionMissingValidationError error = errors.New("field 'Version' cannot be nil")
+	KindMissingValidationError    = errors.New("field 'Kind' cannot be nil")
+	VersionMissingValidationError = errors.New("field 'Version' cannot be nil")
+	MajorVersionMismatchError     = errors.New("version of loaded structure has MAJOR part different than required")
 )
 
 //TODO implement more interesting validation
@@ -81,6 +84,21 @@ func (s *State) isValid() error {
 	}
 	if s.Kind == nil {
 		return KindMissingValidationError
+	}
+	v, err := semver.NewVersion(version)
+	if err != nil {
+		return err
+	}
+	constraint, err := semver.NewConstraint(fmt.Sprintf("~%d", v.Major()))
+	if err != nil {
+		return err
+	}
+	vv, err := semver.NewVersion(*s.Version)
+	if err != nil {
+		return err
+	}
+	if !constraint.Check(vv) {
+		return MajorVersionMismatchError
 	}
 	return nil
 }

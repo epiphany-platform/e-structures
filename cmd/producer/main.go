@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/mkyc/go-stucts-versioning-tests/pkg/azbi"
-	"github.com/mkyc/go-stucts-versioning-tests/pkg/state"
+	azbi "github.com/mkyc/go-stucts-versioning-tests/pkg/azbi/v0"
+	state "github.com/mkyc/go-stucts-versioning-tests/pkg/state/v0"
 	"io/ioutil"
 	"log"
 	"os"

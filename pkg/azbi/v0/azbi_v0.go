@@ -1,15 +1,17 @@
-package azbi
+package v0
 
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/Masterminds/semver"
 	maps "github.com/mitchellh/mapstructure"
 	"github.com/mkyc/go-stucts-versioning-tests/pkg/to"
 )
 
 const (
 	kind    = "azbi"
-	version = "0.0.1"
+	version = "v0.0.1-alfa"
 )
 
 type Params struct {
@@ -75,10 +77,11 @@ func (c *Config) Load(b []byte) (err error) {
 }
 
 var (
-	KindMissingValidationError    error = errors.New("field 'Kind' cannot be nil")
-	VersionMissingValidationError error = errors.New("field 'Version' cannot be nil")
-	ParamsMissingValidationError  error = errors.New("params section missing")
-	MinimalParamsValidationError  error = errors.New("at least 'vms_count', 'location' and 'name' parameters are required")
+	KindMissingValidationError    = errors.New("field 'Kind' cannot be nil")
+	VersionMissingValidationError = errors.New("field 'Version' cannot be nil")
+	ParamsMissingValidationError  = errors.New("params section missing")
+	MinimalParamsValidationError  = errors.New("at least 'vms_count', 'location' and 'name' parameters are required")
+	MajorVersionMismatchError     = errors.New("version of loaded structure has MAJOR part different than required")
 )
 
 //TODO implement more interesting validation
@@ -94,6 +97,21 @@ func (c *Config) isValid() error {
 	}
 	if c.Params.Name == nil || c.Params.VmsCount == nil || c.Params.Location == nil {
 		return MinimalParamsValidationError
+	}
+	v, err := semver.NewVersion(version)
+	if err != nil {
+		return err
+	}
+	constraint, err := semver.NewConstraint(fmt.Sprintf("~%d", v.Major()))
+	if err != nil {
+		return err
+	}
+	vv, err := semver.NewVersion(*c.Version)
+	if err != nil {
+		return err
+	}
+	if !constraint.Check(vv) {
+		return MajorVersionMismatchError
 	}
 	return nil
 }
