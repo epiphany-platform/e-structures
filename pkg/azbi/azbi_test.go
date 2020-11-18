@@ -1,17 +1,18 @@
 package azbi
 
 import (
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/mkyc/go-stucts-versioning-tests/pkg/to"
-	"reflect"
 	"testing"
 )
 
 func TestLoad(t *testing.T) {
 	tests := []struct {
-		name       string
-		args       []byte
-		wantConfig *Config
-		wantErr    bool
+		name    string
+		args    []byte
+		want    *Config
+		wantErr error
 	}{
 		{
 			name: "happy path",
@@ -33,7 +34,7 @@ func TestLoad(t *testing.T) {
 	}
 }
 `),
-			wantConfig: &Config{
+			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("0.0.1"),
 				Params: &Params{
@@ -47,7 +48,7 @@ func TestLoad(t *testing.T) {
 				},
 				Unused: []string{},
 			},
-			wantErr: false,
+			wantErr: nil,
 		},
 		{
 			name: "unknown field in main structure",
@@ -70,7 +71,7 @@ func TestLoad(t *testing.T) {
 	}
 }
 `),
-			wantConfig: &Config{
+			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("0.0.2"),
 				Params: &Params{
@@ -84,7 +85,7 @@ func TestLoad(t *testing.T) {
 				},
 				Unused: []string{"extra_outer_field"},
 			},
-			wantErr: false,
+			wantErr: nil,
 		},
 		{
 			name: "unknown field in sub structure",
@@ -107,7 +108,7 @@ func TestLoad(t *testing.T) {
 	}
 }
 `),
-			wantConfig: &Config{
+			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("0.0.2"),
 				Params: &Params{
@@ -121,7 +122,7 @@ func TestLoad(t *testing.T) {
 				},
 				Unused: []string{"params.extra_inner_field"},
 			},
-			wantErr: false,
+			wantErr: nil,
 		},
 		{
 			name: "unknown fields in all possible places",
@@ -145,7 +146,7 @@ func TestLoad(t *testing.T) {
 	}
 }
 `),
-			wantConfig: &Config{
+			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("0.0.2"),
 				Params: &Params{
@@ -159,19 +160,84 @@ func TestLoad(t *testing.T) {
 				},
 				Unused: []string{"params.extra_inner_field", "extra_outer_field"},
 			},
-			wantErr: false,
+			wantErr: nil,
+		},
+		{
+			name:    "empty json",
+			args:    []byte(`{}`),
+			want:    nil,
+			wantErr: KindMissingValidationError,
+		},
+		{
+			name: "just kind field",
+			args: []byte(`{
+	"kind": "azbi"
+}
+`),
+			want:    nil,
+			wantErr: VersionMissingValidationError,
+		},
+		{
+			name: "just kind and version",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "0.0.1"
+}
+`),
+			want:    nil,
+			wantErr: ParamsMissingValidationError,
+		},
+		{
+			name: "just vms_count in params",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "0.0.1",
+	"params": {
+		"vms_count": 3
+	}
+}
+`),
+			want:    nil,
+			wantErr: MinimalParamsValidationError,
+		},
+		{
+			name: "minimal correct json",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "0.0.1",
+	"params": {
+		"vms_count": 3,
+		"location": "northeurope",
+		"name": "epiphany"
+	}
+}
+`),
+			want: &Config{
+				Kind:    to.StrPtr("azbi"),
+				Version: to.StrPtr("0.0.1"),
+				Params: &Params{
+					VmsCount: to.IntPtr(3),
+					Location: to.StrPtr("northeurope"),
+					Name:     to.StrPtr("epiphany"),
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotConfig := &Config{}
-			err := gotConfig.Load(tt.args)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(gotConfig, tt.wantConfig) {
-				t.Errorf("Load() gotConfig = \n\n%#v\n\n, want = \n\n%#v\n\n", gotConfig, tt.wantConfig)
+			got := &Config{}
+			err := got.Load(tt.args)
+
+			if tt.wantErr != nil {
+				if diff := cmp.Diff(tt.wantErr, err, cmpopts.EquateErrors()); diff != "" {
+					t.Errorf("Load() errors mismatch (-want +got):\n%s", diff)
+				}
+			} else {
+				if diff := cmp.Diff(tt.want, got); diff != "" {
+					t.Errorf("Load() mismatch (-want +got):\n%s", diff)
+				}
 			}
 		})
 	}

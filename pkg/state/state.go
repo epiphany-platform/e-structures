@@ -42,6 +42,7 @@ func NewState() *State {
 }
 
 func (s *State) Save() (b []byte, err error) {
+	//TODO validate that all required fields are filled
 	return json.MarshalIndent(s, "", "\t")
 }
 
@@ -68,10 +69,18 @@ func (s *State) Load(b []byte) (err error) {
 	return
 }
 
+var (
+	KindMissingValidationError    error = errors.New("field 'Kind' cannot be nil")
+	VersionMissingValidationError error = errors.New("field 'Version' cannot be nil")
+)
+
 //TODO implement more interesting validation
 func (s *State) isValid() error {
 	if s.Version == nil {
-		return errors.New("field 'Version' cannot be nil")
+		return VersionMissingValidationError
+	}
+	if s.Kind == nil {
+		return KindMissingValidationError
 	}
 	return nil
 }

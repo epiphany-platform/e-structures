@@ -47,6 +47,7 @@ func NewConfig() *Config {
 }
 
 func (c *Config) Save() (b []byte, err error) {
+	//TODO validate that all required fields are filled
 	return json.MarshalIndent(c, "", "\t")
 }
 
@@ -73,10 +74,26 @@ func (c *Config) Load(b []byte) (err error) {
 	return
 }
 
+var (
+	KindMissingValidationError    error = errors.New("field 'Kind' cannot be nil")
+	VersionMissingValidationError error = errors.New("field 'Version' cannot be nil")
+	ParamsMissingValidationError  error = errors.New("params section missing")
+	MinimalParamsValidationError  error = errors.New("at least 'vms_count', 'location' and 'name' parameters are required")
+)
+
 //TODO implement more interesting validation
 func (c *Config) isValid() error {
+	if c.Kind == nil {
+		return KindMissingValidationError
+	}
 	if c.Version == nil {
-		return errors.New("field 'Version' cannot be nil")
+		return VersionMissingValidationError
+	}
+	if c.Params == nil {
+		return ParamsMissingValidationError
+	}
+	if c.Params.Name == nil || c.Params.VmsCount == nil || c.Params.Location == nil {
+		return MinimalParamsValidationError
 	}
 	return nil
 }
