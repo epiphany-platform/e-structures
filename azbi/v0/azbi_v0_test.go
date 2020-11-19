@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestLoad(t *testing.T) {
+func TestConfig_Load(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    []byte
