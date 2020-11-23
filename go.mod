@@ -1,4 +1,4 @@
-module github.com/mkyc/go-structs-versioning-tests
+module github.com/epiphany-platform/e-structures
 
 go 1.15
 

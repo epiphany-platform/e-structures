@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/Masterminds/semver"
+	"github.com/epiphany-platform/e-structures/utils/to"
 	maps "github.com/mitchellh/mapstructure"
-	"github.com/mkyc/go-structs-versioning-tests/utils/to"
 )
 
 const (

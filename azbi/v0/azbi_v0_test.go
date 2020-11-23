@@ -1,10 +1,11 @@
 package v0
 
 import (
+	"testing"
+
+	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/mkyc/go-structs-versioning-tests/utils/to"
-	"testing"
 )
 
 func TestConfig_Load(t *testing.T) {

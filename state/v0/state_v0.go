@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/Masterminds/semver"
+	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
+	"github.com/epiphany-platform/e-structures/utils/to"
 	maps "github.com/mitchellh/mapstructure"
-	azbi "github.com/mkyc/go-structs-versioning-tests/azbi/v0"
-	"github.com/mkyc/go-structs-versioning-tests/utils/to"
 )
 
 type Status string

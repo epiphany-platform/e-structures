@@ -1,11 +1,12 @@
 package v0
 
 import (
+	"testing"
+
+	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
+	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	azbi "github.com/mkyc/go-structs-versioning-tests/azbi/v0"
-	"github.com/mkyc/go-structs-versioning-tests/utils/to"
-	"testing"
 )
 
 func TestState_Load(t *testing.T) {
