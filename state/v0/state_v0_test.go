@@ -290,18 +290,18 @@ func TestState_Load(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := &State{}
-			err := got.Load(tt.args)
+			err := got.Unmarshall(tt.args)
 
 			if tt.wantErr != nil {
 				if diff := cmp.Diff(tt.wantErr, err, cmpopts.EquateErrors()); diff != "" {
-					t.Errorf("Load() errors mismatch (-want +got):\n%s", diff)
+					t.Errorf("Unmarshall() errors mismatch (-want +got):\n%s", diff)
 				}
 			} else {
 				if diff := cmp.Diff(tt.want, got); diff != "" {
-					t.Errorf("Load() mismatch (-want +got):\n%s", diff)
+					t.Errorf("Unmarshall() mismatch (-want +got):\n%s", diff)
 				}
 				if err != nil {
-					t.Errorf("Load() unexpected error occured: %v", err)
+					t.Errorf("Unmarshall() unexpected error occured: %v", err)
 				}
 			}
 		})

@@ -50,12 +50,12 @@ func NewConfig() *Config {
 	}
 }
 
-func (c *Config) Save() (b []byte, err error) {
+func (c *Config) Marshall() (b []byte, err error) {
 	//TODO validate that all required fields are filled
 	return json.MarshalIndent(c, "", "\t")
 }
 
-func (c *Config) Load(b []byte) (err error) {
+func (c *Config) Unmarshall(b []byte) (err error) {
 	var input map[string]interface{}
 	if err = json.Unmarshal(b, &input); err != nil {
 		return

@@ -45,12 +45,12 @@ func NewState() *State {
 	}
 }
 
-func (s *State) Save() (b []byte, err error) {
+func (s *State) Marshall() (b []byte, err error) {
 	//TODO validate that all required fields are filled
 	return json.MarshalIndent(s, "", "\t")
 }
 
-func (s *State) Load(b []byte) (err error) {
+func (s *State) Unmarshall(b []byte) (err error) {
 	var input map[string]interface{}
 	if err = json.Unmarshal(b, &input); err != nil {
 		return
