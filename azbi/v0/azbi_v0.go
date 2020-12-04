@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 
 	"github.com/Masterminds/semver"
 	"github.com/epiphany-platform/e-structures/utils/to"
@@ -12,8 +13,13 @@ import (
 
 const (
 	kind    = "azbi"
-	version = "v0.0.1"
+	version = "v0.0.2"
 )
+
+type Subnet struct {
+	Name            *string  `json:"name"`
+	AddressPrefixes []string `json:"address_prefixes"`
+}
 
 type Params struct {
 	Name             *string  `json:"name"`
@@ -21,7 +27,7 @@ type Params struct {
 	UsePublicIP      *bool    `json:"use_public_ip"`
 	Location         *string  `json:"location"`
 	AddressSpace     []string `json:"address_space"`
-	AddressPrefixes  []string `json:"address_prefixes"`
+	Subnets          []Subnet `json:"subnets"`
 	RsaPublicKeyPath *string  `json:"rsa_pub_path"`
 }
 
@@ -38,12 +44,17 @@ func NewConfig() *Config {
 		Kind:    to.StrPtr(kind),
 		Version: to.StrPtr(version),
 		Params: &Params{
-			Name:             to.StrPtr("epiphany"),
-			VmsCount:         to.IntPtr(3),
-			UsePublicIP:      to.BooPtr(true),
-			Location:         to.StrPtr("northeurope"),
-			AddressSpace:     []string{"10.0.0.0/16"},
-			AddressPrefixes:  []string{"10.0.1.0/24"},
+			Name:         to.StrPtr("epiphany"),
+			VmsCount:     to.IntPtr(3),
+			UsePublicIP:  to.BooPtr(true),
+			Location:     to.StrPtr("northeurope"),
+			AddressSpace: []string{"10.0.0.0/16"},
+			Subnets: []Subnet{
+				{
+					Name:            to.StrPtr("main"),
+					AddressPrefixes: []string{"10.0.1.0/24"},
+				},
+			},
 			RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 		},
 		Unused: []string{},
@@ -82,9 +93,16 @@ var (
 	KindMissingValidationError    = errors.New("field 'Kind' cannot be nil")
 	VersionMissingValidationError = errors.New("field 'Version' cannot be nil")
 	ParamsMissingValidationError  = errors.New("params section missing")
-	MinimalParamsValidationError  = errors.New("at least 'vms_count', 'location' and 'name' parameters are required")
 	MajorVersionMismatchError     = errors.New("version of loaded structure has MAJOR part different than required")
 )
+
+type MinimalParamsValidationError struct {
+	msg string
+}
+
+func (e MinimalParamsValidationError) Error() string {
+	return fmt.Sprintf("validation error: %s", e.msg)
+}
 
 //TODO implement more interesting validation
 func (c *Config) isValid() error {
@@ -97,8 +115,14 @@ func (c *Config) isValid() error {
 	if c.Params == nil {
 		return ParamsMissingValidationError
 	}
-	if c.Params.Name == nil || c.Params.VmsCount == nil || c.Params.Location == nil {
-		return MinimalParamsValidationError
+	if c.Params.Name == nil {
+		return &MinimalParamsValidationError{"'name' parameter missing"}
+	}
+	if c.Params.VmsCount == nil {
+		return &MinimalParamsValidationError{"'vms_count' parameter missing"}
+	}
+	if c.Params.Location == nil {
+		return &MinimalParamsValidationError{"'location' parameter missing"}
 	}
 	v, err := semver.NewVersion(version)
 	if err != nil {
@@ -114,6 +138,19 @@ func (c *Config) isValid() error {
 	}
 	if !constraint.Check(vv) {
 		return MajorVersionMismatchError
+	}
+	if c.Params != nil && !reflect.DeepEqual(c.Params, &Params{}) {
+		if c.Params.Subnets == nil || len(c.Params.Subnets) < 1 {
+			return &MinimalParamsValidationError{"'subnets' list parameter missing or is 0 length"}
+		}
+		for _, s := range c.Params.Subnets {
+			if s.Name == nil || len(*s.Name) < 1 {
+				return &MinimalParamsValidationError{"one of subnets is missing 'name' field or name is empty"}
+			}
+			if s.AddressPrefixes == nil || len(s.AddressPrefixes) < 1 {
+				return &MinimalParamsValidationError{"'address_prefixes' list parameter in one of subnets missing or is 0 length"}
+			}
+		}
 	}
 	return nil
 }

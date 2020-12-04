@@ -49,8 +49,13 @@ func TestState_Load(t *testing.T) {
 				"address_space": [
 					"10.0.0.0/16"
 				],
-				"address_prefixes": [
-					"10.0.1.0/24"
+				"subnets": [
+					{
+						"name": "main", 
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
 				],
 				"rsa_pub_path": "/shared/vms_rsa.pub"
 			}
@@ -82,12 +87,17 @@ func TestState_Load(t *testing.T) {
 						Kind:    to.StrPtr("azbi"),
 						Version: to.StrPtr("0.0.1"),
 						Params: &azbi.Params{
-							Name:             to.StrPtr("epiphany"),
-							VmsCount:         to.IntPtr(3),
-							UsePublicIP:      to.BooPtr(true),
-							Location:         to.StrPtr("northeurope"),
-							AddressSpace:     []string{"10.0.0.0/16"},
-							AddressPrefixes:  []string{"10.0.1.0/24"},
+							Name:         to.StrPtr("epiphany"),
+							VmsCount:     to.IntPtr(3),
+							UsePublicIP:  to.BooPtr(true),
+							Location:     to.StrPtr("northeurope"),
+							AddressSpace: []string{"10.0.0.0/16"},
+							Subnets: []azbi.Subnet{
+								{
+									Name:            to.StrPtr("main"),
+									AddressPrefixes: []string{"10.0.1.0/24"},
+								},
+							},
 							RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 						},
 						Unused: nil,
@@ -122,8 +132,13 @@ func TestState_Load(t *testing.T) {
 				"address_space": [
 					"10.0.0.0/16"
 				],
-				"address_prefixes": [
-					"10.0.1.0/24"
+				"subnets": [
+					{
+						"name": "main", 
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
 				],
 				"rsa_pub_path": "/shared/vms_rsa.pub"
 			}
@@ -155,12 +170,17 @@ func TestState_Load(t *testing.T) {
 						Kind:    to.StrPtr("azbi"),
 						Version: to.StrPtr("0.0.1"),
 						Params: &azbi.Params{
-							Name:             to.StrPtr("epiphany"),
-							VmsCount:         to.IntPtr(3),
-							UsePublicIP:      to.BooPtr(true),
-							Location:         to.StrPtr("northeurope"),
-							AddressSpace:     []string{"10.0.0.0/16"},
-							AddressPrefixes:  []string{"10.0.1.0/24"},
+							Name:         to.StrPtr("epiphany"),
+							VmsCount:     to.IntPtr(3),
+							UsePublicIP:  to.BooPtr(true),
+							Location:     to.StrPtr("northeurope"),
+							AddressSpace: []string{"10.0.0.0/16"},
+							Subnets: []azbi.Subnet{
+								{
+									Name:            to.StrPtr("main"),
+									AddressPrefixes: []string{"10.0.1.0/24"},
+								},
+							},
 							RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 						},
 						Unused: nil,
@@ -194,8 +214,13 @@ func TestState_Load(t *testing.T) {
 				"address_space": [
 					"10.0.0.0/16"
 				],
-				"address_prefixes": [
-					"10.0.1.0/24"
+				"subnets": [
+					{
+						"name": "main", 
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
 				],
 				"rsa_pub_path": "/shared/vms_rsa.pub"
 			}
@@ -228,12 +253,17 @@ func TestState_Load(t *testing.T) {
 						Kind:    to.StrPtr("azbi"),
 						Version: to.StrPtr("0.0.1"),
 						Params: &azbi.Params{
-							Name:             to.StrPtr("epiphany"),
-							VmsCount:         to.IntPtr(3),
-							UsePublicIP:      to.BooPtr(true),
-							Location:         to.StrPtr("northeurope"),
-							AddressSpace:     []string{"10.0.0.0/16"},
-							AddressPrefixes:  []string{"10.0.1.0/24"},
+							Name:         to.StrPtr("epiphany"),
+							VmsCount:     to.IntPtr(3),
+							UsePublicIP:  to.BooPtr(true),
+							Location:     to.StrPtr("northeurope"),
+							AddressSpace: []string{"10.0.0.0/16"},
+							Subnets: []azbi.Subnet{
+								{
+									Name:            to.StrPtr("main"),
+									AddressPrefixes: []string{"10.0.1.0/24"},
+								},
+							},
 							RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 						},
 						Unused: nil,
