@@ -15,7 +15,7 @@ type Status string
 
 const (
 	kind    = "state"
-	version = "v0.0.1"
+	version = "v0.0.2"
 
 	Initialized Status = "initialized"
 	Applied     Status = "applied"
@@ -45,12 +45,12 @@ func NewState() *State {
 	}
 }
 
-func (s *State) Marshall() (b []byte, err error) {
+func (s *State) Marshal() (b []byte, err error) {
 	//TODO validate that all required fields are filled
 	return json.MarshalIndent(s, "", "\t")
 }
 
-func (s *State) Unmarshall(b []byte) (err error) {
+func (s *State) Unmarshal(b []byte) (err error) {
 	var input map[string]interface{}
 	if err = json.Unmarshal(b, &input); err != nil {
 		return

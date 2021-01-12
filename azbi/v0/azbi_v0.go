@@ -13,7 +13,7 @@ import (
 
 const (
 	kind    = "azbi"
-	version = "v0.0.2"
+	version = "v0.1.0"
 )
 
 type Subnet struct {
@@ -21,14 +21,29 @@ type Subnet struct {
 	AddressPrefixes []string `json:"address_prefixes"`
 }
 
+type Image struct {
+	Publisher *string `json:"publisher"`
+	Offer     *string `json:"offer"`
+	Sku       *string `json:"sku"`
+	Version   *string `json:"version"`
+}
+
+type VmGroup struct {
+	Name        *string  `json:"name"`
+	VmCount     *int     `json:"vm_count"`
+	VmSize      *string  `json:"vm_size"`
+	UsePublicIP *bool    `json:"use_public_ip"`
+	SubnetNames []string `json:"subnet_names"`
+	Image       *Image   `json:"image"`
+}
+
 type Params struct {
-	Name             *string  `json:"name"`
-	VmsCount         *int     `json:"vms_count"`
-	UsePublicIP      *bool    `json:"use_public_ip"`
-	Location         *string  `json:"location"`
-	AddressSpace     []string `json:"address_space"`
-	Subnets          []Subnet `json:"subnets"`
-	RsaPublicKeyPath *string  `json:"rsa_pub_path"`
+	Name             *string   `json:"name"`
+	Location         *string   `json:"location"`
+	AddressSpace     []string  `json:"address_space"`
+	Subnets          []Subnet  `json:"subnets"`
+	VmGroups         []VmGroup `json:"vm_groups"`
+	RsaPublicKeyPath *string   `json:"rsa_pub_path"`
 }
 
 type Config struct {
@@ -44,29 +59,42 @@ func NewConfig() *Config {
 		Kind:    to.StrPtr(kind),
 		Version: to.StrPtr(version),
 		Params: &Params{
-			Name:         to.StrPtr("epiphany"),
-			VmsCount:     to.IntPtr(3),
-			UsePublicIP:  to.BooPtr(true),
-			Location:     to.StrPtr("northeurope"),
-			AddressSpace: []string{"10.0.0.0/16"},
+			Name:             to.StrPtr("epiphany"),
+			Location:         to.StrPtr("northeurope"),
+			AddressSpace:     []string{"10.0.0.0/16"},
+			RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 			Subnets: []Subnet{
 				{
 					Name:            to.StrPtr("main"),
 					AddressPrefixes: []string{"10.0.1.0/24"},
 				},
 			},
-			RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
+			VmGroups: []VmGroup{
+				{
+					Name:        to.StrPtr("vm-group0"),
+					VmCount:     to.IntPtr(1),
+					VmSize:      to.StrPtr("Standard_DS2_v2"),
+					UsePublicIP: to.BooPtr(true),
+					SubnetNames: []string{"main"},
+					Image: &Image{
+						Publisher: to.StrPtr("Canonical"),
+						Offer:     to.StrPtr("UbuntuServer"),
+						Sku:       to.StrPtr("18.04-LTS"),
+						Version:   to.StrPtr("18.04.202006101"),
+					},
+				},
+			},
 		},
 		Unused: []string{},
 	}
 }
 
-func (c *Config) Marshall() (b []byte, err error) {
+func (c *Config) Marshal() (b []byte, err error) {
 	//TODO validate that all required fields are filled
 	return json.MarshalIndent(c, "", "\t")
 }
 
-func (c *Config) Unmarshall(b []byte) (err error) {
+func (c *Config) Unmarshal(b []byte) (err error) {
 	var input map[string]interface{}
 	if err = json.Unmarshal(b, &input); err != nil {
 		return
@@ -118,9 +146,6 @@ func (c *Config) isValid() error {
 	if c.Params.Name == nil {
 		return &MinimalParamsValidationError{"'name' parameter missing"}
 	}
-	if c.Params.VmsCount == nil {
-		return &MinimalParamsValidationError{"'vms_count' parameter missing"}
-	}
 	if c.Params.Location == nil {
 		return &MinimalParamsValidationError{"'location' parameter missing"}
 	}
@@ -143,6 +168,9 @@ func (c *Config) isValid() error {
 		if c.Params.Subnets == nil || len(c.Params.Subnets) < 1 {
 			return &MinimalParamsValidationError{"'subnets' list parameter missing or is 0 length"}
 		}
+		if c.Params.VmGroups == nil {
+			return &MinimalParamsValidationError{"'vm_groups' list parameter missing"}
+		}
 		for _, s := range c.Params.Subnets {
 			if s.Name == nil || len(*s.Name) < 1 {
 				return &MinimalParamsValidationError{"one of subnets is missing 'name' field or name is empty"}
@@ -151,14 +179,61 @@ func (c *Config) isValid() error {
 				return &MinimalParamsValidationError{"'address_prefixes' list parameter in one of subnets missing or is 0 length"}
 			}
 		}
+		if len(c.Params.VmGroups) > 0 {
+			for _, vmGroup := range c.Params.VmGroups {
+				if vmGroup.Name == nil || len(*vmGroup.Name) < 1 {
+					return &MinimalParamsValidationError{"one of vm groups is missing 'name' field or name is empty"}
+				}
+				if vmGroup.VmCount == nil || *vmGroup.VmCount < 0 {
+					return &MinimalParamsValidationError{"one of vm groups is missing 'vm_count' field or there is a negative number"}
+				}
+				if vmGroup.VmSize == nil || len(*vmGroup.VmSize) < 1 {
+					return &MinimalParamsValidationError{"one of vm groups is missing 'vm_size' field or vm_size is empty"}
+				}
+				if vmGroup.UsePublicIP == nil {
+					return &MinimalParamsValidationError{"one of vm groups is missing 'use_public_ip' field"}
+				}
+				if vmGroup.VmSize == nil || len(*vmGroup.VmSize) < 1 {
+					return &MinimalParamsValidationError{"one of vm groups is missing 'vm_size' field or vm_size is empty"}
+				}
+				if vmGroup.SubnetNames == nil || len(vmGroup.SubnetNames) < 1 {
+					return &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"}
+				}
+				if vmGroup.Image == nil {
+					return &MinimalParamsValidationError{"one of vm groups is missing 'image' field"}
+				} else {
+					if vmGroup.Image.Publisher == nil || len(*vmGroup.Image.Publisher) < 1 {
+						return &MinimalParamsValidationError{"one of vm groups is missing 'image.publisher' field or this field is empty"}
+					}
+					if vmGroup.Image.Offer == nil || len(*vmGroup.Image.Offer) < 1 {
+						return &MinimalParamsValidationError{"one of vm groups is missing 'image.offer' field or this field is empty"}
+					}
+					if vmGroup.Image.Sku == nil || len(*vmGroup.Image.Sku) < 1 {
+						return &MinimalParamsValidationError{"one of vm groups is missing 'image.sku' field or this field is empty"}
+					}
+					if vmGroup.Image.Version == nil || len(*vmGroup.Image.Version) < 1 {
+						return &MinimalParamsValidationError{"one of vm groups is missing 'image.version' field or this field is empty"}
+					}
+				}
+			}
+		}
 	}
 	return nil
 }
 
-type Output struct {
+type OutputVm struct {
+	Name       string   `json:"vm_name"`
 	PrivateIps []string `json:"private_ips"`
-	PublicIps  []string `json:"public_ips"`
-	RgName     *string  `json:"rg_name"`
-	VmNames    []string `json:"vm_names"`
-	VnetName   *string  `json:"vnet_name"`
+	PublicIp   string   `json:"public_ip"`
+}
+
+type OutputVmGroup struct {
+	Name string     `json:"vm_group_name"`
+	Vms  []OutputVm `json:"vms"`
+}
+
+type Output struct {
+	RgName   *string         `json:"rg_name"`
+	VnetName *string         `json:"vnet_name"`
+	VmGroups []OutputVmGroup `json:"vm_groups"`
 }
