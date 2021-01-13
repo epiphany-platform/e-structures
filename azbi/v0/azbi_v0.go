@@ -193,9 +193,6 @@ func (c *Config) isValid() error {
 				if vmGroup.UsePublicIP == nil {
 					return &MinimalParamsValidationError{"one of vm groups is missing 'use_public_ip' field"}
 				}
-				if vmGroup.VmSize == nil || len(*vmGroup.VmSize) < 1 {
-					return &MinimalParamsValidationError{"one of vm groups is missing 'vm_size' field or vm_size is empty"}
-				}
 				if vmGroup.SubnetNames == nil || len(vmGroup.SubnetNames) < 1 {
 					return &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"}
 				}

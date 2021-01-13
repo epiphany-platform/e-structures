@@ -675,6 +675,612 @@ func TestConfig_Load(t *testing.T) {
 			wantErr: nil,
 		},
 		{
+			name: "missing vm_groups parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"'vm_groups' list parameter missing"},
+		},
+		{
+			name: "empty vm_groups parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": []
+	}
+}
+`),
+			want: &Config{
+				Kind:    to.StrPtr("azbi"),
+				Version: to.StrPtr("v0.1.0"),
+				Params: &Params{
+					Location: to.StrPtr("northeurope"),
+					Name:     to.StrPtr("epiphany"),
+					Subnets: []Subnet{
+						{
+							Name:            to.StrPtr("main"),
+							AddressPrefixes: []string{"10.0.1.0/24"},
+						},
+					},
+					VmGroups: []VmGroup{
+					},
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "missing vm_groups name parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'name' field or name is empty"},
+		},
+		{
+			name: "missing vm_groups vm_count parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_count' field or there is a negative number"},
+		},
+		{
+			name: "negative vm_groups vm_count parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": -100,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_count' field or there is a negative number"},
+		},
+		{
+			name: "missing vm_groups vm_size parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_size' field or vm_size is empty"},
+		},
+		{
+			name: "missing vm_groups use_public_ip parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"subnet_names": ["main"],
+			"image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'use_public_ip' field"},
+		},
+		{
+			name: "missing vm_groups subnet_names parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"},
+		},
+		{
+			name: "empty vm_groups subnet_names list",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": [],
+			"image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"},
+		},
+		{
+			name: "missing vm_groups image parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"]
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image' field"},
+		},
+		{
+			name: "missing vm_groups.image.publisher parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"image": {
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.publisher' field or this field is empty"},
+		},
+		{
+			name: "empty vm_groups.image.publisher parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"image": {
+				"publisher": "",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.publisher' field or this field is empty"},
+		},
+		{
+			name: "missing vm_groups.image.offer parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"image": {
+				"publisher": "Canonical",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.offer' field or this field is empty"},
+		},
+		{
+			name: "empty vm_groups.image.offer parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"image": {
+				"publisher": "Canonical",
+				"offer": "",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.offer' field or this field is empty"},
+		},
+		{
+			name: "missing vm_groups.image.sku parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.sku' field or this field is empty"},
+		},
+		{
+			name: "empty vm_groups.image.sku parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.sku' field or this field is empty"},
+		},
+		{
+			name: "missing vm_groups.image.publisher parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"image": {
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.publisher' field or this field is empty"},
+		},
+		{
+			name: "empty vm_groups.image.publisher parameter",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"image": {
+				"publisher": "",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.publisher' field or this field is empty"},
+		},
+		{
 			name: "major version mismatch",
 			args: []byte(`{
 	"kind": "azbi",
