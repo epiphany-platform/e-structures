@@ -1212,7 +1212,7 @@ func TestConfig_Load(t *testing.T) {
 			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.sku' field or this field is empty"},
 		},
 		{
-			name: "missing vm_groups.vm_image.publisher parameter",
+			name: "missing vm_groups.vm_image.version parameter",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -1234,19 +1234,19 @@ func TestConfig_Load(t *testing.T) {
 			"use_public_ip": true,
 			"subnet_names": ["main"],
 			"vm_image": {
+				"publisher": "Canonical",
 				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
+				"sku": "18.04-LTS"
 			}
 		}]
 	}
 }
 `),
 			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.publisher' field or this field is empty"},
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.version' field or this field is empty"},
 		},
 		{
-			name: "empty vm_groups.vm_image.publisher parameter",
+			name: "empty vm_groups.vm_image.version parameter",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -1268,17 +1268,17 @@ func TestConfig_Load(t *testing.T) {
 			"use_public_ip": true,
 			"subnet_names": ["main"],
 			"vm_image": {
-				"publisher": "",
+				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
+				"version": ""
 			}
 		}]
 	}
 }
 `),
 			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.publisher' field or this field is empty"},
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.version' field or this field is empty"},
 		},
 		{
 			name: "major version mismatch",
