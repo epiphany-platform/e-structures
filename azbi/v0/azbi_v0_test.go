@@ -38,7 +38,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -70,7 +70,7 @@ func TestConfig_Load(t *testing.T) {
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
 							UsePublicIP: to.BooPtr(true),
 							SubnetNames: []string{"main"},
-							Image: &Image{
+							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
 								Sku:       to.StrPtr("18.04-LTS"),
@@ -109,7 +109,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -140,7 +140,7 @@ func TestConfig_Load(t *testing.T) {
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
 							UsePublicIP: to.BooPtr(true),
 							SubnetNames: []string{"main"},
-							Image: &Image{
+							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
 								Sku:       to.StrPtr("18.04-LTS"),
@@ -180,7 +180,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -211,7 +211,7 @@ func TestConfig_Load(t *testing.T) {
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
 							UsePublicIP: to.BooPtr(true),
 							SubnetNames: []string{"main"},
-							Image: &Image{
+							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
 								Sku:       to.StrPtr("18.04-LTS"),
@@ -252,7 +252,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -283,7 +283,7 @@ func TestConfig_Load(t *testing.T) {
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
 							UsePublicIP: to.BooPtr(true),
 							SubnetNames: []string{"main"},
-							Image: &Image{
+							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
 								Sku:       to.StrPtr("18.04-LTS"),
@@ -334,7 +334,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -369,7 +369,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -398,7 +398,7 @@ func TestConfig_Load(t *testing.T) {
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
 							UsePublicIP: to.BooPtr(true),
 							SubnetNames: []string{"main"},
-							Image: &Image{
+							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
 								Sku:       to.StrPtr("18.04-LTS"),
@@ -425,7 +425,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -453,7 +453,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -487,7 +487,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -522,7 +522,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -555,7 +555,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -587,7 +587,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -628,7 +628,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -661,7 +661,7 @@ func TestConfig_Load(t *testing.T) {
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
 							UsePublicIP: to.BooPtr(true),
 							SubnetNames: []string{"main"},
-							Image: &Image{
+							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
 								Sku:       to.StrPtr("18.04-LTS"),
@@ -756,7 +756,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -790,7 +790,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -825,7 +825,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -859,7 +859,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_count": 3,
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -893,7 +893,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_count": 3,
 			"vm_size": "Standard_DS2_v2",
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -927,7 +927,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_count": 3,
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -962,7 +962,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": [],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -976,7 +976,7 @@ func TestConfig_Load(t *testing.T) {
 			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"},
 		},
 		{
-			name: "missing vm_groups image parameter",
+			name: "missing vm_groups vm_image parameter",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -1002,10 +1002,10 @@ func TestConfig_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image' field"},
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image' field"},
 		},
 		{
-			name: "missing vm_groups.image.publisher parameter",
+			name: "missing vm_groups.vm_image.publisher parameter",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -1026,7 +1026,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
@@ -1036,10 +1036,10 @@ func TestConfig_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.publisher' field or this field is empty"},
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.publisher' field or this field is empty"},
 		},
 		{
-			name: "empty vm_groups.image.publisher parameter",
+			name: "empty vm_groups.vm_image.publisher parameter",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -1060,7 +1060,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -1071,10 +1071,10 @@ func TestConfig_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.publisher' field or this field is empty"},
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.publisher' field or this field is empty"},
 		},
 		{
-			name: "missing vm_groups.image.offer parameter",
+			name: "missing vm_groups.vm_image.offer parameter",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -1095,7 +1095,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
@@ -1105,10 +1105,10 @@ func TestConfig_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.offer' field or this field is empty"},
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.offer' field or this field is empty"},
 		},
 		{
-			name: "empty vm_groups.image.offer parameter",
+			name: "empty vm_groups.vm_image.offer parameter",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -1129,7 +1129,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "",
 				"sku": "18.04-LTS",
@@ -1140,10 +1140,10 @@ func TestConfig_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.offer' field or this field is empty"},
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.offer' field or this field is empty"},
 		},
 		{
-			name: "missing vm_groups.image.sku parameter",
+			name: "missing vm_groups.vm_image.sku parameter",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -1164,7 +1164,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"version": "18.04.202006101"
@@ -1174,10 +1174,10 @@ func TestConfig_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.sku' field or this field is empty"},
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.sku' field or this field is empty"},
 		},
 		{
-			name: "empty vm_groups.image.sku parameter",
+			name: "empty vm_groups.vm_image.sku parameter",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -1198,7 +1198,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "",
@@ -1209,10 +1209,10 @@ func TestConfig_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.sku' field or this field is empty"},
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.sku' field or this field is empty"},
 		},
 		{
-			name: "missing vm_groups.image.publisher parameter",
+			name: "missing vm_groups.vm_image.publisher parameter",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -1233,7 +1233,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
@@ -1243,10 +1243,10 @@ func TestConfig_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.publisher' field or this field is empty"},
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.publisher' field or this field is empty"},
 		},
 		{
-			name: "empty vm_groups.image.publisher parameter",
+			name: "empty vm_groups.vm_image.publisher parameter",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -1267,7 +1267,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -1278,7 +1278,7 @@ func TestConfig_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'image.publisher' field or this field is empty"},
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.publisher' field or this field is empty"},
 		},
 		{
 			name: "major version mismatch",
@@ -1302,7 +1302,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -1337,7 +1337,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -1366,7 +1366,7 @@ func TestConfig_Load(t *testing.T) {
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
 							UsePublicIP: to.BooPtr(true),
 							SubnetNames: []string{"main"},
-							Image: &Image{
+							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
 								Sku:       to.StrPtr("18.04-LTS"),
@@ -1401,7 +1401,7 @@ func TestConfig_Load(t *testing.T) {
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
 			"subnet_names": ["main"],
-			"image": {
+			"vm_image": {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
@@ -1430,7 +1430,7 @@ func TestConfig_Load(t *testing.T) {
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
 							UsePublicIP: to.BooPtr(true),
 							SubnetNames: []string{"main"},
-							Image: &Image{
+							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
 								Sku:       to.StrPtr("18.04-LTS"),

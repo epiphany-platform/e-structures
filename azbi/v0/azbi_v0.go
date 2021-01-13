@@ -21,7 +21,7 @@ type Subnet struct {
 	AddressPrefixes []string `json:"address_prefixes"`
 }
 
-type Image struct {
+type VmImage struct {
 	Publisher *string `json:"publisher"`
 	Offer     *string `json:"offer"`
 	Sku       *string `json:"sku"`
@@ -34,7 +34,7 @@ type VmGroup struct {
 	VmSize      *string  `json:"vm_size"`
 	UsePublicIP *bool    `json:"use_public_ip"`
 	SubnetNames []string `json:"subnet_names"`
-	Image       *Image   `json:"image"`
+	VmImage     *VmImage `json:"vm_image"`
 }
 
 type Params struct {
@@ -76,7 +76,7 @@ func NewConfig() *Config {
 					VmSize:      to.StrPtr("Standard_DS2_v2"),
 					UsePublicIP: to.BooPtr(true),
 					SubnetNames: []string{"main"},
-					Image: &Image{
+					VmImage: &VmImage{
 						Publisher: to.StrPtr("Canonical"),
 						Offer:     to.StrPtr("UbuntuServer"),
 						Sku:       to.StrPtr("18.04-LTS"),
@@ -196,20 +196,20 @@ func (c *Config) isValid() error {
 				if vmGroup.SubnetNames == nil || len(vmGroup.SubnetNames) < 1 {
 					return &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"}
 				}
-				if vmGroup.Image == nil {
-					return &MinimalParamsValidationError{"one of vm groups is missing 'image' field"}
+				if vmGroup.VmImage == nil {
+					return &MinimalParamsValidationError{"one of vm groups is missing 'vm_image' field"}
 				} else {
-					if vmGroup.Image.Publisher == nil || len(*vmGroup.Image.Publisher) < 1 {
-						return &MinimalParamsValidationError{"one of vm groups is missing 'image.publisher' field or this field is empty"}
+					if vmGroup.VmImage.Publisher == nil || len(*vmGroup.VmImage.Publisher) < 1 {
+						return &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.publisher' field or this field is empty"}
 					}
-					if vmGroup.Image.Offer == nil || len(*vmGroup.Image.Offer) < 1 {
-						return &MinimalParamsValidationError{"one of vm groups is missing 'image.offer' field or this field is empty"}
+					if vmGroup.VmImage.Offer == nil || len(*vmGroup.VmImage.Offer) < 1 {
+						return &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.offer' field or this field is empty"}
 					}
-					if vmGroup.Image.Sku == nil || len(*vmGroup.Image.Sku) < 1 {
-						return &MinimalParamsValidationError{"one of vm groups is missing 'image.sku' field or this field is empty"}
+					if vmGroup.VmImage.Sku == nil || len(*vmGroup.VmImage.Sku) < 1 {
+						return &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.sku' field or this field is empty"}
 					}
-					if vmGroup.Image.Version == nil || len(*vmGroup.Image.Version) < 1 {
-						return &MinimalParamsValidationError{"one of vm groups is missing 'image.version' field or this field is empty"}
+					if vmGroup.VmImage.Version == nil || len(*vmGroup.VmImage.Version) < 1 {
+						return &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.version' field or this field is empty"}
 					}
 				}
 			}
@@ -219,14 +219,14 @@ func (c *Config) isValid() error {
 }
 
 type OutputVm struct {
-	Name       *string   `json:"vm_name"`
-	PrivateIps []string  `json:"private_ips"`
-	PublicIp   *string   `json:"public_ip"`
+	Name       *string  `json:"vm_name"`
+	PrivateIps []string `json:"private_ips"`
+	PublicIp   *string  `json:"public_ip"`
 }
 
 type OutputVmGroup struct {
-	Name *string     `json:"vm_group_name"`
-	Vms  []OutputVm  `json:"vms"`
+	Name *string    `json:"vm_group_name"`
+	Vms  []OutputVm `json:"vms"`
 }
 
 type Output struct {

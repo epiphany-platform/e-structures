@@ -61,7 +61,7 @@ func TestState_Load(t *testing.T) {
 					"vm_size": "Standard_DS2_v2",
 					"use_public_ip": true,
 					"subnet_names": ["main"],
-					"image": {
+					"vm_image": {
 						"publisher": "Canonical",
 						"offer": "UbuntuServer",
 						"sku": "18.04-LTS",
@@ -131,7 +131,7 @@ func TestState_Load(t *testing.T) {
 									VmSize:      to.StrPtr("Standard_DS2_v2"),
 									UsePublicIP: to.BooPtr(true),
 									SubnetNames: []string{"main"},
-									Image: &azbi.Image{
+									VmImage: &azbi.VmImage{
 										Publisher: to.StrPtr("Canonical"),
 										Offer:     to.StrPtr("UbuntuServer"),
 										Sku:       to.StrPtr("18.04-LTS"),
@@ -204,7 +204,7 @@ func TestState_Load(t *testing.T) {
 					"vm_size": "Standard_DS2_v2",
 					"use_public_ip": true,
 					"subnet_names": ["main"],
-					"image": {
+					"vm_image": {
 						"publisher": "Canonical",
 						"offer": "UbuntuServer",
 						"sku": "18.04-LTS",
@@ -274,7 +274,7 @@ func TestState_Load(t *testing.T) {
 									VmSize:      to.StrPtr("Standard_DS2_v2"),
 									UsePublicIP: to.BooPtr(true),
 									SubnetNames: []string{"main"},
-									Image: &azbi.Image{
+									VmImage: &azbi.VmImage{
 										Publisher: to.StrPtr("Canonical"),
 										Offer:     to.StrPtr("UbuntuServer"),
 										Sku:       to.StrPtr("18.04-LTS"),
@@ -346,7 +346,7 @@ func TestState_Load(t *testing.T) {
 					"vm_size": "Standard_DS2_v2",
 					"use_public_ip": true,
 					"subnet_names": ["main"],
-					"image": {
+					"vm_image": {
 						"publisher": "Canonical",
 						"offer": "UbuntuServer",
 						"sku": "18.04-LTS",
@@ -417,7 +417,7 @@ func TestState_Load(t *testing.T) {
 									VmSize:      to.StrPtr("Standard_DS2_v2"),
 									UsePublicIP: to.BooPtr(true),
 									SubnetNames: []string{"main"},
-									Image: &azbi.Image{
+									VmImage: &azbi.VmImage{
 										Publisher: to.StrPtr("Canonical"),
 										Offer:     to.StrPtr("UbuntuServer"),
 										Sku:       to.StrPtr("18.04-LTS"),
