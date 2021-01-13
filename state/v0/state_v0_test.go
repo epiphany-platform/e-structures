@@ -148,22 +148,22 @@ func TestState_Load(t *testing.T) {
 						VnetName: to.StrPtr("epiphany-vnet"),
 						VmGroups: []azbi.OutputVmGroup{
 							{
-								Name: "vm-group0",
+								Name: to.StrPtr("vm-group0"),
 								Vms: []azbi.OutputVm{
 									{
-										Name:       "epiphany-vm-group0-0",
+										Name:       to.StrPtr("epiphany-vm-group0-0"),
 										PrivateIps: []string{"10.0.1.4"},
-										PublicIp:   "123.234.345.456",
+										PublicIp:   to.StrPtr("123.234.345.456"),
 									},
 									{
-										Name:       "epiphany-vm-group0-1",
+										Name:       to.StrPtr("epiphany-vm-group0-1"),
 										PrivateIps: []string{"10.0.1.5"},
-										PublicIp:   "123.234.345.457",
+										PublicIp:   to.StrPtr("123.234.345.457"),
 									},
 									{
-										Name:       "epiphany-vm-group0-2",
+										Name:       to.StrPtr("epiphany-vm-group0-2"),
 										PrivateIps: []string{"10.0.1.6"},
-										PublicIp:   "123.234.345.458",
+										PublicIp:   to.StrPtr("123.234.345.458"),
 									},
 								},
 							},
@@ -291,22 +291,22 @@ func TestState_Load(t *testing.T) {
 						VnetName: to.StrPtr("epiphany-vnet"),
 						VmGroups: []azbi.OutputVmGroup{
 							{
-								Name: "vm-group0",
+								Name: to.StrPtr("vm-group0"),
 								Vms: []azbi.OutputVm{
 									{
-										Name:       "epiphany-vm-group0-0",
+										Name:       to.StrPtr("epiphany-vm-group0-0"),
 										PrivateIps: []string{"10.0.1.4"},
-										PublicIp:   "123.234.345.456",
+										PublicIp:   to.StrPtr("123.234.345.456"),
 									},
 									{
-										Name:       "epiphany-vm-group0-1",
+										Name:       to.StrPtr("epiphany-vm-group0-1"),
 										PrivateIps: []string{"10.0.1.5"},
-										PublicIp:   "123.234.345.457",
+										PublicIp:   to.StrPtr("123.234.345.457"),
 									},
 									{
-										Name:       "epiphany-vm-group0-2",
+										Name:       to.StrPtr("epiphany-vm-group0-2"),
 										PrivateIps: []string{"10.0.1.6"},
-										PublicIp:   "123.234.345.458",
+										PublicIp:   to.StrPtr("123.234.345.458"),
 									},
 								},
 							},
@@ -434,22 +434,22 @@ func TestState_Load(t *testing.T) {
 						VnetName: to.StrPtr("epiphany-vnet"),
 						VmGroups: []azbi.OutputVmGroup{
 							{
-								Name: "vm-group0",
+								Name: to.StrPtr("vm-group0"),
 								Vms: []azbi.OutputVm{
 									{
-										Name:       "epiphany-vm-group0-0",
+										Name:       to.StrPtr("epiphany-vm-group0-0"),
 										PrivateIps: []string{"10.0.1.4"},
-										PublicIp:   "123.234.345.456",
+										PublicIp:   to.StrPtr("123.234.345.456"),
 									},
 									{
-										Name:       "epiphany-vm-group0-1",
+										Name:       to.StrPtr("epiphany-vm-group0-1"),
 										PrivateIps: []string{"10.0.1.5"},
-										PublicIp:   "123.234.345.457",
+										PublicIp:   to.StrPtr("123.234.345.457"),
 									},
 									{
-										Name:       "epiphany-vm-group0-2",
+										Name:       to.StrPtr("epiphany-vm-group0-2"),
 										PrivateIps: []string{"10.0.1.6"},
-										PublicIp:   "123.234.345.458",
+										PublicIp:   to.StrPtr("123.234.345.458"),
 									},
 								},
 							},

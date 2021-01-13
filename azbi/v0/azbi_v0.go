@@ -222,14 +222,14 @@ func (c *Config) isValid() error {
 }
 
 type OutputVm struct {
-	Name       string   `json:"vm_name"`
-	PrivateIps []string `json:"private_ips"`
-	PublicIp   string   `json:"public_ip"`
+	Name       *string   `json:"vm_name"`
+	PrivateIps []string  `json:"private_ips"`
+	PublicIp   *string   `json:"public_ip"`
 }
 
 type OutputVmGroup struct {
-	Name string     `json:"vm_group_name"`
-	Vms  []OutputVm `json:"vms"`
+	Name *string     `json:"vm_group_name"`
+	Vms  []OutputVm  `json:"vms"`
 }
 
 type Output struct {
