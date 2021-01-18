@@ -250,30 +250,21 @@ func (c *Config) isValid() error {
 	return nil
 }
 
-type OutputVm struct {
-	Name       *string  `json:"vm_name"`
-	PrivateIps []string `json:"private_ips"`
-	PublicIp   *string  `json:"public_ip"`
-	Id         *string  `json:"id"`
-}
-
 type OutputDataDisk struct {
-	Id   *string `json:"id"`
-	Name *string `json:"name"`
-	Size *int    `json:"size"`
+	Size *int `json:"size"`
+	Lun  *int `json:"lun"`
 }
 
-type OutputDataDiskAttachment struct {
-	ManagedDiskId    *string `json:"managed_disk_id"`
-	VirtualMachineId *string `json:"virtual_machine_id"`
-	Lun              *int    `json:"lun"`
+type OutputVm struct {
+	Name       *string          `json:"vm_name"`
+	PrivateIps []string         `json:"private_ips"`
+	PublicIp   *string          `json:"public_ip"`
+	DataDisks  []OutputDataDisk `json:"data_disks"`
 }
 
 type OutputVmGroup struct {
-	Name          *string                    `json:"vm_group_name"`
-	Vms           []OutputVm                 `json:"vms"`
-	DataDisks     []OutputDataDisk           `json:"data_disks"`
-	DDAttachments []OutputDataDiskAttachment `json:"dd_attachments"`
+	Name *string    `json:"vm_group_name"`
+	Vms  []OutputVm `json:"vms"`
 }
 
 type Output struct {
