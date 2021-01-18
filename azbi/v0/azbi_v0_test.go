@@ -43,7 +43,12 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": [
+				{
+					"disk_size_gb": 10
+				}
+			]
 		}],
 		"rsa_pub_path": "/shared/vms_rsa.pub"
 	}
@@ -75,6 +80,11 @@ func TestConfig_Load(t *testing.T) {
 								Offer:     to.StrPtr("UbuntuServer"),
 								Sku:       to.StrPtr("18.04-LTS"),
 								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{
+								{
+									GbSize: to.IntPtr(10),
+								},
 							},
 						},
 					},
@@ -114,7 +124,12 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": [
+				{
+					"disk_size_gb": 10
+				}
+			]
 		}],
 		"rsa_pub_path": "/shared/vms_rsa.pub"
 	}
@@ -145,6 +160,11 @@ func TestConfig_Load(t *testing.T) {
 								Offer:     to.StrPtr("UbuntuServer"),
 								Sku:       to.StrPtr("18.04-LTS"),
 								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{
+								{
+									GbSize: to.IntPtr(10),
+								},
 							},
 						},
 					},
@@ -185,7 +205,12 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": [
+				{
+					"disk_size_gb": 10
+				}
+			]
 		}],
 		"rsa_pub_path": "/shared/vms_rsa.pub"
 	}
@@ -216,6 +241,11 @@ func TestConfig_Load(t *testing.T) {
 								Offer:     to.StrPtr("UbuntuServer"),
 								Sku:       to.StrPtr("18.04-LTS"),
 								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{
+								{
+									GbSize: to.IntPtr(10),
+								},
 							},
 						},
 					},
@@ -257,7 +287,12 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": [
+				{
+					"disk_size_gb": 10
+				}
+			]
 		}],
 		"rsa_pub_path": "/shared/vms_rsa.pub"
 	}
@@ -288,6 +323,11 @@ func TestConfig_Load(t *testing.T) {
 								Offer:     to.StrPtr("UbuntuServer"),
 								Sku:       to.StrPtr("18.04-LTS"),
 								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{
+								{
+									GbSize: to.IntPtr(10),
+								},
 							},
 						},
 					},
@@ -374,7 +414,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -404,6 +445,7 @@ func TestConfig_Load(t *testing.T) {
 								Sku:       to.StrPtr("18.04-LTS"),
 								Version:   to.StrPtr("18.04.202006101"),
 							},
+							DataDisks: []DataDisk{},
 						},
 					},
 				},
@@ -430,7 +472,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -458,7 +501,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -492,7 +536,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -501,7 +546,7 @@ func TestConfig_Load(t *testing.T) {
 			wantErr: &MinimalParamsValidationError{"one of subnets is missing 'name' field or name is empty"},
 		},
 		{
-			name: "0 length subnet name",
+			name: "empty length subnet name",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -527,7 +572,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -536,7 +582,7 @@ func TestConfig_Load(t *testing.T) {
 			wantErr: &MinimalParamsValidationError{"one of subnets is missing 'name' field or name is empty"},
 		},
 		{
-			name: "0 length subnet address prefixes",
+			name: "empty length subnet address prefixes",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -560,7 +606,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -592,7 +639,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -633,7 +681,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -667,6 +716,7 @@ func TestConfig_Load(t *testing.T) {
 								Sku:       to.StrPtr("18.04-LTS"),
 								Version:   to.StrPtr("18.04.202006101"),
 							},
+							DataDisks: []DataDisk{},
 						},
 					},
 				},
@@ -728,8 +778,7 @@ func TestConfig_Load(t *testing.T) {
 							AddressPrefixes: []string{"10.0.1.0/24"},
 						},
 					},
-					VmGroups: []VmGroup{
-					},
+					VmGroups: []VmGroup{},
 				},
 				Unused: []string{},
 			},
@@ -761,7 +810,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -795,7 +845,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -830,7 +881,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -864,7 +916,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -898,7 +951,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -932,7 +986,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -967,13 +1022,86 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
 `),
 			want:    nil,
 			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"},
+		},
+		{
+			name: "vm_groups subnet_names list empty value",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": [""],
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}, 
+			"data_disks": []
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups subnet names lists value is empty"},
+		},
+		{
+			name: "vm_groups subnet_names list value not existing in subnets",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["incorrect"],
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}, 
+			"data_disks": []
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups subnet names wasn't found among subnets"},
 		},
 		{
 			name: "missing vm_groups vm_image parameter",
@@ -996,7 +1124,8 @@ func TestConfig_Load(t *testing.T) {
 			"vm_count": 3,
 			"vm_size": "Standard_DS2_v2",
 			"use_public_ip": true,
-			"subnet_names": ["main"]
+			"subnet_names": ["main"], 
+			"data_disks": []
 		}]
 	}
 }
@@ -1030,7 +1159,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -1065,7 +1195,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -1099,7 +1230,8 @@ func TestConfig_Load(t *testing.T) {
 				"publisher": "Canonical",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -1134,7 +1266,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -1168,7 +1301,8 @@ func TestConfig_Load(t *testing.T) {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -1203,7 +1337,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -1237,7 +1372,8 @@ func TestConfig_Load(t *testing.T) {
 				"publisher": "Canonical",
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -1272,13 +1408,619 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": ""
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
 `),
 			want:    nil,
 			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.version' field or this field is empty"},
+		},
+		{
+			name: "missing vm_groups.data_disks list",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'data_disks' list"},
+		},
+		{
+			name: "empty vm_groups.data_disks list value",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}, 
+			"data_disks": [
+				{}
+			]
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups data disks sizes is empty or size is less than 1"},
+		},
+		{
+			name: "zero vm_groups.data_disks list value",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}, 
+			"data_disks": [
+				{
+					"disk_size_gb": 0
+				}
+			]
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups data disks sizes is empty or size is less than 1"},
+		},
+		{
+			name: "negative vm_groups.data_disks list value",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "main",
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}, 
+			"data_disks": [
+				{
+					"disk_size_gb": -1
+				}
+			]
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"one of vm groups data disks sizes is empty or size is less than 1"},
+		},
+		{
+			name: "multiple vm_groups configuration",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "first", 
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}
+		],
+		"vm_groups": [
+			{
+				"name": "first",
+				"vm_count": 3,
+				"vm_size": "Standard_DS2_v2",
+				"use_public_ip": true,
+				"subnet_names": ["first"],
+				"vm_image": {
+					"publisher": "Canonical",
+					"offer": "UbuntuServer",
+					"sku": "18.04-LTS",
+					"version": "18.04.202006101"
+				}, 
+				"data_disks": []
+			}, 
+			{
+				"name": "second",
+				"vm_count": 3,
+				"vm_size": "Standard_DS2_v2",
+				"use_public_ip": true,
+				"subnet_names": ["first"],
+				"vm_image": {
+					"publisher": "Canonical",
+					"offer": "UbuntuServer",
+					"sku": "18.04-LTS",
+					"version": "18.04.202006101"
+				}, 
+				"data_disks": []
+			}
+		]
+	}
+}
+`),
+			want: &Config{
+				Kind:    to.StrPtr("azbi"),
+				Version: to.StrPtr("v0.1.0"),
+				Params: &Params{
+					Location: to.StrPtr("northeurope"),
+					Name:     to.StrPtr("epiphany"),
+					Subnets: []Subnet{
+						{
+							Name:            to.StrPtr("first"),
+							AddressPrefixes: []string{"10.0.1.0/24"},
+						},
+					},
+					VmGroups: []VmGroup{
+						{
+							Name:        to.StrPtr("first"),
+							VmCount:     to.IntPtr(3),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(true),
+							SubnetNames: []string{"first"},
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+						{
+							Name:        to.StrPtr("second"),
+							VmCount:     to.IntPtr(3),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(true),
+							SubnetNames: []string{"first"},
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+					},
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "multiple vm_groups and subnets configuration",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "first", 
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}, 
+			{
+				"name": "second", 
+				"address_prefixes": [
+					"10.0.2.0/24"
+				]
+			}
+		],
+		"vm_groups": [
+			{
+				"name": "first",
+				"vm_count": 3,
+				"vm_size": "Standard_DS2_v2",
+				"use_public_ip": true,
+				"subnet_names": ["first"],
+				"vm_image": {
+					"publisher": "Canonical",
+					"offer": "UbuntuServer",
+					"sku": "18.04-LTS",
+					"version": "18.04.202006101"
+				}, 
+				"data_disks": []
+			}, 
+			{
+				"name": "second",
+				"vm_count": 3,
+				"vm_size": "Standard_DS2_v2",
+				"use_public_ip": true,
+				"subnet_names": ["second"],
+				"vm_image": {
+					"publisher": "Canonical",
+					"offer": "UbuntuServer",
+					"sku": "18.04-LTS",
+					"version": "18.04.202006101"
+				}, 
+				"data_disks": []
+			}
+		]
+	}
+}
+`),
+			want: &Config{
+				Kind:    to.StrPtr("azbi"),
+				Version: to.StrPtr("v0.1.0"),
+				Params: &Params{
+					Location: to.StrPtr("northeurope"),
+					Name:     to.StrPtr("epiphany"),
+					Subnets: []Subnet{
+						{
+							Name:            to.StrPtr("first"),
+							AddressPrefixes: []string{"10.0.1.0/24"},
+						},
+						{
+							Name:            to.StrPtr("second"),
+							AddressPrefixes: []string{"10.0.2.0/24"},
+						},
+					},
+					VmGroups: []VmGroup{
+						{
+							Name:        to.StrPtr("first"),
+							VmCount:     to.IntPtr(3),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(true),
+							SubnetNames: []string{"first"},
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+						{
+							Name:        to.StrPtr("second"),
+							VmCount:     to.IntPtr(3),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(true),
+							SubnetNames: []string{"second"},
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+					},
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "2 vm_groups and 3 subnets configuration",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "first", 
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}, 
+			{
+				"name": "second", 
+				"address_prefixes": [
+					"10.0.2.0/24"
+				]
+			}, 
+			{
+				"name": "third", 
+				"address_prefixes": [
+					"10.0.3.0/24"
+				]
+			}
+		],
+		"vm_groups": [
+			{
+				"name": "first",
+				"vm_count": 3,
+				"vm_size": "Standard_DS2_v2",
+				"use_public_ip": true,
+				"subnet_names": ["first", "third"],
+				"vm_image": {
+					"publisher": "Canonical",
+					"offer": "UbuntuServer",
+					"sku": "18.04-LTS",
+					"version": "18.04.202006101"
+				}, 
+				"data_disks": []
+			}, 
+			{
+				"name": "second",
+				"vm_count": 3,
+				"vm_size": "Standard_DS2_v2",
+				"use_public_ip": true,
+				"subnet_names": ["second", "third"],
+				"vm_image": {
+					"publisher": "Canonical",
+					"offer": "UbuntuServer",
+					"sku": "18.04-LTS",
+					"version": "18.04.202006101"
+				}, 
+				"data_disks": []
+			}
+		]
+	}
+}
+`),
+			want: &Config{
+				Kind:    to.StrPtr("azbi"),
+				Version: to.StrPtr("v0.1.0"),
+				Params: &Params{
+					Location: to.StrPtr("northeurope"),
+					Name:     to.StrPtr("epiphany"),
+					Subnets: []Subnet{
+						{
+							Name:            to.StrPtr("first"),
+							AddressPrefixes: []string{"10.0.1.0/24"},
+						},
+						{
+							Name:            to.StrPtr("second"),
+							AddressPrefixes: []string{"10.0.2.0/24"},
+						},
+						{
+							Name:            to.StrPtr("third"),
+							AddressPrefixes: []string{"10.0.3.0/24"},
+						},
+					},
+					VmGroups: []VmGroup{
+						{
+							Name:        to.StrPtr("first"),
+							VmCount:     to.IntPtr(3),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(true),
+							SubnetNames: []string{"first", "third"},
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+						{
+							Name:        to.StrPtr("second"),
+							VmCount:     to.IntPtr(3),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(true),
+							SubnetNames: []string{"second", "third"},
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+					},
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "multiple vm_groups and subnets and data disks configuration",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{
+				"name": "first", 
+				"address_prefixes": [
+					"10.0.1.0/24"
+				]
+			}, 
+			{
+				"name": "second", 
+				"address_prefixes": [
+					"10.0.2.0/24"
+				]
+			}
+		],
+		"vm_groups": [
+			{
+				"name": "first",
+				"vm_count": 3,
+				"vm_size": "Standard_DS2_v2",
+				"use_public_ip": true,
+				"subnet_names": ["first"],
+				"vm_image": {
+					"publisher": "Canonical",
+					"offer": "UbuntuServer",
+					"sku": "18.04-LTS",
+					"version": "18.04.202006101"
+				}, 
+				"data_disks": [
+					{
+						"disk_size_gb": 10
+					}, 
+					{
+						"disk_size_gb": 20
+					}
+				]
+			}, 
+			{
+				"name": "second",
+				"vm_count": 3,
+				"vm_size": "Standard_DS2_v2",
+				"use_public_ip": true,
+				"subnet_names": ["second"],
+				"vm_image": {
+					"publisher": "Canonical",
+					"offer": "UbuntuServer",
+					"sku": "18.04-LTS",
+					"version": "18.04.202006101"
+				}, 
+				"data_disks": [
+					{
+						"disk_size_gb": 30
+					}, 
+					{
+						"disk_size_gb": 40
+					}
+				]
+			}
+		]
+	}
+}
+`),
+			want: &Config{
+				Kind:    to.StrPtr("azbi"),
+				Version: to.StrPtr("v0.1.0"),
+				Params: &Params{
+					Location: to.StrPtr("northeurope"),
+					Name:     to.StrPtr("epiphany"),
+					Subnets: []Subnet{
+						{
+							Name:            to.StrPtr("first"),
+							AddressPrefixes: []string{"10.0.1.0/24"},
+						},
+						{
+							Name:            to.StrPtr("second"),
+							AddressPrefixes: []string{"10.0.2.0/24"},
+						},
+					},
+					VmGroups: []VmGroup{
+						{
+							Name:        to.StrPtr("first"),
+							VmCount:     to.IntPtr(3),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(true),
+							SubnetNames: []string{"first"},
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{
+								{
+									GbSize: to.IntPtr(10),
+								},
+								{
+									GbSize: to.IntPtr(20),
+								},
+							},
+						},
+						{
+							Name:        to.StrPtr("second"),
+							VmCount:     to.IntPtr(3),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(true),
+							SubnetNames: []string{"second"},
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{
+								{
+									GbSize: to.IntPtr(30),
+								},
+								{
+									GbSize: to.IntPtr(40),
+								},
+							},
+						},
+					},
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
 		},
 		{
 			name: "major version mismatch",
@@ -1307,7 +2049,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -1342,7 +2085,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -1372,6 +2116,7 @@ func TestConfig_Load(t *testing.T) {
 								Sku:       to.StrPtr("18.04-LTS"),
 								Version:   to.StrPtr("18.04.202006101"),
 							},
+							DataDisks: []DataDisk{},
 						},
 					},
 				},
@@ -1406,7 +2151,8 @@ func TestConfig_Load(t *testing.T) {
 				"offer": "UbuntuServer",
 				"sku": "18.04-LTS",
 				"version": "18.04.202006101"
-			}
+			}, 
+			"data_disks": []
 		}]
 	}
 }
@@ -1436,6 +2182,7 @@ func TestConfig_Load(t *testing.T) {
 								Sku:       to.StrPtr("18.04-LTS"),
 								Version:   to.StrPtr("18.04.202006101"),
 							},
+							DataDisks: []DataDisk{},
 						},
 					},
 				},
