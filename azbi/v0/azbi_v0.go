@@ -13,8 +13,12 @@ import (
 
 const (
 	kind    = "azbi"
-	version = "v0.1.0"
+	version = "v0.1.1"
 )
+
+type DataDisk struct {
+	GbSize *int `json:"disk_size_gb"`
+}
 
 type Subnet struct {
 	Name            *string  `json:"name"`
@@ -29,12 +33,13 @@ type VmImage struct {
 }
 
 type VmGroup struct {
-	Name        *string  `json:"name"`
-	VmCount     *int     `json:"vm_count"`
-	VmSize      *string  `json:"vm_size"`
-	UsePublicIP *bool    `json:"use_public_ip"`
-	SubnetNames []string `json:"subnet_names"`
-	VmImage     *VmImage `json:"vm_image"`
+	Name        *string    `json:"name"`
+	VmCount     *int       `json:"vm_count"`
+	VmSize      *string    `json:"vm_size"`
+	UsePublicIP *bool      `json:"use_public_ip"`
+	SubnetNames []string   `json:"subnet_names"`
+	VmImage     *VmImage   `json:"vm_image"`
+	DataDisks   []DataDisk `json:"data_disks"`
 }
 
 type Params struct {
@@ -81,6 +86,11 @@ func NewConfig() *Config {
 						Offer:     to.StrPtr("UbuntuServer"),
 						Sku:       to.StrPtr("18.04-LTS"),
 						Version:   to.StrPtr("18.04.202006101"),
+					},
+					DataDisks: []DataDisk{
+						{
+							GbSize: to.IntPtr(10),
+						},
 					},
 				},
 			},
@@ -196,6 +206,20 @@ func (c *Config) isValid() error {
 				if vmGroup.SubnetNames == nil || len(vmGroup.SubnetNames) < 1 {
 					return &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"}
 				}
+				for _, sn := range vmGroup.SubnetNames {
+					if len(sn) < 1 || sn == "" {
+						return &MinimalParamsValidationError{"one of vm groups subnet names lists value is empty"}
+					}
+					found := false
+					for _, s := range c.Params.Subnets {
+						if sn == *s.Name {
+							found = true
+						}
+					}
+					if !found {
+						return &MinimalParamsValidationError{"one of vm groups subnet names wasn't found among subnets"}
+					}
+				}
 				if vmGroup.VmImage == nil {
 					return &MinimalParamsValidationError{"one of vm groups is missing 'vm_image' field"}
 				} else {
@@ -212,16 +236,30 @@ func (c *Config) isValid() error {
 						return &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.version' field or this field is empty"}
 					}
 				}
+				if vmGroup.DataDisks == nil {
+					return &MinimalParamsValidationError{"one of vm groups is missing 'data_disks' list"}
+				}
+				for _, dd := range vmGroup.DataDisks {
+					if dd.GbSize == nil || *dd.GbSize < 1 {
+						return &MinimalParamsValidationError{"one of vm groups data disks sizes is empty or size is less than 1"}
+					}
+				}
 			}
 		}
 	}
 	return nil
 }
 
+type OutputDataDisk struct {
+	Size *int `json:"size"`
+	Lun  *int `json:"lun"`
+}
+
 type OutputVm struct {
-	Name       *string  `json:"vm_name"`
-	PrivateIps []string `json:"private_ips"`
-	PublicIp   *string  `json:"public_ip"`
+	Name       *string          `json:"vm_name"`
+	PrivateIps []string         `json:"private_ips"`
+	PublicIp   *string          `json:"public_ip"`
+	DataDisks  []OutputDataDisk `json:"data_disks"`
 }
 
 type OutputVmGroup struct {
