@@ -7,6 +7,7 @@ import (
 
 	"github.com/Masterminds/semver"
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
+	azks "github.com/epiphany-platform/e-structures/azks/v0"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	maps "github.com/mitchellh/mapstructure"
 )
@@ -15,7 +16,7 @@ type Status string
 
 const (
 	kind    = "state"
-	version = "v0.0.2"
+	version = "v0.0.3"
 
 	Initialized Status = "initialized"
 	Applied     Status = "applied"
@@ -28,11 +29,18 @@ type AzBIState struct {
 	Output *azbi.Output `json:"output"`
 }
 
+type AzKSState struct {
+	Status Status       `json:"status"`
+	Config *azks.Config `json:"config"`
+	Output *azks.Output `json:"output"`
+}
+
 type State struct {
 	Kind    *string    `json:"kind"`
 	Version *string    `json:"version"`
 	Unused  []string   `json:"-"`
 	AzBI    *AzBIState `json:"azbi"`
+	AzKS    *AzKSState `json:"azks"`
 }
 
 //TODO test
@@ -42,6 +50,7 @@ func NewState() *State {
 		Version: to.StrPtr(version),
 		Unused:  []string{},
 		AzBI:    &AzBIState{},
+		AzKS:    &AzKSState{},
 	}
 }
 
