@@ -15,10 +15,54 @@ const (
 	version = "v0.0.1"
 )
 
+type AzureAd struct {
+	Managed             *bool    `json:"managed"`
+	TenantId            *string  `json:"tenant_id"`
+	AdminGroupObjectIds []string `json:"admin_group_object_ids"`
+}
+
+type AutoScalerProfile struct { //TODO consider changing types of string values here to make it more golang'ish
+	BalanceSimilarNodeGroups      *bool   `json:"balance_similar_node_groups"`
+	MaxGracefulTerminationSec     *string `json:"max_graceful_termination_sec"`
+	ScaleDownDelayAfterAdd        *string `json:"scale_down_delay_after_add"`
+	ScaleDownDelayAfterDelete     *string `json:"scale_down_delay_after_delete"`
+	ScaleDownDelayAfterFailure    *string `json:"scale_down_delay_after_failure"`
+	ScanInterval                  *string `json:"scan_interval"`
+	ScaleDownUnneeded             *string `json:"scale_down_unneeded"`
+	ScaleDownUnready              *string `json:"scale_down_unready"`
+	ScaleDownUtilizationThreshold *string `json:"scale_down_utilization_threshold"`
+}
+
+type DefaultNodePool struct {
+	Size        *int    `json:"size"`
+	Min         *int    `json:"min"`
+	Max         *int    `json:"max"`
+	VmSize      *string `json:"vm_size"`
+	DiskSize    *string `json:"disk_size"`
+	AutoScaling *bool   `json:"auto_scaling"`
+	Type        *string `json:"type"`
+}
+
 type Params struct {
 	Name             *string `json:"name"`
 	Location         *string `json:"location"`
 	RsaPublicKeyPath *string `json:"rsa_pub_path"`
+
+	RgName     *string `json:"rg_name"`
+	VnetName   *string `json:"vnet_name"`
+	SubnetName *string `json:"subnet_name"`
+
+	KubernetesVersion  *string `json:"kubernetes_version"`
+	EnableNodePublicIp *bool   `json:"enable_node_public_ip"`
+	EnableRbac         *bool   `json:"enable_rbac"`
+
+	DefaultNodePool   *DefaultNodePool   `json:"default_node_pool"`
+	AutoScalerProfile *AutoScalerProfile `json:"auto_scaler_profile"`
+	AzureAd           *AzureAd           `json:"azure_ad"`
+
+	IdentityType         *string `json:"identity_type"`
+	KubeDashboardEnabled *bool   `json:"kube_dashboard_enabled"`
+	AdminUsername        *string `json:"admin_username"`
 }
 
 type Config struct {
@@ -37,6 +81,40 @@ func NewConfig() *Config {
 			Name:             to.StrPtr("epiphany"),
 			Location:         to.StrPtr("northeurope"),
 			RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
+
+			RgName:     to.StrPtr("epiphany-rg"),
+			VnetName:   to.StrPtr("epiphany-vnet"),
+			SubnetName: to.StrPtr("azks"),
+
+			KubernetesVersion:  to.StrPtr("1.18.8"), //TODO ensure that this makes sense
+			EnableNodePublicIp: to.BooPtr(false),
+			EnableRbac:         to.BooPtr(false),
+
+			DefaultNodePool: &DefaultNodePool{
+				Size:        to.IntPtr(2),
+				Min:         to.IntPtr(2),
+				Max:         to.IntPtr(5),
+				VmSize:      to.StrPtr("Standard_DS2_v2"),
+				DiskSize:    to.StrPtr("36"),
+				AutoScaling: to.BooPtr(true),
+				Type:        to.StrPtr("VirtualMachineScaleSets"),
+			},
+			AutoScalerProfile: &AutoScalerProfile{
+				BalanceSimilarNodeGroups:      to.BooPtr(false),
+				MaxGracefulTerminationSec:     to.StrPtr("600"),
+				ScaleDownDelayAfterAdd:        to.StrPtr("10m"),
+				ScaleDownDelayAfterDelete:     to.StrPtr("10s"),
+				ScaleDownDelayAfterFailure:    to.StrPtr("10m"),
+				ScanInterval:                  to.StrPtr("10s"),
+				ScaleDownUnneeded:             to.StrPtr("10m"),
+				ScaleDownUnready:              to.StrPtr("10m"),
+				ScaleDownUtilizationThreshold: to.StrPtr("0.5"),
+			},
+			AzureAd: nil,
+
+			IdentityType:         to.StrPtr("SystemAssigned"),
+			KubeDashboardEnabled: to.BooPtr(true),
+			AdminUsername:        to.StrPtr("operations"),
 		},
 		Unused: []string{},
 	}
