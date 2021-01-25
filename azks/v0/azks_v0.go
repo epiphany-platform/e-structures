@@ -107,7 +107,7 @@ func NewConfig() *Config {
 			VnetName:   to.StrPtr("epiphany-vnet"),
 			SubnetName: to.StrPtr("azks"),
 
-			KubernetesVersion:  to.StrPtr("1.18.8"), //TODO ensure that this makes sense
+			KubernetesVersion:  to.StrPtr("1.18.14"), //TODO ensure that this makes sense
 			EnableNodePublicIp: to.BooPtr(false),
 			EnableRbac:         to.BooPtr(false),
 
