@@ -51,11 +51,73 @@ type Params struct {
 	RsaPublicKeyPath *string   `json:"rsa_pub_path"`
 }
 
+func (p *Params) GetRsaPublicKeyV() string {
+	if p == nil {
+		return ""
+	}
+	return *p.RsaPublicKeyPath
+}
+
+func (p *Params) GetNameV() string {
+	if p == nil {
+		return ""
+	}
+	return *p.Name
+}
+
+func (p *Params) GetLocationV() string {
+	if p == nil {
+		return ""
+	}
+	return *p.Location
+}
+
+// ExtractEmptySubnets gets params and extracts from it list of Subnet unassigned to any of VmGroup.
+func (p *Params) ExtractEmptySubnets() []Subnet {
+	if p == nil {
+		return nil
+	}
+	if p.Subnets == nil || len(p.Subnets) == 0 {
+		return nil
+	}
+	if p.VmGroups == nil || len(p.VmGroups) == 0 {
+		return p.Subnets
+	}
+	m := make(map[string]Subnet)
+	for _, s := range p.Subnets {
+		m[*s.Name] = s
+	}
+	for _, vmg := range p.VmGroups {
+		for _, s := range p.Subnets {
+			for _, sn := range vmg.SubnetNames {
+				if *s.Name == sn {
+					_, ok := m[sn]
+					if ok {
+						delete(m, sn)
+					}
+				}
+			}
+		}
+	}
+	result := make([]Subnet, 0)
+	for _, v := range m {
+		result = append(result, v)
+	}
+	return result
+}
+
 type Config struct {
 	Kind    *string  `json:"kind"`
 	Version *string  `json:"version"`
 	Params  *Params  `json:"params"`
 	Unused  []string `json:"-"`
+}
+
+func (c *Config) GetParams() *Params {
+	if c == nil {
+		return nil
+	}
+	return c.Params
 }
 
 //TODO test
@@ -271,4 +333,18 @@ type Output struct {
 	RgName   *string         `json:"rg_name"`
 	VnetName *string         `json:"vnet_name"`
 	VmGroups []OutputVmGroup `json:"vm_groups"`
+}
+
+func (o *Output) GetRgNameV() string {
+	if o == nil {
+		return ""
+	}
+	return *o.RgName
+}
+
+func (o *Output) GetVnetNameV() string {
+	if o == nil {
+		return ""
+	}
+	return *o.VnetName
 }

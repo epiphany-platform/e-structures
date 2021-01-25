@@ -29,10 +29,38 @@ type AzBIState struct {
 	Output *azbi.Output `json:"output"`
 }
 
+func (s *AzBIState) GetConfig() *azbi.Config {
+	if s == nil {
+		return nil
+	}
+	return s.Config
+}
+
+func (s *AzBIState) GetOutput() *azbi.Output {
+	if s == nil {
+		return nil
+	}
+	return s.Output
+}
+
 type AzKSState struct {
 	Status Status       `json:"status"`
 	Config *azks.Config `json:"config"`
 	Output *azks.Output `json:"output"`
+}
+
+func (s *AzKSState) GetConfig() *azks.Config {
+	if s == nil {
+		return nil
+	}
+	return s.Config
+}
+
+func (s *AzKSState) GetOutput() *azks.Output {
+	if s == nil {
+		return nil
+	}
+	return s.Output
 }
 
 type State struct {
@@ -41,6 +69,20 @@ type State struct {
 	Unused  []string   `json:"-"`
 	AzBI    *AzBIState `json:"azbi"`
 	AzKS    *AzKSState `json:"azks"`
+}
+
+func (s *State) GetAzBIState() *AzBIState {
+	if s == nil {
+		return nil
+	}
+	return s.AzBI
+}
+
+func (s *State) GetAzKSState() *AzKSState {
+	if s == nil {
+		return nil
+	}
+	return s.AzKS
 }
 
 //TODO test

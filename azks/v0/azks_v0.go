@@ -65,11 +65,32 @@ type Params struct {
 	AdminUsername        *string `json:"admin_username"`
 }
 
+func (p *Params) GetRsaPublicKeyV() string {
+	if p == nil {
+		return ""
+	}
+	return *p.RsaPublicKeyPath
+}
+
+func (p *Params) GetNameV() string {
+	if p == nil {
+		return ""
+	}
+	return *p.Name
+}
+
 type Config struct {
 	Kind    *string  `json:"kind"`
 	Version *string  `json:"version"`
 	Params  *Params  `json:"params"`
 	Unused  []string `json:"-"`
+}
+
+func (c *Config) GetParams() *Params {
+	if c == nil {
+		return nil
+	}
+	return c.Params
 }
 
 //TODO test
