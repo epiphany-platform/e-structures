@@ -211,22 +211,22 @@ func (c *Config) isValid() error {
 		return MajorVersionMismatchError
 	}
 	if c.Params != nil && !reflect.DeepEqual(c.Params, &Params{}) {
-		if c.Params.Name == nil {
+		if c.Params.Name == nil || *c.Params.Name == "" {
 			return &MinimalParamsValidationError{"'name' parameter missing"}
 		}
-		if c.Params.Location == nil {
+		if c.Params.Location == nil || *c.Params.Location == "" {
 			return &MinimalParamsValidationError{"'location' parameter missing"}
 		}
-		if c.Params.RgName == nil {
+		if c.Params.RgName == nil || *c.Params.RgName == "" {
 			return &MinimalParamsValidationError{"'rg_name' parameter missing"}
 		}
-		if c.Params.VnetName == nil {
+		if c.Params.VnetName == nil || *c.Params.VnetName == "" {
 			return &MinimalParamsValidationError{"'vnet_name' parameter missing"}
 		}
-		if c.Params.SubnetName == nil {
+		if c.Params.SubnetName == nil || *c.Params.SubnetName == "" {
 			return &MinimalParamsValidationError{"'subnet_name' parameter missing"}
 		}
-		if c.Params.KubernetesVersion == nil {
+		if c.Params.KubernetesVersion == nil || *c.Params.KubernetesVersion == "" { // TODO semver format could also be validated
 			return &MinimalParamsValidationError{"'kubernetes_version' parameter missing"}
 		}
 		if c.Params.EnableNodePublicIp == nil {
@@ -236,14 +236,14 @@ func (c *Config) isValid() error {
 			return &MinimalParamsValidationError{"'enable_rbac' parameter missing"}
 		}
 
-		if c.Params.IdentityType == nil {
+		if c.Params.IdentityType == nil || *c.Params.IdentityType == "" {
 			return &MinimalParamsValidationError{"'identity_type' parameter missing"}
 		}
 		if c.Params.KubeDashboardEnabled == nil {
 			return &MinimalParamsValidationError{"'kube_dashboard_enabled' parameter missing"}
 		}
 		fmt.Println("[DEPRECATION] 'kube_dashboard_enabled' parameter will soon be deprecated due to Azure removing Dashboard support in AKS.")
-		if c.Params.AdminUsername == nil {
+		if c.Params.AdminUsername == nil || *c.Params.AdminUsername == "" {
 			return &MinimalParamsValidationError{"'admin_username' parameter missing"}
 		}
 
