@@ -46,7 +46,7 @@ type DefaultNodePool struct {
 type Params struct {
 	Name             *string `json:"name"`
 	Location         *string `json:"location"`
-	RsaPublicKeyPath *string `json:"rsa_pub_path"`
+	RsaPublicKeyPath *string `json:"rsa_pub_path"` // TODO check why this field is not validated
 
 	RgName     *string `json:"rg_name"`
 	VnetName   *string `json:"vnet_name"`
