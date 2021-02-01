@@ -61,7 +61,7 @@ type Params struct {
 	AzureAd           *AzureAd           `json:"azure_ad"`
 
 	IdentityType         *string `json:"identity_type"`
-	KubeDashboardEnabled *bool   `json:"kube_dashboard_enabled"`
+	KubeDashboardEnabled *bool   `json:"kube_dashboard_enabled"` // TODO remove https://docs.microsoft.com/en-us/azure/aks/kubernetes-dashboard
 	AdminUsername        *string `json:"admin_username"`
 }
 
@@ -195,12 +195,6 @@ func (c *Config) isValid() error {
 	if c.Params == nil {
 		return ParamsMissingValidationError
 	}
-	if c.Params.Name == nil {
-		return &MinimalParamsValidationError{"'name' parameter missing"}
-	}
-	if c.Params.Location == nil {
-		return &MinimalParamsValidationError{"'location' parameter missing"}
-	}
 	v, err := semver.NewVersion(version)
 	if err != nil {
 		return err
@@ -217,7 +211,118 @@ func (c *Config) isValid() error {
 		return MajorVersionMismatchError
 	}
 	if c.Params != nil && !reflect.DeepEqual(c.Params, &Params{}) {
-		//TODO fix
+		if c.Params.Name == nil {
+			return &MinimalParamsValidationError{"'name' parameter missing"}
+		}
+		if c.Params.Location == nil {
+			return &MinimalParamsValidationError{"'location' parameter missing"}
+		}
+		if c.Params.RgName == nil {
+			return &MinimalParamsValidationError{"'rg_name' parameter missing"}
+		}
+		if c.Params.VnetName == nil {
+			return &MinimalParamsValidationError{"'vnet_name' parameter missing"}
+		}
+		if c.Params.SubnetName == nil {
+			return &MinimalParamsValidationError{"'subnet_name' parameter missing"}
+		}
+		if c.Params.KubernetesVersion == nil {
+			return &MinimalParamsValidationError{"'kubernetes_version' parameter missing"}
+		}
+		if c.Params.EnableNodePublicIp == nil {
+			return &MinimalParamsValidationError{"'enable_node_public_ip' parameter missing"}
+		}
+		if c.Params.EnableRbac == nil {
+			return &MinimalParamsValidationError{"'enable_rbac' parameter missing"}
+		}
+
+		if c.Params.IdentityType == nil {
+			return &MinimalParamsValidationError{"'identity_type' parameter missing"}
+		}
+		if c.Params.KubeDashboardEnabled == nil {
+			return &MinimalParamsValidationError{"'kube_dashboard_enabled' parameter missing"}
+		}
+		fmt.Println("[DEPRECATION] 'kube_dashboard_enabled' parameter will soon be deprecated due to Azure removing Dashboard support in AKS.")
+		if c.Params.AdminUsername == nil {
+			return &MinimalParamsValidationError{"'admin_username' parameter missing"}
+		}
+
+		if c.Params.DefaultNodePool == nil {
+			return &MinimalParamsValidationError{"'default_node_pool' parameter missing"}
+		} else {
+			if c.Params.DefaultNodePool.Size == nil {
+				return &MinimalParamsValidationError{"'default_node_pool.size' parameter missing"}
+			}
+			if c.Params.DefaultNodePool.Min == nil {
+				return &MinimalParamsValidationError{"'default_node_pool.min' parameter missing"}
+			}
+			if c.Params.DefaultNodePool.Max == nil {
+				return &MinimalParamsValidationError{"'default_node_pool.max' parameter missing"}
+			}
+			if c.Params.DefaultNodePool.VmSize == nil {
+				return &MinimalParamsValidationError{"'default_node_pool.vm_size' parameter missing"}
+			}
+			if c.Params.DefaultNodePool.DiskSize == nil {
+				return &MinimalParamsValidationError{"'default_node_pool.disk_size' parameter missing"}
+			}
+			if c.Params.DefaultNodePool.AutoScaling == nil {
+				return &MinimalParamsValidationError{"'default_node_pool.auto_scaling' parameter missing"}
+			}
+			if c.Params.DefaultNodePool.Type == nil {
+				return &MinimalParamsValidationError{"'default_node_pool.type' parameter missing"}
+			}
+		}
+
+		if c.Params.AutoScalerProfile == nil {
+			return &MinimalParamsValidationError{"'auto_scaler_profile' parameter missing"}
+		} else {
+			if c.Params.AutoScalerProfile.BalanceSimilarNodeGroups == nil {
+				return &MinimalParamsValidationError{"'auto_scaler_profile.balance_similar_node_groups' parameter missing"}
+			}
+			if c.Params.AutoScalerProfile.MaxGracefulTerminationSec == nil {
+				return &MinimalParamsValidationError{"'auto_scaler_profile.max_graceful_termination_sec' parameter missing"}
+			}
+			if c.Params.AutoScalerProfile.ScaleDownDelayAfterAdd == nil {
+				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_add' parameter missing"}
+			}
+			if c.Params.AutoScalerProfile.ScaleDownDelayAfterDelete == nil {
+				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_delete' parameter missing"}
+			}
+			if c.Params.AutoScalerProfile.ScaleDownDelayAfterFailure == nil {
+				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_failure' parameter missing"}
+			}
+			if c.Params.AutoScalerProfile.ScanInterval == nil {
+				return &MinimalParamsValidationError{"'auto_scaler_profile.scan_interval' parameter missing"}
+			}
+			if c.Params.AutoScalerProfile.ScaleDownUnneeded == nil {
+				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_unneeded' parameter missing"}
+			}
+			if c.Params.AutoScalerProfile.ScaleDownUnready == nil {
+				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_unready' parameter missing"}
+			}
+			if c.Params.AutoScalerProfile.ScaleDownUtilizationThreshold == nil {
+				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_utilization_threshold' parameter missing"}
+			}
+		}
+
+		if c.Params.AzureAd == nil {
+			// Azure AD can be null
+		} else {
+			if c.Params.AzureAd.Managed == nil {
+				return &MinimalParamsValidationError{"'azure_ad.managed' parameter missing"}
+			}
+			if c.Params.AzureAd.TenantId == nil {
+				return &MinimalParamsValidationError{"'azure_ad.tenant_id' parameter missing"}
+			}
+			if c.Params.AzureAd.AdminGroupObjectIds == nil || len(c.Params.AzureAd.AdminGroupObjectIds) < 1 {
+				return &MinimalParamsValidationError{"'azure_ad.admin_group_object_ids' parameter list is missing or its length is 0"}
+			}
+			for _, ago := range c.Params.AzureAd.AdminGroupObjectIds {
+				if ago == "" {
+					return &MinimalParamsValidationError{"one of Azure AD Admin Group IDs lists value is empty"}
+				}
+			}
+		}
 	}
 	return nil
 }
