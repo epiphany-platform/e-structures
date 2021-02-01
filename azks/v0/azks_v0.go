@@ -311,7 +311,7 @@ func (c *Config) isValid() error {
 			if c.Params.AzureAd.Managed == nil {
 				return &MinimalParamsValidationError{"'azure_ad.managed' parameter missing"}
 			}
-			if c.Params.AzureAd.TenantId == nil {
+			if c.Params.AzureAd.TenantId == nil || *c.Params.AzureAd.TenantId == "" {
 				return &MinimalParamsValidationError{"'azure_ad.tenant_id' parameter missing"}
 			}
 			if c.Params.AzureAd.AdminGroupObjectIds == nil || len(c.Params.AzureAd.AdminGroupObjectIds) < 1 {
