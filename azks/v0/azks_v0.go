@@ -202,11 +202,11 @@ func (c *Config) isValid() error {
 	if err != nil {
 		return err
 	}
-	vv, err := semver.NewVersion(*c.Version)
+	newVersion, err := semver.NewVersion(*c.Version)
 	if err != nil {
 		return err
 	}
-	if !constraint.Check(vv) {
+	if !constraint.Check(newVersion) {
 		return MajorVersionMismatchError
 	}
 	if c.Params != nil && !reflect.DeepEqual(c.Params, &Params{}) {

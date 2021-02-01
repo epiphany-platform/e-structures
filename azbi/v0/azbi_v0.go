@@ -84,16 +84,16 @@ func (p *Params) ExtractEmptySubnets() []Subnet {
 		return p.Subnets
 	}
 	m := make(map[string]Subnet)
-	for _, s := range p.Subnets {
-		m[*s.Name] = s
+	for _, subnet := range p.Subnets {
+		m[*subnet.Name] = subnet
 	}
-	for _, vmg := range p.VmGroups {
-		for _, s := range p.Subnets {
-			for _, sn := range vmg.SubnetNames {
-				if *s.Name == sn {
-					_, ok := m[sn]
+	for _, vmGroup := range p.VmGroups {
+		for _, subnet := range p.Subnets {
+			for _, subnetName := range vmGroup.SubnetNames {
+				if *subnet.Name == subnetName {
+					_, ok := m[subnetName]
 					if ok {
-						delete(m, sn)
+						delete(m, subnetName)
 					}
 				}
 			}
