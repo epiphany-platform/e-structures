@@ -259,16 +259,16 @@ func (c *Config) isValid() error {
 			if c.Params.DefaultNodePool.Max == nil {
 				return &MinimalParamsValidationError{"'default_node_pool.max' parameter missing"}
 			}
-			if c.Params.DefaultNodePool.VmSize == nil {
+			if c.Params.DefaultNodePool.VmSize == nil || *c.Params.DefaultNodePool.VmSize == "" {
 				return &MinimalParamsValidationError{"'default_node_pool.vm_size' parameter missing"}
 			}
-			if c.Params.DefaultNodePool.DiskSize == nil {
+			if c.Params.DefaultNodePool.DiskSize == nil || *c.Params.DefaultNodePool.DiskSize == "" {
 				return &MinimalParamsValidationError{"'default_node_pool.disk_size' parameter missing"}
 			}
 			if c.Params.DefaultNodePool.AutoScaling == nil {
 				return &MinimalParamsValidationError{"'default_node_pool.auto_scaling' parameter missing"}
 			}
-			if c.Params.DefaultNodePool.Type == nil {
+			if c.Params.DefaultNodePool.Type == nil || *c.Params.DefaultNodePool.Type == "" {
 				return &MinimalParamsValidationError{"'default_node_pool.type' parameter missing"}
 			}
 		}
@@ -279,28 +279,28 @@ func (c *Config) isValid() error {
 			if c.Params.AutoScalerProfile.BalanceSimilarNodeGroups == nil {
 				return &MinimalParamsValidationError{"'auto_scaler_profile.balance_similar_node_groups' parameter missing"}
 			}
-			if c.Params.AutoScalerProfile.MaxGracefulTerminationSec == nil {
+			if c.Params.AutoScalerProfile.MaxGracefulTerminationSec == nil || *c.Params.AutoScalerProfile.MaxGracefulTerminationSec == "" { // TODO format could also be validated
 				return &MinimalParamsValidationError{"'auto_scaler_profile.max_graceful_termination_sec' parameter missing"}
 			}
-			if c.Params.AutoScalerProfile.ScaleDownDelayAfterAdd == nil {
+			if c.Params.AutoScalerProfile.ScaleDownDelayAfterAdd == nil || *c.Params.AutoScalerProfile.ScaleDownDelayAfterAdd == "" { // TODO format could also be validated
 				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_add' parameter missing"}
 			}
-			if c.Params.AutoScalerProfile.ScaleDownDelayAfterDelete == nil {
+			if c.Params.AutoScalerProfile.ScaleDownDelayAfterDelete == nil || *c.Params.AutoScalerProfile.ScaleDownDelayAfterDelete == "" { // TODO format could also be validated
 				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_delete' parameter missing"}
 			}
-			if c.Params.AutoScalerProfile.ScaleDownDelayAfterFailure == nil {
+			if c.Params.AutoScalerProfile.ScaleDownDelayAfterFailure == nil || *c.Params.AutoScalerProfile.ScaleDownDelayAfterFailure == "" { // TODO format could also be validated
 				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_failure' parameter missing"}
 			}
-			if c.Params.AutoScalerProfile.ScanInterval == nil {
+			if c.Params.AutoScalerProfile.ScanInterval == nil || *c.Params.AutoScalerProfile.ScanInterval == "" { // TODO format could also be validated
 				return &MinimalParamsValidationError{"'auto_scaler_profile.scan_interval' parameter missing"}
 			}
-			if c.Params.AutoScalerProfile.ScaleDownUnneeded == nil {
+			if c.Params.AutoScalerProfile.ScaleDownUnneeded == nil || *c.Params.AutoScalerProfile.ScaleDownUnneeded == "" { // TODO format could also be validated
 				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_unneeded' parameter missing"}
 			}
-			if c.Params.AutoScalerProfile.ScaleDownUnready == nil {
+			if c.Params.AutoScalerProfile.ScaleDownUnready == nil || *c.Params.AutoScalerProfile.ScaleDownUnready == "" { // TODO format could also be validated
 				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_unready' parameter missing"}
 			}
-			if c.Params.AutoScalerProfile.ScaleDownUtilizationThreshold == nil {
+			if c.Params.AutoScalerProfile.ScaleDownUtilizationThreshold == nil || *c.Params.AutoScalerProfile.ScaleDownUtilizationThreshold == "" { // TODO format could also be validated
 				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_utilization_threshold' parameter missing"}
 			}
 		}
