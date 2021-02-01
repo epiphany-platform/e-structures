@@ -204,7 +204,6 @@ func (e MinimalParamsValidationError) Error() string {
 	return fmt.Sprintf("validation error: %s", e.msg)
 }
 
-//TODO implement more interesting validation
 func (c *Config) isValid() error {
 	if c.Kind == nil {
 		return KindMissingValidationError
@@ -250,7 +249,11 @@ func (c *Config) isValid() error {
 			if s.AddressPrefixes == nil || len(s.AddressPrefixes) < 1 {
 				return &MinimalParamsValidationError{"'address_prefixes' list parameter in one of subnets missing or is 0 length"}
 			}
-			//TODO check for empty list elements
+			for _, ap := range s.AddressPrefixes {
+				if ap == "" {
+					return &MinimalParamsValidationError{"'address_prefixes' list value in one of subnets missing is empty"}
+				}
+			}
 		}
 		if len(c.Params.VmGroups) > 0 {
 			for _, vmGroup := range c.Params.VmGroups {

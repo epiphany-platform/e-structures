@@ -107,7 +107,7 @@ func NewConfig() *Config {
 			VnetName:   to.StrPtr("epiphany-vnet"),
 			SubnetName: to.StrPtr("azks"),
 
-			KubernetesVersion:  to.StrPtr("1.18.14"), //TODO ensure that this makes sense
+			KubernetesVersion:  to.StrPtr("1.18.14"), //TODO ensure that this default version is correct
 			EnableNodePublicIp: to.BooPtr(false),
 			EnableRbac:         to.BooPtr(false),
 
@@ -184,7 +184,6 @@ func (e MinimalParamsValidationError) Error() string {
 	return fmt.Sprintf("validation error: %s", e.msg)
 }
 
-//TODO implement more interesting validation
 func (c *Config) isValid() error {
 	if c.Kind == nil {
 		return KindMissingValidationError

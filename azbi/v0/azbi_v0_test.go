@@ -546,7 +546,7 @@ func TestConfig_Load(t *testing.T) {
 			wantErr: &MinimalParamsValidationError{"one of subnets is missing 'name' field or name is empty"},
 		},
 		{
-			name: "empty length subnet name",
+			name: "empty subnet name",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -582,7 +582,7 @@ func TestConfig_Load(t *testing.T) {
 			wantErr: &MinimalParamsValidationError{"one of subnets is missing 'name' field or name is empty"},
 		},
 		{
-			name: "empty length subnet address prefixes",
+			name: "empty subnet address prefixes",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -647,6 +647,42 @@ func TestConfig_Load(t *testing.T) {
 `),
 			want:    nil,
 			wantErr: &MinimalParamsValidationError{"'address_prefixes' list parameter in one of subnets missing or is 0 length"},
+		},
+		{
+			name: "empty subnet address prefixes element",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{ 
+				"name": "main", 
+				"address_prefixes": [
+					""
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}, 
+			"data_disks": []
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"'address_prefixes' list value in one of subnets missing is empty"},
 		},
 		{
 			name: "multiple subnets configuration",
