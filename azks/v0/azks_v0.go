@@ -100,7 +100,7 @@ func NewConfig() *Config {
 		Version: to.StrPtr(version),
 		Params: &Params{
 			Name:             to.StrPtr("epiphany"),
-			Location:         to.StrPtr("northeurope"),
+			Location:         to.StrPtr("northeurope"), //TODO possibly delete this value in future
 			RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 
 			RgName:     to.StrPtr("epiphany-rg"),
