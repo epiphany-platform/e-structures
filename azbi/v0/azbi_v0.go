@@ -48,7 +48,7 @@ type Params struct {
 	AddressSpace     []string  `json:"address_space"`
 	Subnets          []Subnet  `json:"subnets"`
 	VmGroups         []VmGroup `json:"vm_groups"`
-	RsaPublicKeyPath *string   `json:"rsa_pub_path"`
+	RsaPublicKeyPath *string   `json:"rsa_pub_path"` // TODO check why this field is not validated
 }
 
 func (p *Params) GetRsaPublicKeyV() string {
@@ -215,12 +215,6 @@ func (c *Config) isValid() error {
 	if c.Params == nil {
 		return ParamsMissingValidationError
 	}
-	if c.Params.Name == nil {
-		return &MinimalParamsValidationError{"'name' parameter missing"}
-	}
-	if c.Params.Location == nil {
-		return &MinimalParamsValidationError{"'location' parameter missing"}
-	}
 	v, err := semver.NewVersion(version)
 	if err != nil {
 		return err
@@ -237,6 +231,12 @@ func (c *Config) isValid() error {
 		return MajorVersionMismatchError
 	}
 	if c.Params != nil && !reflect.DeepEqual(c.Params, &Params{}) {
+		if c.Params.Name == nil {
+			return &MinimalParamsValidationError{"'name' parameter missing"}
+		}
+		if c.Params.Location == nil {
+			return &MinimalParamsValidationError{"'location' parameter missing"}
+		}
 		if c.Params.Subnets == nil || len(c.Params.Subnets) < 1 {
 			return &MinimalParamsValidationError{"'subnets' list parameter missing or is 0 length"}
 		}
@@ -250,6 +250,7 @@ func (c *Config) isValid() error {
 			if s.AddressPrefixes == nil || len(s.AddressPrefixes) < 1 {
 				return &MinimalParamsValidationError{"'address_prefixes' list parameter in one of subnets missing or is 0 length"}
 			}
+			//TODO check for empty list elements
 		}
 		if len(c.Params.VmGroups) > 0 {
 			for _, vmGroup := range c.Params.VmGroups {
@@ -269,7 +270,7 @@ func (c *Config) isValid() error {
 					return &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"}
 				}
 				for _, sn := range vmGroup.SubnetNames {
-					if len(sn) < 1 || sn == "" {
+					if sn == "" {
 						return &MinimalParamsValidationError{"one of vm groups subnet names lists value is empty"}
 					}
 					found := false
