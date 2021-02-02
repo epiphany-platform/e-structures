@@ -7,6 +7,7 @@ import (
 
 	"github.com/Masterminds/semver"
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
+	azks "github.com/epiphany-platform/e-structures/azks/v0"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	maps "github.com/mitchellh/mapstructure"
 )
@@ -15,7 +16,7 @@ type Status string
 
 const (
 	kind    = "state"
-	version = "v0.0.2"
+	version = "v0.0.3"
 
 	Initialized Status = "initialized"
 	Applied     Status = "applied"
@@ -28,11 +29,60 @@ type AzBIState struct {
 	Output *azbi.Output `json:"output"`
 }
 
+func (s *AzBIState) GetConfig() *azbi.Config {
+	if s == nil {
+		return nil
+	}
+	return s.Config
+}
+
+func (s *AzBIState) GetOutput() *azbi.Output {
+	if s == nil {
+		return nil
+	}
+	return s.Output
+}
+
+type AzKSState struct {
+	Status Status       `json:"status"`
+	Config *azks.Config `json:"config"`
+	Output *azks.Output `json:"output"`
+}
+
+func (s *AzKSState) GetConfig() *azks.Config {
+	if s == nil {
+		return nil
+	}
+	return s.Config
+}
+
+func (s *AzKSState) GetOutput() *azks.Output {
+	if s == nil {
+		return nil
+	}
+	return s.Output
+}
+
 type State struct {
 	Kind    *string    `json:"kind"`
 	Version *string    `json:"version"`
 	Unused  []string   `json:"-"`
 	AzBI    *AzBIState `json:"azbi"`
+	AzKS    *AzKSState `json:"azks"`
+}
+
+func (s *State) GetAzBIState() *AzBIState {
+	if s == nil {
+		return nil
+	}
+	return s.AzBI
+}
+
+func (s *State) GetAzKSState() *AzKSState {
+	if s == nil {
+		return nil
+	}
+	return s.AzKS
 }
 
 //TODO test
@@ -42,6 +92,7 @@ func NewState() *State {
 		Version: to.StrPtr(version),
 		Unused:  []string{},
 		AzBI:    &AzBIState{},
+		AzKS:    &AzKSState{},
 	}
 }
 

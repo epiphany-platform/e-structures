@@ -13,7 +13,7 @@ import (
 
 const (
 	kind    = "azbi"
-	version = "v0.1.1"
+	version = "v0.1.2"
 )
 
 type DataDisk struct {
@@ -48,7 +48,65 @@ type Params struct {
 	AddressSpace     []string  `json:"address_space"`
 	Subnets          []Subnet  `json:"subnets"`
 	VmGroups         []VmGroup `json:"vm_groups"`
-	RsaPublicKeyPath *string   `json:"rsa_pub_path"`
+	RsaPublicKeyPath *string   `json:"rsa_pub_path"` // TODO check why this field is not validated
+}
+
+func (p *Params) GetRsaPublicKeyV() string {
+	if p == nil {
+		return ""
+	}
+	return *p.RsaPublicKeyPath
+}
+
+func (p *Params) GetNameV() string {
+	if p == nil {
+		return ""
+	}
+	return *p.Name
+}
+
+func (p *Params) GetLocationV() string {
+	if p == nil {
+		return ""
+	}
+	return *p.Location
+}
+
+// ExtractEmptySubnets gets params and extracts from it list of Subnet unassigned to any of VmGroup.
+func (p *Params) ExtractEmptySubnets() []Subnet {
+	if p == nil {
+		return nil
+	}
+	if p.Subnets == nil || len(p.Subnets) == 0 {
+		return nil
+	}
+	if p.VmGroups == nil || len(p.VmGroups) == 0 {
+		return p.Subnets
+	}
+	m := make(map[string]Subnet)
+	for _, subnet := range p.Subnets {
+		m[*subnet.Name] = subnet
+	}
+	for _, vmGroup := range p.VmGroups {
+		for _, subnet := range p.Subnets {
+			for _, subnetName := range vmGroup.SubnetNames {
+				if *subnet.Name == subnetName {
+					_, ok := m[subnetName]
+					if ok {
+						delete(m, subnetName)
+						break
+					}
+				}
+			}
+		}
+	}
+	result := make([]Subnet, 0)
+	for _, s := range p.Subnets {
+		if v, ok := m[*s.Name]; ok {
+			result = append(result, v)
+		}
+	}
+	return result
 }
 
 type Config struct {
@@ -56,6 +114,13 @@ type Config struct {
 	Version *string  `json:"version"`
 	Params  *Params  `json:"params"`
 	Unused  []string `json:"-"`
+}
+
+func (c *Config) GetParams() *Params {
+	if c == nil {
+		return nil
+	}
+	return c.Params
 }
 
 //TODO test
@@ -142,7 +207,6 @@ func (e MinimalParamsValidationError) Error() string {
 	return fmt.Sprintf("validation error: %s", e.msg)
 }
 
-//TODO implement more interesting validation
 func (c *Config) isValid() error {
 	if c.Kind == nil {
 		return KindMissingValidationError
@@ -152,12 +216,6 @@ func (c *Config) isValid() error {
 	}
 	if c.Params == nil {
 		return ParamsMissingValidationError
-	}
-	if c.Params.Name == nil {
-		return &MinimalParamsValidationError{"'name' parameter missing"}
-	}
-	if c.Params.Location == nil {
-		return &MinimalParamsValidationError{"'location' parameter missing"}
 	}
 	v, err := semver.NewVersion(version)
 	if err != nil {
@@ -175,6 +233,12 @@ func (c *Config) isValid() error {
 		return MajorVersionMismatchError
 	}
 	if c.Params != nil && !reflect.DeepEqual(c.Params, &Params{}) {
+		if c.Params.Name == nil {
+			return &MinimalParamsValidationError{"'name' parameter missing"}
+		}
+		if c.Params.Location == nil {
+			return &MinimalParamsValidationError{"'location' parameter missing"}
+		}
 		if c.Params.Subnets == nil || len(c.Params.Subnets) < 1 {
 			return &MinimalParamsValidationError{"'subnets' list parameter missing or is 0 length"}
 		}
@@ -187,6 +251,11 @@ func (c *Config) isValid() error {
 			}
 			if s.AddressPrefixes == nil || len(s.AddressPrefixes) < 1 {
 				return &MinimalParamsValidationError{"'address_prefixes' list parameter in one of subnets missing or is 0 length"}
+			}
+			for _, ap := range s.AddressPrefixes {
+				if ap == "" {
+					return &MinimalParamsValidationError{"'address_prefixes' list value in one of subnets missing is empty"}
+				}
 			}
 		}
 		if len(c.Params.VmGroups) > 0 {
@@ -207,7 +276,7 @@ func (c *Config) isValid() error {
 					return &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"}
 				}
 				for _, sn := range vmGroup.SubnetNames {
-					if len(sn) < 1 || sn == "" {
+					if sn == "" {
 						return &MinimalParamsValidationError{"one of vm groups subnet names lists value is empty"}
 					}
 					found := false
@@ -271,4 +340,18 @@ type Output struct {
 	RgName   *string         `json:"rg_name"`
 	VnetName *string         `json:"vnet_name"`
 	VmGroups []OutputVmGroup `json:"vm_groups"`
+}
+
+func (o *Output) GetRgNameV() string {
+	if o == nil {
+		return ""
+	}
+	return *o.RgName
+}
+
+func (o *Output) GetVnetNameV() string {
+	if o == nil {
+		return ""
+	}
+	return *o.VnetName
 }

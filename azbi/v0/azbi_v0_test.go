@@ -1,6 +1,7 @@
 package v0
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/epiphany-platform/e-structures/utils/to"
@@ -546,7 +547,7 @@ func TestConfig_Load(t *testing.T) {
 			wantErr: &MinimalParamsValidationError{"one of subnets is missing 'name' field or name is empty"},
 		},
 		{
-			name: "empty length subnet name",
+			name: "empty subnet name",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -582,7 +583,7 @@ func TestConfig_Load(t *testing.T) {
 			wantErr: &MinimalParamsValidationError{"one of subnets is missing 'name' field or name is empty"},
 		},
 		{
-			name: "empty length subnet address prefixes",
+			name: "empty subnet address prefixes",
 			args: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
@@ -647,6 +648,42 @@ func TestConfig_Load(t *testing.T) {
 `),
 			want:    nil,
 			wantErr: &MinimalParamsValidationError{"'address_prefixes' list parameter in one of subnets missing or is 0 length"},
+		},
+		{
+			name: "empty subnet address prefixes element",
+			args: []byte(`{
+	"kind": "azbi",
+	"version": "v0.1.0",
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"subnets": [
+			{ 
+				"name": "main", 
+				"address_prefixes": [
+					""
+				]
+			}
+		],
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"subnet_names": ["main"],
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			}, 
+			"data_disks": []
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: &MinimalParamsValidationError{"'address_prefixes' list value in one of subnets missing is empty"},
 		},
 		{
 			name: "multiple subnets configuration",
@@ -2211,6 +2248,209 @@ func TestConfig_Load(t *testing.T) {
 				if err != nil {
 					t.Errorf("Unmarshal() unexpected error occured: %v", err)
 				}
+			}
+		})
+	}
+}
+
+func TestParams_ExtractEmptySubnets(t *testing.T) {
+	tests := []struct {
+		name   string
+		params *Params
+		want   []Subnet
+	}{
+		{
+			name: "happy path",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+					{
+						Name:            to.StrPtr("subnet2"),
+						AddressPrefixes: []string{"2.2.2.2/24"},
+					},
+				},
+				VmGroups: []VmGroup{
+					{
+						SubnetNames: []string{"subnet1"},
+					},
+				},
+			},
+			want: []Subnet{
+				{
+					Name:            to.StrPtr("subnet2"),
+					AddressPrefixes: []string{"2.2.2.2/24"},
+				},
+			},
+		},
+		{
+			name:   "nil params",
+			params: nil,
+			want:   nil,
+		},
+		{
+			name: "nil subnets",
+			params: &Params{
+				Subnets: nil,
+			},
+			want: nil,
+		},
+		{
+			name: "empty subnets",
+			params: &Params{
+				Subnets: []Subnet{},
+			},
+			want: nil,
+		},
+		{
+			name: "nil vm_groups",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+				},
+				VmGroups: nil,
+			},
+			want: []Subnet{
+				{
+					Name:            to.StrPtr("subnet1"),
+					AddressPrefixes: []string{"1.1.1.1/24"},
+				},
+			},
+		},
+		{
+			name: "empty vm_groups",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+				},
+				VmGroups: []VmGroup{},
+			},
+			want: []Subnet{
+				{
+					Name:            to.StrPtr("subnet1"),
+					AddressPrefixes: []string{"1.1.1.1/24"},
+				},
+			},
+		},
+		{
+			name: "no empty subnets",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+				},
+				VmGroups: []VmGroup{
+					{
+						SubnetNames: []string{"subnet1"},
+					},
+				},
+			},
+			want: []Subnet{},
+		},
+		{
+			name: "multiple vm_groups no empty subnets",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+					{
+						Name:            to.StrPtr("subnet2"),
+						AddressPrefixes: []string{"2.2.2.2/24"},
+					},
+				},
+				VmGroups: []VmGroup{
+					{
+						SubnetNames: []string{"subnet1"},
+					},
+					{
+						SubnetNames: []string{"subnet2"},
+					},
+				},
+			},
+			want: []Subnet{},
+		},
+		{
+			name: "multiple vm_groups reuse one subnet",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+				},
+				VmGroups: []VmGroup{
+					{
+						SubnetNames: []string{"subnet1"},
+					},
+					{
+						SubnetNames: []string{"subnet1"},
+					},
+				},
+			},
+			want: []Subnet{},
+		},
+		{
+			name: "multiple vm_groups some free subnets",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+					{
+						Name:            to.StrPtr("subnet2"),
+						AddressPrefixes: []string{"2.2.2.2/24"},
+					},
+					{
+						Name:            to.StrPtr("subnet3"),
+						AddressPrefixes: []string{"3.3.3.3/24"},
+					},
+					{
+						Name:            to.StrPtr("subnet4"),
+						AddressPrefixes: []string{"4.4.4.4/24"},
+					},
+					{
+						Name:            to.StrPtr("subnet5"),
+						AddressPrefixes: []string{"5.5.5.5/24"},
+					},
+				},
+				VmGroups: []VmGroup{
+					{
+						SubnetNames: []string{"subnet2", "subnet5"},
+					},
+					{
+						SubnetNames: []string{"subnet2", "subnet4"},
+					},
+				},
+			},
+			want: []Subnet{
+				{
+					Name:            to.StrPtr("subnet1"),
+					AddressPrefixes: []string{"1.1.1.1/24"},
+				},
+				{
+					Name:            to.StrPtr("subnet3"),
+					AddressPrefixes: []string{"3.3.3.3/24"},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.params.ExtractEmptySubnets(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ExtractEmptySubnets() = %v, want %v", got, tt.want)
 			}
 		})
 	}
