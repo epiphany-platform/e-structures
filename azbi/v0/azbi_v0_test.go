@@ -1,6 +1,7 @@
 package v0
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/epiphany-platform/e-structures/utils/to"
@@ -2247,6 +2248,209 @@ func TestConfig_Load(t *testing.T) {
 				if err != nil {
 					t.Errorf("Unmarshal() unexpected error occured: %v", err)
 				}
+			}
+		})
+	}
+}
+
+func TestParams_ExtractEmptySubnets(t *testing.T) {
+	tests := []struct {
+		name   string
+		params *Params
+		want   []Subnet
+	}{
+		{
+			name: "happy path",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+					{
+						Name:            to.StrPtr("subnet2"),
+						AddressPrefixes: []string{"2.2.2.2/24"},
+					},
+				},
+				VmGroups: []VmGroup{
+					{
+						SubnetNames: []string{"subnet1"},
+					},
+				},
+			},
+			want: []Subnet{
+				{
+					Name:            to.StrPtr("subnet2"),
+					AddressPrefixes: []string{"2.2.2.2/24"},
+				},
+			},
+		},
+		{
+			name:   "nil params",
+			params: nil,
+			want:   nil,
+		},
+		{
+			name: "nil subnets",
+			params: &Params{
+				Subnets: nil,
+			},
+			want: nil,
+		},
+		{
+			name: "empty subnets",
+			params: &Params{
+				Subnets: []Subnet{},
+			},
+			want: nil,
+		},
+		{
+			name: "nil vm_groups",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+				},
+				VmGroups: nil,
+			},
+			want: []Subnet{
+				{
+					Name:            to.StrPtr("subnet1"),
+					AddressPrefixes: []string{"1.1.1.1/24"},
+				},
+			},
+		},
+		{
+			name: "empty vm_groups",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+				},
+				VmGroups: []VmGroup{},
+			},
+			want: []Subnet{
+				{
+					Name:            to.StrPtr("subnet1"),
+					AddressPrefixes: []string{"1.1.1.1/24"},
+				},
+			},
+		},
+		{
+			name: "no empty subnets",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+				},
+				VmGroups: []VmGroup{
+					{
+						SubnetNames: []string{"subnet1"},
+					},
+				},
+			},
+			want: []Subnet{},
+		},
+		{
+			name: "multiple vm_groups no empty subnets",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+					{
+						Name:            to.StrPtr("subnet2"),
+						AddressPrefixes: []string{"2.2.2.2/24"},
+					},
+				},
+				VmGroups: []VmGroup{
+					{
+						SubnetNames: []string{"subnet1"},
+					},
+					{
+						SubnetNames: []string{"subnet2"},
+					},
+				},
+			},
+			want: []Subnet{},
+		},
+		{
+			name: "multiple vm_groups reuse one subnet",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+				},
+				VmGroups: []VmGroup{
+					{
+						SubnetNames: []string{"subnet1"},
+					},
+					{
+						SubnetNames: []string{"subnet1"},
+					},
+				},
+			},
+			want: []Subnet{},
+		},
+		{
+			name: "multiple vm_groups some free subnets",
+			params: &Params{
+				Subnets: []Subnet{
+					{
+						Name:            to.StrPtr("subnet1"),
+						AddressPrefixes: []string{"1.1.1.1/24"},
+					},
+					{
+						Name:            to.StrPtr("subnet2"),
+						AddressPrefixes: []string{"2.2.2.2/24"},
+					},
+					{
+						Name:            to.StrPtr("subnet3"),
+						AddressPrefixes: []string{"3.3.3.3/24"},
+					},
+					{
+						Name:            to.StrPtr("subnet4"),
+						AddressPrefixes: []string{"4.4.4.4/24"},
+					},
+					{
+						Name:            to.StrPtr("subnet5"),
+						AddressPrefixes: []string{"5.5.5.5/24"},
+					},
+				},
+				VmGroups: []VmGroup{
+					{
+						SubnetNames: []string{"subnet2", "subnet5"},
+					},
+					{
+						SubnetNames: []string{"subnet2", "subnet4"},
+					},
+				},
+			},
+			want: []Subnet{
+				{
+					Name:            to.StrPtr("subnet1"),
+					AddressPrefixes: []string{"1.1.1.1/24"},
+				},
+				{
+					Name:            to.StrPtr("subnet3"),
+					AddressPrefixes: []string{"3.3.3.3/24"},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.params.ExtractEmptySubnets(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ExtractEmptySubnets() = %v, want %v", got, tt.want)
 			}
 		})
 	}

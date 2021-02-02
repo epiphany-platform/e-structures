@@ -94,14 +94,17 @@ func (p *Params) ExtractEmptySubnets() []Subnet {
 					_, ok := m[subnetName]
 					if ok {
 						delete(m, subnetName)
+						break
 					}
 				}
 			}
 		}
 	}
 	result := make([]Subnet, 0)
-	for _, v := range m {
-		result = append(result, v)
+	for _, s := range p.Subnets {
+		if v, ok := m[*s.Name]; ok {
+			result = append(result, v)
+		}
 	}
 	return result
 }
