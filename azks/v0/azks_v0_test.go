@@ -12,13 +12,13 @@ import (
 func TestConfig_Load(t *testing.T) {
 	tests := []struct {
 		name    string
-		args    []byte
+		json    []byte
 		want    *Config
 		wantErr error
 	}{
 		{
 			name: "happy path",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -101,7 +101,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "unknown field in main structure",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"extra_outer_field" : "extra_outer_value",
@@ -185,7 +185,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "unknown field in sub structure",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -269,7 +269,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "unknown fields in all possible places",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"extra_outer_field" : "extra_outer_value",
@@ -354,13 +354,13 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name:    "empty json",
-			args:    []byte(`{}`),
+			json:    []byte(`{}`),
 			want:    nil,
 			wantErr: KindMissingValidationError,
 		},
 		{
 			name: "just kind field",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks"
 }
 `),
@@ -369,7 +369,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "just kind and version",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1"
 }
@@ -379,7 +379,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "minimal correct json",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -458,7 +458,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "full json",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -551,7 +551,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing name",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -600,7 +600,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty name",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -650,7 +650,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing location",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -699,7 +699,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty location",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -749,7 +749,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing rg_name",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -798,7 +798,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty rg_name",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -848,7 +848,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing vnet_name",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -897,7 +897,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty vnet_name",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -947,7 +947,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing subnet_name",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -996,7 +996,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty subnet_name",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1046,7 +1046,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing kubernetes_version",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1095,7 +1095,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty kubernetes_version",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1145,7 +1145,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing enable_node_public_ip",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1194,7 +1194,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing enable_rbac",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1243,7 +1243,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing identity_type",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1292,7 +1292,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty identity_type",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1342,7 +1342,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing kube_dashboard_enabled",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1391,7 +1391,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing admin_username",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1440,7 +1440,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty admin_username",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1490,7 +1490,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing default_node_pool",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1531,7 +1531,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty default_node_pool",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1573,7 +1573,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing default_node_pool.size",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1622,7 +1622,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing default_node_pool.min",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1671,7 +1671,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing default_node_pool.max",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1720,7 +1720,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing default_node_pool.vm_size",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1769,7 +1769,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty default_node_pool.vm_size",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1819,7 +1819,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing default_node_pool.disk_size",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1868,7 +1868,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty default_node_pool.disk_size",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1918,7 +1918,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing default_node_pool.auto_scaling",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -1967,7 +1967,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing default_node_pool.type",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2016,7 +2016,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty default_node_pool.type",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2066,7 +2066,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing auto_scaler_profile",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2105,7 +2105,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty auto_scaler_profile",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2145,7 +2145,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing auto_scaler_profile.balance_similar_node_groups",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2194,7 +2194,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing auto_scaler_profile.max_graceful_termination_sec",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2243,7 +2243,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty auto_scaler_profile.max_graceful_termination_sec",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2293,7 +2293,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing auto_scaler_profile.scale_down_delay_after_add",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2342,7 +2342,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty auto_scaler_profile.scale_down_delay_after_add",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2392,7 +2392,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing auto_scaler_profile.scale_down_delay_after_delete",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2441,7 +2441,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty auto_scaler_profile.scale_down_delay_after_delete",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2491,7 +2491,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing auto_scaler_profile.scale_down_delay_after_failure",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2540,7 +2540,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty auto_scaler_profile.scale_down_delay_after_failure",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2590,7 +2590,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing auto_scaler_profile.scan_interval",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2639,7 +2639,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty auto_scaler_profile.scan_interval",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2689,7 +2689,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing auto_scaler_profile.scale_down_unneeded",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2738,7 +2738,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty auto_scaler_profile.scale_down_unneeded",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2788,7 +2788,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing auto_scaler_profile.scale_down_unready",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2837,7 +2837,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty auto_scaler_profile.scale_down_unready",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2887,7 +2887,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing auto_scaler_profile.scale_down_utilization_threshold",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2936,7 +2936,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty auto_scaler_profile.scale_down_utilization_threshold",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -2986,7 +2986,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing azure_ad",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -3067,7 +3067,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "null azure_ad",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -3149,7 +3149,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing azure_ad.managed",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -3198,7 +3198,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing azure_ad.tenant_id",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -3247,7 +3247,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty azure_ad.tenant_id",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -3297,7 +3297,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing azure_ad.admin_group_object_ids",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -3344,7 +3344,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty azure_ad.admin_group_object_ids",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -3392,7 +3392,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty azure_ad.admin_group_object_ids element",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
@@ -3444,7 +3444,7 @@ func TestConfig_Load(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := &Config{}
-			err := got.Unmarshal(tt.args)
+			err := got.Unmarshal(tt.json)
 
 			if tt.wantErr != nil {
 				errMsg := ""
