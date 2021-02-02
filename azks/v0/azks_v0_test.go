@@ -9,7 +9,9 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-func TestConfig_Load(t *testing.T) {
+// TestConfig_Load_general contains all general types of scenarios: happy path, unknown fields,
+// kind and version validation, minimal correct and full json.
+func TestConfig_Load_general(t *testing.T) {
 	tests := []struct {
 		name    string
 		json    []byte
@@ -549,6 +551,22 @@ func TestConfig_Load(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
+		})
+	}
+}
+
+// TestConfig_Load_params contains all scenarios related to validation of values stored directly in Params structure.
+func TestConfig_Load_Params(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    []byte
+		want    *Config
+		wantErr error
+	}{
 		{
 			name: "missing name",
 			json: []byte(`{
@@ -1488,6 +1506,22 @@ func TestConfig_Load(t *testing.T) {
 			want:    nil,
 			wantErr: &MinimalParamsValidationError{"'admin_username' parameter missing"},
 		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
+		})
+	}
+}
+
+// TestConfig_Load_DefaultNodePool contains scenarios related to validation of values stored in DefaultNodePool structure.
+func TestConfig_Load_DefaultNodePool(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    []byte
+		want    *Config
+		wantErr error
+	}{
 		{
 			name: "missing default_node_pool",
 			json: []byte(`{
@@ -2064,6 +2098,22 @@ func TestConfig_Load(t *testing.T) {
 			want:    nil,
 			wantErr: &MinimalParamsValidationError{"'default_node_pool.type' parameter missing"},
 		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
+		})
+	}
+}
+
+// TestConfig_Load_AutoScalerProfile contains scenarios related to validation of values stored in AutoScalerProfile structure.
+func TestConfig_Load_AutoScalerProfile(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    []byte
+		want    *Config
+		wantErr error
+	}{
 		{
 			name: "missing auto_scaler_profile",
 			json: []byte(`{
@@ -2984,6 +3034,22 @@ func TestConfig_Load(t *testing.T) {
 			want:    nil,
 			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_utilization_threshold' parameter missing"},
 		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
+		})
+	}
+}
+
+// TestConfig_Load_AzureAd contains scenarios related to validation of values stored in AzureAd structure.
+func TestConfig_Load_AzureAd(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    []byte
+		want    *Config
+		wantErr error
+	}{
 		{
 			name: "missing azure_ad",
 			json: []byte(`{
@@ -3441,27 +3507,32 @@ func TestConfig_Load(t *testing.T) {
 			wantErr: &MinimalParamsValidationError{"one of Azure AD Admin Group IDs lists value is empty"},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := &Config{}
-			err := got.Unmarshal(tt.json)
-
-			if tt.wantErr != nil {
-				errMsg := ""
-				if err != nil {
-					errMsg = err.Error()
-				}
-				if diff := cmp.Diff(tt.wantErr.Error(), errMsg, cmpopts.EquateErrors()); diff != "" {
-					t.Errorf("Unmarshal() errors mismatch (-want +got):\n%s", diff)
-				}
-			} else {
-				if diff := cmp.Diff(tt.want, got); diff != "" {
-					t.Errorf("Unmarshal() mismatch (-want +got):\n%s", diff)
-				}
-				if err != nil {
-					t.Errorf("Unmarshal() unexpected error occured: %v", err)
-				}
-			}
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
 		})
+	}
+}
+
+func configLoadTestingBody(t *testing.T, json []byte, want *Config, wantErr error) {
+	got := &Config{}
+	err := got.Unmarshal(json)
+
+	if wantErr != nil {
+		errMsg := ""
+		if err != nil {
+			errMsg = err.Error()
+		}
+		if diff := cmp.Diff(wantErr.Error(), errMsg, cmpopts.EquateErrors()); diff != "" {
+			t.Errorf("Unmarshal() errors mismatch (-want +got):\n%s", diff)
+		}
+	} else {
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("Unmarshal() mismatch (-want +got):\n%s", diff)
+		}
+		if err != nil {
+			t.Errorf("Unmarshal() unexpected error occured: %v", err)
+		}
 	}
 }
