@@ -1,6 +1,9 @@
 package v0
 
 import (
+	"bytes"
+	"fmt"
+	"strings"
 	"testing"
 
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
@@ -8,6 +11,30 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
+
+type TestValidationErrors []TestValidationError
+
+func (e TestValidationErrors) Error() string {
+	buff := bytes.NewBufferString("")
+
+	for _, te := range e {
+
+		buff.WriteString(te.Error())
+		buff.WriteString("\n")
+	}
+
+	return strings.TrimSpace(buff.String())
+}
+
+type TestValidationError struct {
+	Key   string
+	Field string
+	Tag   string
+}
+
+func (e TestValidationError) Error() string {
+	return fmt.Sprintf("Key: '%s' Error:Field validation for '%s' failed on the '%s' tag", e.Key, e.Field, e.Tag)
+}
 
 func TestState_Load(t *testing.T) {
 	tests := []struct {
@@ -66,8 +93,9 @@ func TestState_Load(t *testing.T) {
 						"offer": "UbuntuServer",
 						"sku": "18.04-LTS",
 						"version": "18.04.202006101"
-					}
-				}],
+					},
+					"data_disks": []
+				}], 
 				"rsa_pub_path": "/shared/vms_rsa.pub"
 			}
 		},
@@ -137,6 +165,7 @@ func TestState_Load(t *testing.T) {
 										Sku:       to.StrPtr("18.04-LTS"),
 										Version:   to.StrPtr("18.04.202006101"),
 									},
+									DataDisks: []azbi.DataDisk{},
 								},
 							},
 							RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
@@ -209,7 +238,8 @@ func TestState_Load(t *testing.T) {
 						"offer": "UbuntuServer",
 						"sku": "18.04-LTS",
 						"version": "18.04.202006101"
-					}
+					},
+					"data_disks": []
 				}],
 				"rsa_pub_path": "/shared/vms_rsa.pub"
 			}
@@ -280,6 +310,7 @@ func TestState_Load(t *testing.T) {
 										Sku:       to.StrPtr("18.04-LTS"),
 										Version:   to.StrPtr("18.04.202006101"),
 									},
+									DataDisks: []azbi.DataDisk{},
 								},
 							},
 							RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
@@ -351,7 +382,8 @@ func TestState_Load(t *testing.T) {
 						"offer": "UbuntuServer",
 						"sku": "18.04-LTS",
 						"version": "18.04.202006101"
-					}
+					},
+					"data_disks": []
 				}],
 				"rsa_pub_path": "/shared/vms_rsa.pub"
 			}
@@ -423,6 +455,7 @@ func TestState_Load(t *testing.T) {
 										Sku:       to.StrPtr("18.04-LTS"),
 										Version:   to.StrPtr("18.04.202006101"),
 									},
+									DataDisks: []azbi.DataDisk{},
 								},
 							},
 							RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
@@ -465,8 +498,14 @@ func TestState_Load(t *testing.T) {
 	"kind": "state",
 	"version": "1.0.0"
 }`),
-			want:    nil,
-			wantErr: MajorVersionMismatchError,
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "State.Version",
+					Field: "Version",
+					Tag:   "semver",
+				},
+			},
 		},
 		{
 			name: "state minor version mismatch",

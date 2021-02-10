@@ -1,13 +1,41 @@
 package v0
 
 import (
+	"bytes"
+	"fmt"
 	"reflect"
+	"strings"
 	"testing"
+
+	"github.com/go-playground/validator/v10"
 
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 )
+
+type TestValidationErrors []TestValidationError
+
+func (e TestValidationErrors) Error() string {
+	buff := bytes.NewBufferString("")
+
+	for _, te := range e {
+
+		buff.WriteString(te.Error())
+		buff.WriteString("\n")
+	}
+
+	return strings.TrimSpace(buff.String())
+}
+
+type TestValidationError struct {
+	Key   string
+	Field string
+	Tag   string
+}
+
+func (e TestValidationError) Error() string {
+	return fmt.Sprintf("Key: '%s' Error:Field validation for '%s' failed on the '%s' tag", e.Key, e.Field, e.Tag)
+}
 
 func TestConfig_Load(t *testing.T) {
 	tests := []struct {
@@ -339,88 +367,133 @@ func TestConfig_Load(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:    "empty json",
-			args:    []byte(`{}`),
-			want:    nil,
-			wantErr: KindMissingValidationError,
+			name: "empty json",
+			args: []byte(`{}`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Kind",
+					Field: "Kind",
+					Tag:   "required",
+				},
+				TestValidationError{
+					Key:   "Config.Version",
+					Field: "Version",
+					Tag:   "required",
+				},
+				TestValidationError{
+					Key:   "Config.Params",
+					Field: "Params",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "just kind field",
 			args: []byte(`{
-	"kind": "azbi"
-}
-`),
-			want:    nil,
-			wantErr: VersionMissingValidationError,
+			"kind": "azbi"
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Version",
+					Field: "Version",
+					Tag:   "required",
+				},
+				TestValidationError{
+					Key:   "Config.Params",
+					Field: "Params",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "just kind and version",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0"
-}
-`),
-			want:    nil,
-			wantErr: ParamsMissingValidationError,
+			"kind": "azbi",
+			"version": "v0.1.0"
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params",
+					Field: "Params",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "just vm_groups in params",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					}, 
+					"data_disks": []
+				}]
 			}
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'name' parameter missing"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.Name",
+					Field: "Name",
+					Tag:   "required",
+				},
+				TestValidationError{
+					Key:   "Config.Params.Subnets",
+					Field: "Subnets",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "minimal correct json",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main", 
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
+		}
+		`),
 			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
@@ -457,273 +530,315 @@ func TestConfig_Load(t *testing.T) {
 		{
 			name: "missing subnets list",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'subnets' list parameter missing or is 0 length"},
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
+			}
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.Subnets",
+					Field: "Subnets",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty subnets list",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'subnets' list parameter missing or is 0 length"},
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
+			}
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.Subnets",
+					Field: "Subnets",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing subnet name",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{ 
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of subnets is missing 'name' field or name is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.Subnets[0].Name",
+					Field: "Name",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty subnet name",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{ 
-				"name": "", 
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of subnets is missing 'name' field or name is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.Subnets[0].Name",
+					Field: "Name",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "empty subnet address prefixes",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{ 
-				"name": "main", 
-				"address_prefixes": []
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": []
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'address_prefixes' list parameter in one of subnets missing or is 0 length"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.Subnets[0].AddressPrefixes",
+					Field: "AddressPrefixes",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing subnet address prefixes",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{ 
-				"name": "main"
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main"
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'address_prefixes' list parameter in one of subnets missing or is 0 length"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.Subnets[0].AddressPrefixes",
+					Field: "AddressPrefixes",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty subnet address prefixes element",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{ 
-				"name": "main", 
-				"address_prefixes": [
-					""
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							""
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'address_prefixes' list value in one of subnets missing is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.Subnets[0].AddressPrefixes[0]",
+					Field: "AddressPrefixes[0]",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "multiple subnets configuration",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main", 
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
-			}, 
-			{
-				"name": "second", 
-				"address_prefixes": [
-					"10.0.2.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					},
+					{
+						"name": "second",
+						"address_prefixes": [
+							"10.0.2.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
+		}
+		`),
 			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
@@ -764,45 +879,51 @@ func TestConfig_Load(t *testing.T) {
 		{
 			name: "missing vm_groups parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
 				]
 			}
-		]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'vm_groups' list parameter missing"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups",
+					Field: "VmGroups",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty vm_groups parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": []
 			}
-		],
-		"vm_groups": []
-	}
-}
-`),
+		}
+		`),
 			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
@@ -824,838 +945,970 @@ func TestConfig_Load(t *testing.T) {
 		{
 			name: "missing vm_groups name parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'name' field or name is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].Name",
+					Field: "Name",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing vm_groups vm_count parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_count' field or there is a negative number"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmCount",
+					Field: "VmCount",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "negative vm_groups vm_count parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": -100,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": -100,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_count' field or there is a negative number"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmCount",
+					Field: "VmCount",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing vm_groups vm_size parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_size' field or vm_size is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmSize",
+					Field: "VmSize",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing vm_groups use_public_ip parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'use_public_ip' field"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].UsePublicIP",
+					Field: "UsePublicIP",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing vm_groups subnet_names parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SubnetNames",
+					Field: "SubnetNames",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty vm_groups subnet_names list",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": [],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": [],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SubnetNames",
+					Field: "SubnetNames",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "vm_groups subnet_names list empty value",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": [""],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": [""],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups subnet names lists value is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SubnetNames[0]",
+					Field: "SubnetNames[0]",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "vm_groups subnet_names list value not existing in subnets",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["incorrect"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["incorrect"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups subnet names wasn't found among subnets"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "TODO Custom Validator",
+					Field: "TODO",
+					Tag:   "TODO",
+				},
+			},
 		},
 		{
 			name: "missing vm_groups vm_image parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"], 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image' field"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage",
+					Field: "VmImage",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing vm_groups.vm_image.publisher parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.publisher' field or this field is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Publisher",
+					Field: "Publisher",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty vm_groups.vm_image.publisher parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.publisher' field or this field is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Publisher",
+					Field: "Publisher",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing vm_groups.vm_image.offer parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.offer' field or this field is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Offer",
+					Field: "Offer",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty vm_groups.vm_image.offer parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.offer' field or this field is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Offer",
+					Field: "Offer",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing vm_groups.vm_image.sku parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.sku' field or this field is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Sku",
+					Field: "Sku",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty vm_groups.vm_image.sku parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.sku' field or this field is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Sku",
+					Field: "Sku",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing vm_groups.vm_image.version parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.version' field or this field is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Version",
+					Field: "Version",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty vm_groups.vm_image.version parameter",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": ""
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": ""
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'vm_image.version' field or this field is empty"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Version",
+					Field: "Version",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing vm_groups.data_disks list",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					}
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups is missing 'data_disks' list"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks",
+					Field: "DataDisks",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty vm_groups.data_disks list value",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": [
+						{}
+					]
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": [
-				{}
-			]
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups data disks sizes is empty or size is less than 1"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].GbSize",
+					Field: "GbSize",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "zero vm_groups.data_disks list value",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": [
+						{
+							"disk_size_gb": 0
+						}
+					]
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": [
-				{
-					"disk_size_gb": 0
-				}
-			]
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups data disks sizes is empty or size is less than 1"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].GbSize",
+					Field: "GbSize",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "negative vm_groups.data_disks list value",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "main",
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": [
+						{
+							"disk_size_gb": -1
+						}
+					]
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": [
-				{
-					"disk_size_gb": -1
-				}
-			]
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of vm groups data disks sizes is empty or size is less than 1"},
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].GbSize",
+					Field: "GbSize",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "multiple vm_groups configuration",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "first", 
-				"address_prefixes": [
-					"10.0.1.0/24"
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "first",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [
+					{
+						"name": "first",
+						"vm_count": 3,
+						"vm_size": "Standard_DS2_v2",
+						"use_public_ip": true,
+						"subnet_names": ["first"],
+						"vm_image": {
+							"publisher": "Canonical",
+							"offer": "UbuntuServer",
+							"sku": "18.04-LTS",
+							"version": "18.04.202006101"
+						},
+						"data_disks": []
+					},
+					{
+						"name": "second",
+						"vm_count": 3,
+						"vm_size": "Standard_DS2_v2",
+						"use_public_ip": true,
+						"subnet_names": ["first"],
+						"vm_image": {
+							"publisher": "Canonical",
+							"offer": "UbuntuServer",
+							"sku": "18.04-LTS",
+							"version": "18.04.202006101"
+						},
+						"data_disks": []
+					}
 				]
 			}
-		],
-		"vm_groups": [
-			{
-				"name": "first",
-				"vm_count": 3,
-				"vm_size": "Standard_DS2_v2",
-				"use_public_ip": true,
-				"subnet_names": ["first"],
-				"vm_image": {
-					"publisher": "Canonical",
-					"offer": "UbuntuServer",
-					"sku": "18.04-LTS",
-					"version": "18.04.202006101"
-				}, 
-				"data_disks": []
-			}, 
-			{
-				"name": "second",
-				"vm_count": 3,
-				"vm_size": "Standard_DS2_v2",
-				"use_public_ip": true,
-				"subnet_names": ["first"],
-				"vm_image": {
-					"publisher": "Canonical",
-					"offer": "UbuntuServer",
-					"sku": "18.04-LTS",
-					"version": "18.04.202006101"
-				}, 
-				"data_disks": []
-			}
-		]
-	}
-}
-`),
+		}
+		`),
 			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
@@ -1706,58 +1959,58 @@ func TestConfig_Load(t *testing.T) {
 		{
 			name: "multiple vm_groups and subnets configuration",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "first", 
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
-			}, 
-			{
-				"name": "second", 
-				"address_prefixes": [
-					"10.0.2.0/24"
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "first",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					},
+					{
+						"name": "second",
+						"address_prefixes": [
+							"10.0.2.0/24"
+						]
+					}
+				],
+				"vm_groups": [
+					{
+						"name": "first",
+						"vm_count": 3,
+						"vm_size": "Standard_DS2_v2",
+						"use_public_ip": true,
+						"subnet_names": ["first"],
+						"vm_image": {
+							"publisher": "Canonical",
+							"offer": "UbuntuServer",
+							"sku": "18.04-LTS",
+							"version": "18.04.202006101"
+						},
+						"data_disks": []
+					},
+					{
+						"name": "second",
+						"vm_count": 3,
+						"vm_size": "Standard_DS2_v2",
+						"use_public_ip": true,
+						"subnet_names": ["second"],
+						"vm_image": {
+							"publisher": "Canonical",
+							"offer": "UbuntuServer",
+							"sku": "18.04-LTS",
+							"version": "18.04.202006101"
+						},
+						"data_disks": []
+					}
 				]
 			}
-		],
-		"vm_groups": [
-			{
-				"name": "first",
-				"vm_count": 3,
-				"vm_size": "Standard_DS2_v2",
-				"use_public_ip": true,
-				"subnet_names": ["first"],
-				"vm_image": {
-					"publisher": "Canonical",
-					"offer": "UbuntuServer",
-					"sku": "18.04-LTS",
-					"version": "18.04.202006101"
-				}, 
-				"data_disks": []
-			}, 
-			{
-				"name": "second",
-				"vm_count": 3,
-				"vm_size": "Standard_DS2_v2",
-				"use_public_ip": true,
-				"subnet_names": ["second"],
-				"vm_image": {
-					"publisher": "Canonical",
-					"offer": "UbuntuServer",
-					"sku": "18.04-LTS",
-					"version": "18.04.202006101"
-				}, 
-				"data_disks": []
-			}
-		]
-	}
-}
-`),
+		}
+		`),
 			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
@@ -1812,64 +2065,64 @@ func TestConfig_Load(t *testing.T) {
 		{
 			name: "2 vm_groups and 3 subnets configuration",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "first", 
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
-			}, 
-			{
-				"name": "second", 
-				"address_prefixes": [
-					"10.0.2.0/24"
-				]
-			}, 
-			{
-				"name": "third", 
-				"address_prefixes": [
-					"10.0.3.0/24"
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "first",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					},
+					{
+						"name": "second",
+						"address_prefixes": [
+							"10.0.2.0/24"
+						]
+					},
+					{
+						"name": "third",
+						"address_prefixes": [
+							"10.0.3.0/24"
+						]
+					}
+				],
+				"vm_groups": [
+					{
+						"name": "first",
+						"vm_count": 3,
+						"vm_size": "Standard_DS2_v2",
+						"use_public_ip": true,
+						"subnet_names": ["first", "third"],
+						"vm_image": {
+							"publisher": "Canonical",
+							"offer": "UbuntuServer",
+							"sku": "18.04-LTS",
+							"version": "18.04.202006101"
+						},
+						"data_disks": []
+					},
+					{
+						"name": "second",
+						"vm_count": 3,
+						"vm_size": "Standard_DS2_v2",
+						"use_public_ip": true,
+						"subnet_names": ["second", "third"],
+						"vm_image": {
+							"publisher": "Canonical",
+							"offer": "UbuntuServer",
+							"sku": "18.04-LTS",
+							"version": "18.04.202006101"
+						},
+						"data_disks": []
+					}
 				]
 			}
-		],
-		"vm_groups": [
-			{
-				"name": "first",
-				"vm_count": 3,
-				"vm_size": "Standard_DS2_v2",
-				"use_public_ip": true,
-				"subnet_names": ["first", "third"],
-				"vm_image": {
-					"publisher": "Canonical",
-					"offer": "UbuntuServer",
-					"sku": "18.04-LTS",
-					"version": "18.04.202006101"
-				}, 
-				"data_disks": []
-			}, 
-			{
-				"name": "second",
-				"vm_count": 3,
-				"vm_size": "Standard_DS2_v2",
-				"use_public_ip": true,
-				"subnet_names": ["second", "third"],
-				"vm_image": {
-					"publisher": "Canonical",
-					"offer": "UbuntuServer",
-					"sku": "18.04-LTS",
-					"version": "18.04.202006101"
-				}, 
-				"data_disks": []
-			}
-		]
-	}
-}
-`),
+		}
+		`),
 			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
@@ -1928,72 +2181,72 @@ func TestConfig_Load(t *testing.T) {
 		{
 			name: "multiple vm_groups and subnets and data disks configuration",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "v0.1.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany",
-		"subnets": [
-			{
-				"name": "first", 
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
-			}, 
-			{
-				"name": "second", 
-				"address_prefixes": [
-					"10.0.2.0/24"
-				]
-			}
-		],
-		"vm_groups": [
-			{
-				"name": "first",
-				"vm_count": 3,
-				"vm_size": "Standard_DS2_v2",
-				"use_public_ip": true,
-				"subnet_names": ["first"],
-				"vm_image": {
-					"publisher": "Canonical",
-					"offer": "UbuntuServer",
-					"sku": "18.04-LTS",
-					"version": "18.04.202006101"
-				}, 
-				"data_disks": [
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
 					{
-						"disk_size_gb": 10
-					}, 
+						"name": "first",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					},
 					{
-						"disk_size_gb": 20
+						"name": "second",
+						"address_prefixes": [
+							"10.0.2.0/24"
+						]
+					}
+				],
+				"vm_groups": [
+					{
+						"name": "first",
+						"vm_count": 3,
+						"vm_size": "Standard_DS2_v2",
+						"use_public_ip": true,
+						"subnet_names": ["first"],
+						"vm_image": {
+							"publisher": "Canonical",
+							"offer": "UbuntuServer",
+							"sku": "18.04-LTS",
+							"version": "18.04.202006101"
+						},
+						"data_disks": [
+							{
+								"disk_size_gb": 10
+							},
+							{
+								"disk_size_gb": 20
+							}
+						]
+					},
+					{
+						"name": "second",
+						"vm_count": 3,
+						"vm_size": "Standard_DS2_v2",
+						"use_public_ip": true,
+						"subnet_names": ["second"],
+						"vm_image": {
+							"publisher": "Canonical",
+							"offer": "UbuntuServer",
+							"sku": "18.04-LTS",
+							"version": "18.04.202006101"
+						},
+						"data_disks": [
+							{
+								"disk_size_gb": 30
+							},
+							{
+								"disk_size_gb": 40
+							}
+						]
 					}
 				]
-			}, 
-			{
-				"name": "second",
-				"vm_count": 3,
-				"vm_size": "Standard_DS2_v2",
-				"use_public_ip": true,
-				"subnet_names": ["second"],
-				"vm_image": {
-					"publisher": "Canonical",
-					"offer": "UbuntuServer",
-					"sku": "18.04-LTS",
-					"version": "18.04.202006101"
-				}, 
-				"data_disks": [
-					{
-						"disk_size_gb": 30
-					}, 
-					{
-						"disk_size_gb": 40
-					}
-				]
 			}
-		]
-	}
-}
-`),
+		}
+		`),
 			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
@@ -2062,72 +2315,78 @@ func TestConfig_Load(t *testing.T) {
 		{
 			name: "major version mismatch",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "100.0.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany", 
-		"subnets": [
-			{
-				"name": "main", 
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "100.0.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
-			want:    nil,
-			wantErr: MajorVersionMismatchError,
+		}
+		`),
+			want: nil,
+			wantErr: TestValidationErrors{
+				TestValidationError{
+					Key:   "Config.Version",
+					Field: "Version",
+					Tag:   "semver",
+				},
+			},
 		},
 		{
 			name: "minor version mismatch",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "0.100.0",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany", 
-		"subnets": [
-			{
-				"name": "main", 
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "0.100.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
+		}
+		`),
 			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("0.100.0"),
@@ -2164,36 +2423,36 @@ func TestConfig_Load(t *testing.T) {
 		{
 			name: "patch version mismatch",
 			args: []byte(`{
-	"kind": "azbi",
-	"version": "0.0.100",
-	"params": {
-		"location": "northeurope",
-		"name": "epiphany", 
-		"subnets": [
-			{
-				"name": "main", 
-				"address_prefixes": [
-					"10.0.1.0/24"
-				]
+			"kind": "azbi",
+			"version": "0.0.100",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
 			}
-		],
-		"vm_groups": [{
-			"name": "vm-group0",
-			"vm_count": 3,
-			"vm_size": "Standard_DS2_v2",
-			"use_public_ip": true,
-			"subnet_names": ["main"],
-			"vm_image": {
-				"publisher": "Canonical",
-				"offer": "UbuntuServer",
-				"sku": "18.04-LTS",
-				"version": "18.04.202006101"
-			}, 
-			"data_disks": []
-		}]
-	}
-}
-`),
+		}
+		`),
 			want: &Config{
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("0.0.100"),
@@ -2234,12 +2493,28 @@ func TestConfig_Load(t *testing.T) {
 			err := got.Unmarshal(tt.args)
 
 			if tt.wantErr != nil {
-				errMsg := ""
 				if err != nil {
-					errMsg = err.Error()
-				}
-				if diff := cmp.Diff(tt.wantErr.Error(), errMsg, cmpopts.EquateErrors()); diff != "" {
-					t.Errorf("Unmarshal() errors mismatch (-want +got):\n%s", diff)
+					if _, ok := err.(*validator.InvalidValidationError); ok {
+						t.Fatal(err)
+					}
+					errs := err.(validator.ValidationErrors)
+					if len(errs) != len(tt.wantErr.(TestValidationErrors)) {
+						t.Fatalf("incorrect length of found errors. Got: \n%s\nExpected: \n%s", errs.Error(), tt.wantErr.Error())
+					}
+					for _, e := range errs {
+						found := false
+						for _, we := range tt.wantErr.(TestValidationErrors) {
+							if we.Key == e.Namespace() && we.Tag == e.Tag() && we.Field == e.Field() {
+								found = true
+								break
+							}
+						}
+						if !found {
+							t.Errorf("Got unknown error:\n%s\nAll expected errors: \n%s", e.Error(), tt.wantErr.Error())
+						}
+					}
+				} else {
+					t.Errorf("No errors got. All expected errors: \n%s", tt.wantErr.Error())
 				}
 			} else {
 				if diff := cmp.Diff(tt.want, got); diff != "" {
