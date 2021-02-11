@@ -3,8 +3,6 @@ package v0
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
-
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/go-playground/validator/v10"
 	maps "github.com/mitchellh/mapstructure"
@@ -201,7 +199,6 @@ func (c *Config) isValid() error {
 		if _, ok := err.(*validator.InvalidValidationError); ok {
 			return err
 		}
-		fmt.Println(err.Error())
 		return err
 	}
 

@@ -1,10 +1,8 @@
 package v0
 
 import (
-	"bytes"
-	"fmt"
+	"github.com/epiphany-platform/e-structures/utils/test"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/go-playground/validator/v10"
@@ -12,30 +10,6 @@ import (
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/google/go-cmp/cmp"
 )
-
-type TestValidationErrors []TestValidationError
-
-func (e TestValidationErrors) Error() string {
-	buff := bytes.NewBufferString("")
-
-	for _, te := range e {
-
-		buff.WriteString(te.Error())
-		buff.WriteString("\n")
-	}
-
-	return strings.TrimSpace(buff.String())
-}
-
-type TestValidationError struct {
-	Key   string
-	Field string
-	Tag   string
-}
-
-func (e TestValidationError) Error() string {
-	return fmt.Sprintf("Key: '%s' Error:Field validation for '%s' failed on the '%s' tag", e.Key, e.Field, e.Tag)
-}
 
 func TestConfig_Load(t *testing.T) {
 	tests := []struct {
@@ -370,18 +344,18 @@ func TestConfig_Load(t *testing.T) {
 			name: "empty json",
 			args: []byte(`{}`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Kind",
 					Field: "Kind",
 					Tag:   "required",
 				},
-				TestValidationError{
+				test.TestValidationError{
 					Key:   "Config.Version",
 					Field: "Version",
 					Tag:   "required",
 				},
-				TestValidationError{
+				test.TestValidationError{
 					Key:   "Config.Params",
 					Field: "Params",
 					Tag:   "required",
@@ -395,13 +369,13 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Version",
 					Field: "Version",
 					Tag:   "required",
 				},
-				TestValidationError{
+				test.TestValidationError{
 					Key:   "Config.Params",
 					Field: "Params",
 					Tag:   "required",
@@ -416,8 +390,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params",
 					Field: "Params",
 					Tag:   "required",
@@ -448,13 +422,13 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.Name",
 					Field: "Name",
 					Tag:   "required",
 				},
-				TestValidationError{
+				test.TestValidationError{
 					Key:   "Config.Params.Subnets",
 					Field: "Subnets",
 					Tag:   "required",
@@ -553,8 +527,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.Subnets",
 					Field: "Subnets",
 					Tag:   "required",
@@ -588,8 +562,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.Subnets",
 					Field: "Subnets",
 					Tag:   "min",
@@ -629,8 +603,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.Subnets[0].Name",
 					Field: "Name",
 					Tag:   "required",
@@ -671,8 +645,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.Subnets[0].Name",
 					Field: "Name",
 					Tag:   "min",
@@ -711,8 +685,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.Subnets[0].AddressPrefixes",
 					Field: "AddressPrefixes",
 					Tag:   "min",
@@ -750,8 +724,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.Subnets[0].AddressPrefixes",
 					Field: "AddressPrefixes",
 					Tag:   "required",
@@ -792,8 +766,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.Subnets[0].AddressPrefixes[0]",
 					Field: "AddressPrefixes[0]",
 					Tag:   "required",
@@ -896,8 +870,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups",
 					Field: "VmGroups",
 					Tag:   "required",
@@ -975,8 +949,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].Name",
 					Field: "Name",
 					Tag:   "required",
@@ -1016,8 +990,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmCount",
 					Field: "VmCount",
 					Tag:   "required",
@@ -1058,8 +1032,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmCount",
 					Field: "VmCount",
 					Tag:   "min",
@@ -1099,8 +1073,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmSize",
 					Field: "VmSize",
 					Tag:   "required",
@@ -1140,8 +1114,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].UsePublicIP",
 					Field: "UsePublicIP",
 					Tag:   "required",
@@ -1181,8 +1155,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].SubnetNames",
 					Field: "SubnetNames",
 					Tag:   "required",
@@ -1223,8 +1197,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].SubnetNames",
 					Field: "SubnetNames",
 					Tag:   "min",
@@ -1265,8 +1239,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].SubnetNames[0]",
 					Field: "SubnetNames[0]",
 					Tag:   "required",
@@ -1307,8 +1281,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "TODO Custom Validator",
 					Field: "TODO",
 					Tag:   "TODO",
@@ -1343,8 +1317,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmImage",
 					Field: "VmImage",
 					Tag:   "required",
@@ -1384,8 +1358,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmImage.Publisher",
 					Field: "Publisher",
 					Tag:   "required",
@@ -1426,8 +1400,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmImage.Publisher",
 					Field: "Publisher",
 					Tag:   "min",
@@ -1467,8 +1441,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmImage.Offer",
 					Field: "Offer",
 					Tag:   "required",
@@ -1509,8 +1483,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmImage.Offer",
 					Field: "Offer",
 					Tag:   "min",
@@ -1550,8 +1524,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmImage.Sku",
 					Field: "Sku",
 					Tag:   "required",
@@ -1592,8 +1566,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmImage.Sku",
 					Field: "Sku",
 					Tag:   "min",
@@ -1633,8 +1607,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmImage.Version",
 					Field: "Version",
 					Tag:   "required",
@@ -1675,8 +1649,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmImage.Version",
 					Field: "Version",
 					Tag:   "min",
@@ -1716,8 +1690,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].DataDisks",
 					Field: "DataDisks",
 					Tag:   "required",
@@ -1760,8 +1734,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].DataDisks[0].GbSize",
 					Field: "GbSize",
 					Tag:   "required",
@@ -1806,8 +1780,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].DataDisks[0].GbSize",
 					Field: "GbSize",
 					Tag:   "min",
@@ -1852,8 +1826,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].DataDisks[0].GbSize",
 					Field: "GbSize",
 					Tag:   "min",
@@ -2346,8 +2320,8 @@ func TestConfig_Load(t *testing.T) {
 		}
 		`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "Config.Version",
 					Field: "Version",
 					Tag:   "semver",
@@ -2498,12 +2472,12 @@ func TestConfig_Load(t *testing.T) {
 						t.Fatal(err)
 					}
 					errs := err.(validator.ValidationErrors)
-					if len(errs) != len(tt.wantErr.(TestValidationErrors)) {
+					if len(errs) != len(tt.wantErr.(test.TestValidationErrors)) {
 						t.Fatalf("incorrect length of found errors. Got: \n%s\nExpected: \n%s", errs.Error(), tt.wantErr.Error())
 					}
 					for _, e := range errs {
 						found := false
-						for _, we := range tt.wantErr.(TestValidationErrors) {
+						for _, we := range tt.wantErr.(test.TestValidationErrors) {
 							if we.Key == e.Namespace() && we.Tag == e.Tag() && we.Field == e.Field() {
 								found = true
 								break

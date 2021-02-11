@@ -1,12 +1,13 @@
 package v0
 
 import (
+	"github.com/epiphany-platform/e-structures/utils/test"
+	"github.com/go-playground/validator/v10"
 	"testing"
 
 	"github.com/epiphany-platform/e-structures/utils/to"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 // TestConfig_Load_general contains all general types of scenarios: happy path, unknown fields,
@@ -355,10 +356,26 @@ func TestConfig_Load_general(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:    "empty json",
-			json:    []byte(`{}`),
-			want:    nil,
-			wantErr: KindMissingValidationError,
+			name: "empty json",
+			json: []byte(`{}`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Kind",
+					Field: "Kind",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Version",
+					Field: "Version",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params",
+					Field: "Params",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "just kind field",
@@ -366,8 +383,19 @@ func TestConfig_Load_general(t *testing.T) {
 	"kind": "azks"
 }
 `),
-			want:    nil,
-			wantErr: VersionMissingValidationError,
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Version",
+					Field: "Version",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params",
+					Field: "Params",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "just kind and version",
@@ -376,8 +404,14 @@ func TestConfig_Load_general(t *testing.T) {
 	"version": "v0.0.1"
 }
 `),
-			want:    nil,
-			wantErr: ParamsMissingValidationError,
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params",
+					Field: "Params",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "minimal correct json",
@@ -613,8 +647,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'name' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.Name",
+					Field: "Name",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty name",
@@ -663,8 +703,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'name' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.Name",
+					Field: "Name",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing location",
@@ -712,8 +758,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'location' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.Location",
+					Field: "Location",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty location",
@@ -762,8 +814,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'location' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.Location",
+					Field: "Location",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing rg_name",
@@ -811,8 +869,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'rg_name' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.RgName",
+					Field: "RgName",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty rg_name",
@@ -861,8 +925,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'rg_name' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.RgName",
+					Field: "RgName",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing vnet_name",
@@ -910,8 +980,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'vnet_name' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.VnetName",
+					Field: "VnetName",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty vnet_name",
@@ -960,8 +1036,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'vnet_name' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.VnetName",
+					Field: "VnetName",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing subnet_name",
@@ -1009,8 +1091,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'subnet_name' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.SubnetName",
+					Field: "SubnetName",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty subnet_name",
@@ -1059,8 +1147,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'subnet_name' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.SubnetName",
+					Field: "SubnetName",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing kubernetes_version",
@@ -1108,8 +1202,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'kubernetes_version' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.KubernetesVersion",
+					Field: "KubernetesVersion",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty kubernetes_version",
@@ -1158,8 +1258,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'kubernetes_version' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.KubernetesVersion",
+					Field: "KubernetesVersion",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing enable_node_public_ip",
@@ -1207,8 +1313,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'enable_node_public_ip' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.EnableNodePublicIp",
+					Field: "EnableNodePublicIp",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing enable_rbac",
@@ -1256,8 +1368,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'enable_rbac' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.EnableRbac",
+					Field: "EnableRbac",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing identity_type",
@@ -1305,8 +1423,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'identity_type' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.IdentityType",
+					Field: "IdentityType",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty identity_type",
@@ -1355,8 +1479,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'identity_type' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.IdentityType",
+					Field: "IdentityType",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing kube_dashboard_enabled",
@@ -1404,8 +1534,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'kube_dashboard_enabled' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.KubeDashboardEnabled",
+					Field: "KubeDashboardEnabled",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing admin_username",
@@ -1453,8 +1589,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"kube_dashboard_enabled": true
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'admin_username' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AdminUsername",
+					Field: "AdminUsername",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty admin_username",
@@ -1503,8 +1645,14 @@ func TestConfig_Load_Params(t *testing.T) {
 		"admin_username": ""
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'admin_username' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AdminUsername",
+					Field: "AdminUsername",
+					Tag:   "min",
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -1560,8 +1708,14 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'default_node_pool' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool",
+					Field: "DefaultNodePool",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty default_node_pool",
@@ -1602,8 +1756,44 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'default_node_pool.size' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.Size",
+					Field: "Size",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.Min",
+					Field: "Min",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.Max",
+					Field: "Max",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.VmSize",
+					Field: "VmSize",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.DiskSize",
+					Field: "DiskSize",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.AutoScaling",
+					Field: "AutoScaling",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.Type",
+					Field: "Type",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing default_node_pool.size",
@@ -1651,8 +1841,14 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'default_node_pool.size' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.Size",
+					Field: "Size",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing default_node_pool.min",
@@ -1700,8 +1896,14 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'default_node_pool.min' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.Min",
+					Field: "Min",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing default_node_pool.max",
@@ -1749,8 +1951,14 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'default_node_pool.max' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.Max",
+					Field: "Max",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing default_node_pool.vm_size",
@@ -1798,8 +2006,14 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'default_node_pool.vm_size' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.VmSize",
+					Field: "VmSize",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty default_node_pool.vm_size",
@@ -1848,8 +2062,14 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'default_node_pool.vm_size' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.VmSize",
+					Field: "VmSize",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing default_node_pool.disk_size",
@@ -1897,8 +2117,14 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'default_node_pool.disk_size' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.DiskSize",
+					Field: "DiskSize",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty default_node_pool.disk_size",
@@ -1947,8 +2173,14 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'default_node_pool.disk_size' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.DiskSize",
+					Field: "DiskSize",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing default_node_pool.auto_scaling",
@@ -1996,8 +2228,14 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'default_node_pool.auto_scaling' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.AutoScaling",
+					Field: "AutoScaling",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing default_node_pool.type",
@@ -2045,8 +2283,14 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'default_node_pool.type' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.Type",
+					Field: "Type",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty default_node_pool.type",
@@ -2095,8 +2339,14 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'default_node_pool.type' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.Type",
+					Field: "Type",
+					Tag:   "min",
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -2150,8 +2400,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile",
+					Field: "AutoScalerProfile",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty auto_scaler_profile",
@@ -2190,8 +2446,54 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.balance_similar_node_groups' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.BalanceSimilarNodeGroups",
+					Field: "BalanceSimilarNodeGroups",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.MaxGracefulTerminationSec",
+					Field: "MaxGracefulTerminationSec",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterAdd",
+					Field: "ScaleDownDelayAfterAdd",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterDelete",
+					Field: "ScaleDownDelayAfterDelete",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterFailure",
+					Field: "ScaleDownDelayAfterFailure",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScanInterval",
+					Field: "ScanInterval",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownUnneeded",
+					Field: "ScaleDownUnneeded",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownUnready",
+					Field: "ScaleDownUnready",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownUtilizationThreshold",
+					Field: "ScaleDownUtilizationThreshold",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing auto_scaler_profile.balance_similar_node_groups",
@@ -2239,8 +2541,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.balance_similar_node_groups' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.BalanceSimilarNodeGroups",
+					Field: "BalanceSimilarNodeGroups",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing auto_scaler_profile.max_graceful_termination_sec",
@@ -2288,8 +2596,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.max_graceful_termination_sec' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.MaxGracefulTerminationSec",
+					Field: "MaxGracefulTerminationSec",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty auto_scaler_profile.max_graceful_termination_sec",
@@ -2338,8 +2652,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.max_graceful_termination_sec' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.MaxGracefulTerminationSec",
+					Field: "MaxGracefulTerminationSec",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing auto_scaler_profile.scale_down_delay_after_add",
@@ -2387,8 +2707,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_add' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterAdd",
+					Field: "ScaleDownDelayAfterAdd",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty auto_scaler_profile.scale_down_delay_after_add",
@@ -2437,8 +2763,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_add' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterAdd",
+					Field: "ScaleDownDelayAfterAdd",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing auto_scaler_profile.scale_down_delay_after_delete",
@@ -2486,8 +2818,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_delete' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterDelete",
+					Field: "ScaleDownDelayAfterDelete",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty auto_scaler_profile.scale_down_delay_after_delete",
@@ -2536,8 +2874,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_delete' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterDelete",
+					Field: "ScaleDownDelayAfterDelete",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing auto_scaler_profile.scale_down_delay_after_failure",
@@ -2585,8 +2929,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_failure' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterFailure",
+					Field: "ScaleDownDelayAfterFailure",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty auto_scaler_profile.scale_down_delay_after_failure",
@@ -2635,8 +2985,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_failure' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterFailure",
+					Field: "ScaleDownDelayAfterFailure",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing auto_scaler_profile.scan_interval",
@@ -2684,8 +3040,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scan_interval' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScanInterval",
+					Field: "ScanInterval",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty auto_scaler_profile.scan_interval",
@@ -2734,8 +3096,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scan_interval' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScanInterval",
+					Field: "ScanInterval",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing auto_scaler_profile.scale_down_unneeded",
@@ -2783,8 +3151,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_unneeded' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownUnneeded",
+					Field: "ScaleDownUnneeded",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty auto_scaler_profile.scale_down_unneeded",
@@ -2833,8 +3207,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_unneeded' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownUnneeded",
+					Field: "ScaleDownUnneeded",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing auto_scaler_profile.scale_down_unready",
@@ -2882,8 +3262,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_unready' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownUnready",
+					Field: "ScaleDownUnready",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty auto_scaler_profile.scale_down_unready",
@@ -2932,8 +3318,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_unready' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownUnready",
+					Field: "ScaleDownUnready",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing auto_scaler_profile.scale_down_utilization_threshold",
@@ -2981,8 +3373,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_utilization_threshold' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownUtilizationThreshold",
+					Field: "ScaleDownUtilizationThreshold",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty auto_scaler_profile.scale_down_utilization_threshold",
@@ -3031,8 +3429,14 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_utilization_threshold' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AutoScalerProfile.ScaleDownUtilizationThreshold",
+					Field: "ScaleDownUtilizationThreshold",
+					Tag:   "min",
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -3259,8 +3663,14 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'azure_ad.managed' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AzureAd.Managed",
+					Field: "Managed",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing azure_ad.tenant_id",
@@ -3308,8 +3718,14 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'azure_ad.tenant_id' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AzureAd.TenantId",
+					Field: "TenantId",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty azure_ad.tenant_id",
@@ -3358,8 +3774,14 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'azure_ad.tenant_id' parameter missing"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AzureAd.TenantId",
+					Field: "TenantId",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "missing azure_ad.admin_group_object_ids",
@@ -3405,8 +3827,14 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'azure_ad.admin_group_object_ids' parameter list is missing or its length is 0"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AzureAd.AdminGroupObjectIds",
+					Field: "AdminGroupObjectIds",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "empty azure_ad.admin_group_object_ids",
@@ -3453,8 +3881,14 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"'azure_ad.admin_group_object_ids' parameter list is missing or its length is 0"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AzureAd.AdminGroupObjectIds",
+					Field: "AdminGroupObjectIds",
+					Tag:   "min",
+				},
+			},
 		},
 		{
 			name: "empty azure_ad.admin_group_object_ids element",
@@ -3503,8 +3937,14 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 		"admin_username": "operations"
 	}
 }`),
-			want:    nil,
-			wantErr: &MinimalParamsValidationError{"one of Azure AD Admin Group IDs lists value is empty"},
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AzureAd.AdminGroupObjectIds[0]",
+					Field: "AdminGroupObjectIds[0]",
+					Tag:   "required",
+				},
+			},
 		},
 	}
 
@@ -3520,13 +3960,38 @@ func configLoadTestingBody(t *testing.T, json []byte, want *Config, wantErr erro
 	err := got.Unmarshal(json)
 
 	if wantErr != nil {
-		errMsg := ""
+
 		if err != nil {
-			errMsg = err.Error()
+			if _, ok := err.(*validator.InvalidValidationError); ok {
+				t.Fatal(err)
+			}
+			errs := err.(validator.ValidationErrors)
+			if len(errs) != len(wantErr.(test.TestValidationErrors)) {
+				t.Fatalf("incorrect length of found errors. Got: \n%s\nExpected: \n%s", errs.Error(), wantErr.Error())
+			}
+			for _, e := range errs {
+				found := false
+				for _, we := range wantErr.(test.TestValidationErrors) {
+					if we.Key == e.Namespace() && we.Tag == e.Tag() && we.Field == e.Field() {
+						found = true
+						break
+					}
+				}
+				if !found {
+					t.Errorf("Got unknown error:\n%s\nAll expected errors: \n%s", e.Error(), wantErr.Error())
+				}
+			}
+		} else {
+			t.Errorf("No errors got. All expected errors: \n%s", wantErr.Error())
 		}
-		if diff := cmp.Diff(wantErr.Error(), errMsg, cmpopts.EquateErrors()); diff != "" {
-			t.Errorf("Unmarshal() errors mismatch (-want +got):\n%s", diff)
-		}
+
+		//errMsg := ""
+		//if err != nil {
+		//	errMsg = err.Error()
+		//}
+		//if diff := cmp.Diff(wantErr.Error(), errMsg, cmpopts.EquateErrors()); diff != "" {
+		//	t.Errorf("Unmarshal() errors mismatch (-want +got):\n%s", diff)
+		//}
 	} else {
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("Unmarshal() mismatch (-want +got):\n%s", diff)
