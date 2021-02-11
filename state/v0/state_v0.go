@@ -3,7 +3,7 @@ package v0
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"github.com/epiphany-platform/e-structures/utils/validators"
 
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
 	azks "github.com/epiphany-platform/e-structures/azks/v0"
@@ -66,7 +66,7 @@ func (s *AzKSState) GetOutput() *azks.Output {
 
 type State struct {
 	Kind    *string    `json:"kind" validate:"required,eq=state"`
-	Version *string    `json:"version"` // TODO custom validator to ensure major version match
+	Version *string    `json:"version" validate:"required,major=~0"`
 	Unused  []string   `json:"-"`
 	AzBI    *AzBIState `json:"azbi" validate:"omitempty"`
 	AzKS    *AzKSState `json:"azks" validate:"omitempty"`
@@ -131,28 +131,16 @@ func (s *State) isValid() error {
 		return errors.New("state is nil")
 	}
 	validate := validator.New()
-	err := validate.Struct(s)
+	err := validate.RegisterValidation("major", validators.HasMajorVersionLike)
+	if err != nil {
+		return err
+	}
+	err = validate.Struct(s)
 	if err != nil {
 		if _, ok := err.(*validator.InvalidValidationError); ok {
 			return err
 		}
-		fmt.Println(err.Error())
 		return err
 	}
-	//v, err := semver.NewVersion(version)
-	//if err != nil {
-	//	return err
-	//}
-	//constraint, err := semver.NewConstraint(fmt.Sprintf("~%d", v.Major()))
-	//if err != nil {
-	//	return err
-	//}
-	//vv, err := semver.NewVersion(*s.Version)
-	//if err != nil {
-	//	return err
-	//}
-	//if !constraint.Check(vv) {
-	//	return MajorVersionMismatchError
-	//}
 	return nil
 }

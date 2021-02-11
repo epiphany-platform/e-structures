@@ -1,40 +1,14 @@
 package v0
 
 import (
-	"bytes"
-	"fmt"
-	"strings"
+	"github.com/epiphany-platform/e-structures/utils/test"
+	"github.com/go-playground/validator/v10"
 	"testing"
 
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 )
-
-type TestValidationErrors []TestValidationError
-
-func (e TestValidationErrors) Error() string {
-	buff := bytes.NewBufferString("")
-
-	for _, te := range e {
-
-		buff.WriteString(te.Error())
-		buff.WriteString("\n")
-	}
-
-	return strings.TrimSpace(buff.String())
-}
-
-type TestValidationError struct {
-	Key   string
-	Field string
-	Tag   string
-}
-
-func (e TestValidationError) Error() string {
-	return fmt.Sprintf("Key: '%s' Error:Field validation for '%s' failed on the '%s' tag", e.Key, e.Field, e.Tag)
-}
 
 func TestState_Load(t *testing.T) {
 	tests := []struct {
@@ -499,11 +473,11 @@ func TestState_Load(t *testing.T) {
 	"version": "1.0.0"
 }`),
 			want: nil,
-			wantErr: TestValidationErrors{
-				TestValidationError{
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
 					Key:   "State.Version",
 					Field: "Version",
-					Tag:   "semver",
+					Tag:   "major",
 				},
 			},
 		},
@@ -542,8 +516,28 @@ func TestState_Load(t *testing.T) {
 			err := got.Unmarshal(tt.args)
 
 			if tt.wantErr != nil {
-				if diff := cmp.Diff(tt.wantErr, err, cmpopts.EquateErrors()); diff != "" {
-					t.Errorf("Unmarshal() errors mismatch (-want +got):\n%s", diff)
+				if err != nil {
+					if _, ok := err.(*validator.InvalidValidationError); ok {
+						t.Fatal(err)
+					}
+					errs := err.(validator.ValidationErrors)
+					if len(errs) != len(tt.wantErr.(test.TestValidationErrors)) {
+						t.Fatalf("incorrect length of found errors. Got: \n%s\nExpected: \n%s", errs.Error(), tt.wantErr.Error())
+					}
+					for _, e := range errs {
+						found := false
+						for _, we := range tt.wantErr.(test.TestValidationErrors) {
+							if we.Key == e.Namespace() && we.Tag == e.Tag() && we.Field == e.Field() {
+								found = true
+								break
+							}
+						}
+						if !found {
+							t.Errorf("Got unknown error:\n%s\nAll expected errors: \n%s", e.Error(), tt.wantErr.Error())
+						}
+					}
+				} else {
+					t.Errorf("No errors got. All expected errors: \n%s", tt.wantErr.Error())
 				}
 			} else {
 				if diff := cmp.Diff(tt.want, got); diff != "" {

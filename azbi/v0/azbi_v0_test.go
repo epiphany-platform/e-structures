@@ -2324,7 +2324,7 @@ func TestConfig_Load(t *testing.T) {
 				test.TestValidationError{
 					Key:   "Config.Version",
 					Field: "Version",
-					Tag:   "semver",
+					Tag:   "major",
 				},
 			},
 		},

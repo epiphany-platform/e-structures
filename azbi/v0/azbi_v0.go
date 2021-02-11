@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/epiphany-platform/e-structures/utils/to"
+	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
 	maps "github.com/mitchellh/mapstructure"
 )
@@ -108,7 +109,7 @@ func (p *Params) ExtractEmptySubnets() []Subnet {
 
 type Config struct {
 	Kind    *string  `json:"kind" validate:"required,eq=azbi"`
-	Version *string  `json:"version" validate:"required"` // TODO custom validator to ensure major version match
+	Version *string  `json:"version" validate:"required,major=~0"`
 	Params  *Params  `json:"params" validate:"required"`
 	Unused  []string `json:"-"`
 }
@@ -194,7 +195,11 @@ func (c *Config) isValid() error {
 		return errors.New("azbi config is nil")
 	}
 	validate := validator.New()
-	err := validate.Struct(c)
+	err := validate.RegisterValidation("major", validators.HasMajorVersionLike)
+	if err != nil {
+		return err
+	}
+	err = validate.Struct(c)
 	if err != nil {
 		if _, ok := err.(*validator.InvalidValidationError); ok {
 			return err
@@ -202,21 +207,6 @@ func (c *Config) isValid() error {
 		return err
 	}
 
-	//v, err := semver.NewVersion(version)
-	//if err != nil {
-	//	return err
-	//}
-	//constraint, err := semver.NewConstraint(fmt.Sprintf("~%d", v.Major()))
-	//if err != nil {
-	//	return err
-	//}
-	//vv, err := semver.NewVersion(*c.Version)
-	//if err != nil {
-	//	return err
-	//}
-	//if !constraint.Check(vv) {
-	//	return MajorVersionMismatchError
-	//}
 	//if c.Params != nil && !reflect.DeepEqual(c.Params, &Params{}) {
 
 	//	if c.Params.Location == nil {
