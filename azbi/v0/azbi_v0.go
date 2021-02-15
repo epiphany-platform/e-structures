@@ -36,7 +36,7 @@ type VmGroup struct {
 	VmCount     *int       `json:"vm_count" validate:"required,min=1"`
 	VmSize      *string    `json:"vm_size" validate:"required"`
 	UsePublicIP *bool      `json:"use_public_ip" validate:"required"`
-	SubnetNames []string   `json:"subnet_names" validate:"required,min=1,dive,required"`
+	SubnetNames []string   `json:"subnet_names" validate:"omitempty,min=1,dive,required"`
 	VmImage     *VmImage   `json:"vm_image" validate:"required,dive"`
 	DataDisks   []DataDisk `json:"data_disks" validate:"required,dive"`
 }
@@ -44,8 +44,8 @@ type VmGroup struct {
 type Params struct {
 	Name             *string   `json:"name" validate:"required"`
 	Location         *string   `json:"location" validate:"required,min=1"`
-	AddressSpace     []string  `json:"address_space"` // TODO add validation
-	Subnets          []Subnet  `json:"subnets" validate:"required,min=1,dive"`
+	AddressSpace     []string  `json:"address_space" validate:"omitempty,min=1,dive,min=1,cidr"`
+	Subnets          []Subnet  `json:"subnets" validate:"required_with=AddressSpace,excluded_without=AddressSpace,omitempty,min=1,dive,required"`
 	VmGroups         []VmGroup `json:"vm_groups" validate:"required,dive"`
 	RsaPublicKeyPath *string   `json:"rsa_pub_path" validate:"required,min=1"`
 }
@@ -253,15 +253,6 @@ func AzBISubnetsValidation(sl validator.StructLevel) {
 	params := sl.Current().Interface().(Params)
 	if len(params.VmGroups) > 0 {
 		for i, vmGroup := range params.VmGroups {
-			if vmGroup.SubnetNames == nil || len(vmGroup.SubnetNames) < 1 {
-				sl.ReportError(
-					params.VmGroups[i],
-					fmt.Sprintf("VmGroups[%d].SubnetNames", i),
-					"SubnetNames",
-					"required",
-					"")
-				return
-			}
 			for j, sn := range vmGroup.SubnetNames {
 				if sn == "" {
 					sl.ReportError(
