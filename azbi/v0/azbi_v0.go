@@ -36,18 +36,18 @@ type VmGroup struct {
 	VmCount     *int       `json:"vm_count" validate:"required,min=1"`
 	VmSize      *string    `json:"vm_size" validate:"required"`
 	UsePublicIP *bool      `json:"use_public_ip" validate:"required"`
-	SubnetNames []string   `json:"subnet_names" validate:"required,min=1,dive,required"` // TODO custom validator to ensure subnet existence
+	SubnetNames []string   `json:"subnet_names" validate:"required,min=1,dive,required"`
 	VmImage     *VmImage   `json:"vm_image" validate:"required,dive"`
 	DataDisks   []DataDisk `json:"data_disks" validate:"required,dive"`
 }
 
 type Params struct {
 	Name             *string   `json:"name" validate:"required"`
-	Location         *string   `json:"location"`      // TODO add validation
+	Location         *string   `json:"location" validate:"required,min=1"`
 	AddressSpace     []string  `json:"address_space"` // TODO add validation
 	Subnets          []Subnet  `json:"subnets" validate:"required,min=1,dive"`
 	VmGroups         []VmGroup `json:"vm_groups" validate:"required,dive"`
-	RsaPublicKeyPath *string   `json:"rsa_pub_path"` // TODO add validation
+	RsaPublicKeyPath *string   `json:"rsa_pub_path" validate:"required,min=1"`
 }
 
 func (p *Params) GetRsaPublicKeyV() string {

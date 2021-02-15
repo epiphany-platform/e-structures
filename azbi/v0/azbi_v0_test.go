@@ -434,6 +434,16 @@ func TestConfig_Load(t *testing.T) {
 					Tag:   "required",
 				},
 				test.TestValidationError{
+					Key:   "Config.Params.Location",
+					Field: "Location",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.RsaPublicKeyPath",
+					Field: "RsaPublicKeyPath",
+					Tag:   "required",
+				},
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].SubnetNames[0]",
 					Field: "VmGroups[0].SubnetNames[0]",
 					Tag:   "insubnets",
@@ -448,6 +458,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -477,8 +488,9 @@ func TestConfig_Load(t *testing.T) {
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
 				Params: &Params{
-					Location: to.StrPtr("northeurope"),
-					Name:     to.StrPtr("epiphany"),
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					Subnets: []Subnet{
 						{
 							Name:            to.StrPtr("main"),
@@ -514,6 +526,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"vm_groups": [{
 					"name": "vm-group0",
 					"vm_count": 3,
@@ -553,6 +566,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [],
 				"vm_groups": [{
 					"name": "vm-group0",
@@ -593,6 +607,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"address_prefixes": [
@@ -639,6 +654,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "",
@@ -686,6 +702,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -726,6 +743,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main"
@@ -765,6 +783,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -807,6 +826,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -842,8 +862,9 @@ func TestConfig_Load(t *testing.T) {
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
 				Params: &Params{
-					Location: to.StrPtr("northeurope"),
-					Name:     to.StrPtr("epiphany"),
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					Subnets: []Subnet{
 						{
 							Name:            to.StrPtr("main"),
@@ -883,6 +904,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -911,6 +933,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -927,8 +950,9 @@ func TestConfig_Load(t *testing.T) {
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
 				Params: &Params{
-					Location: to.StrPtr("northeurope"),
-					Name:     to.StrPtr("epiphany"),
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					Subnets: []Subnet{
 						{
 							Name:            to.StrPtr("main"),
@@ -949,6 +973,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -990,6 +1015,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1031,6 +1057,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1073,6 +1100,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1114,6 +1142,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1155,6 +1184,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1201,6 +1231,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1248,6 +1279,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1295,6 +1327,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1337,6 +1370,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1373,6 +1407,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1414,6 +1449,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1456,6 +1492,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1497,6 +1534,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1539,6 +1577,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1580,6 +1619,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1622,6 +1662,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1663,6 +1704,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1705,6 +1747,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1746,6 +1789,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1790,6 +1834,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1836,6 +1881,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -1875,6 +1921,91 @@ func TestConfig_Load(t *testing.T) {
 			},
 		},
 		{
+			name: "missing params.rsa_pub_path",
+			args: []byte(`{
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
+			}
+		}
+		`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.RsaPublicKeyPath",
+					Field: "RsaPublicKeyPath",
+					Tag:   "required",
+				},
+			},
+		},
+		{
+			name: "empty params.rsa_pub_path",
+			args: []byte(`{
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"rsa_pub_path": "", 
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
+			}
+		}
+		`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.RsaPublicKeyPath",
+					Field: "RsaPublicKeyPath",
+					Tag:   "min",
+				},
+			},
+		},
+		{
 			name: "multiple vm_groups configuration",
 			args: []byte(`{
 			"kind": "azbi",
@@ -1882,6 +2013,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "first",
@@ -1927,8 +2059,9 @@ func TestConfig_Load(t *testing.T) {
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
 				Params: &Params{
-					Location: to.StrPtr("northeurope"),
-					Name:     to.StrPtr("epiphany"),
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					Subnets: []Subnet{
 						{
 							Name:            to.StrPtr("first"),
@@ -1978,6 +2111,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "first",
@@ -2029,8 +2163,9 @@ func TestConfig_Load(t *testing.T) {
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
 				Params: &Params{
-					Location: to.StrPtr("northeurope"),
-					Name:     to.StrPtr("epiphany"),
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					Subnets: []Subnet{
 						{
 							Name:            to.StrPtr("first"),
@@ -2084,6 +2219,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "first",
@@ -2141,8 +2277,9 @@ func TestConfig_Load(t *testing.T) {
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
 				Params: &Params{
-					Location: to.StrPtr("northeurope"),
-					Name:     to.StrPtr("epiphany"),
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					Subnets: []Subnet{
 						{
 							Name:            to.StrPtr("first"),
@@ -2200,6 +2337,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "first",
@@ -2265,8 +2403,9 @@ func TestConfig_Load(t *testing.T) {
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("v0.1.0"),
 				Params: &Params{
-					Location: to.StrPtr("northeurope"),
-					Name:     to.StrPtr("epiphany"),
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					Subnets: []Subnet{
 						{
 							Name:            to.StrPtr("first"),
@@ -2334,6 +2473,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -2376,6 +2516,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -2405,8 +2546,9 @@ func TestConfig_Load(t *testing.T) {
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("0.100.0"),
 				Params: &Params{
-					Location: to.StrPtr("northeurope"),
-					Name:     to.StrPtr("epiphany"),
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					Subnets: []Subnet{
 						{
 							Name:            to.StrPtr("main"),
@@ -2442,6 +2584,7 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
+				"rsa_pub_path": "some-file-name", 
 				"subnets": [
 					{
 						"name": "main",
@@ -2471,8 +2614,9 @@ func TestConfig_Load(t *testing.T) {
 				Kind:    to.StrPtr("azbi"),
 				Version: to.StrPtr("0.0.100"),
 				Params: &Params{
-					Location: to.StrPtr("northeurope"),
-					Name:     to.StrPtr("epiphany"),
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					Subnets: []Subnet{
 						{
 							Name:            to.StrPtr("main"),

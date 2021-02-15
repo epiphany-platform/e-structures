@@ -125,7 +125,6 @@ func (s *State) Unmarshal(b []byte) (err error) {
 	return
 }
 
-//TODO implement more interesting validation
 func (s *State) isValid() error {
 	if s == nil {
 		return errors.New("state is nil")

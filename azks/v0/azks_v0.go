@@ -3,6 +3,7 @@ package v0
 import (
 	"encoding/json"
 	"github.com/epiphany-platform/e-structures/utils/to"
+	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
 	maps "github.com/mitchellh/mapstructure"
 )
@@ -31,9 +32,9 @@ type AutoScalerProfile struct { //TODO consider changing types of string values 
 }
 
 type DefaultNodePool struct {
-	Size        *int    `json:"size" validate:"required"` // TODO test for negative values
-	Min         *int    `json:"min" validate:"required"`  // TODO test for negative values
-	Max         *int    `json:"max" validate:"required"`  // TODO test for negative values
+	Size        *int    `json:"size" validate:"required,min=0,gtefield=Min,ltefield=Max"`
+	Min         *int    `json:"min" validate:"required,min=0"`
+	Max         *int    `json:"max" validate:"required,min=0,gtefield=Min"`
 	VmSize      *string `json:"vm_size" validate:"required,min=1"`
 	DiskSize    *string `json:"disk_size" validate:"required,min=1"`
 	AutoScaling *bool   `json:"auto_scaling" validate:"required"`
@@ -43,13 +44,13 @@ type DefaultNodePool struct {
 type Params struct {
 	Name             *string `json:"name" validate:"required,min=1"`
 	Location         *string `json:"location" validate:"required,min=1"`
-	RsaPublicKeyPath *string `json:"rsa_pub_path"` // TODO add validation
+	RsaPublicKeyPath *string `json:"rsa_pub_path" validate:"required,min=1"`
 
 	RgName     *string `json:"rg_name" validate:"required,min=1"`
 	VnetName   *string `json:"vnet_name" validate:"required,min=1"`
 	SubnetName *string `json:"subnet_name" validate:"required,min=1"`
 
-	KubernetesVersion  *string `json:"kubernetes_version" validate:"required,min=1"` // TODO custom semver validator
+	KubernetesVersion  *string `json:"kubernetes_version" validate:"required,min=1,version=<1.19"` // version validation due to KubeDashboardEnabled field
 	EnableNodePublicIp *bool   `json:"enable_node_public_ip" validate:"required"`
 	EnableRbac         *bool   `json:"enable_rbac" validate:"required"`
 
@@ -78,7 +79,7 @@ func (p *Params) GetNameV() string {
 
 type Config struct {
 	Kind    *string  `json:"kind" validate:"required,eq=azks"`
-	Version *string  `json:"version" validate:"required"` // TODO custom validator to ensure major version match
+	Version *string  `json:"version" validate:"required,version=~0"`
 	Params  *Params  `json:"params" validate:"required"`
 	Unused  []string `json:"-"`
 }
@@ -168,68 +169,19 @@ func (c *Config) Unmarshal(b []byte) (err error) {
 
 func (c *Config) isValid() error {
 	validate := validator.New()
-	err := validate.Struct(c)
+
+	err := validate.RegisterValidation("version", validators.HasVersion)
+	if err != nil {
+		return err
+	}
+
+	err = validate.Struct(c)
 	if err != nil {
 		if _, ok := err.(*validator.InvalidValidationError); ok {
 			return err
 		}
 		return err
 	}
-
-	//v, err := semver.NewVersion(version)
-	//if err != nil {
-	//	return err
-	//}
-	//constraint, err := semver.NewConstraint(fmt.Sprintf("~%d", v.Major()))
-	//if err != nil {
-	//	return err
-	//}
-	//newVersion, err := semver.NewVersion(*c.Version)
-	//if err != nil {
-	//	return err
-	//}
-	//if !constraint.Check(newVersion) {
-	//	return MajorVersionMismatchError
-	//}
-	//if c.Params != nil && !reflect.DeepEqual(c.Params, &Params{}) {
-	//	if c.Params.KubernetesVersion == nil || *c.Params.KubernetesVersion == "" { // TODO semver format could also be validated
-	//		return &MinimalParamsValidationError{"'kubernetes_version' parameter missing"}
-	//	}
-	//	fmt.Println("[DEPRECATION] 'kube_dashboard_enabled' parameter will soon be deprecated due to Azure removing Dashboard support in AKS.")
-	//	if c.Params.AdminUsername == nil || *c.Params.AdminUsername == "" {
-	//		return &MinimalParamsValidationError{"'admin_username' parameter missing"}
-	//	}
-	//
-	//	if c.Params.AutoScalerProfile == nil {
-	//		return &MinimalParamsValidationError{"'auto_scaler_profile' parameter missing"}
-	//	} else {
-	//		if c.Params.AutoScalerProfile.MaxGracefulTerminationSec == nil || *c.Params.AutoScalerProfile.MaxGracefulTerminationSec == "" { // TODO format could also be validated
-	//			return &MinimalParamsValidationError{"'auto_scaler_profile.max_graceful_termination_sec' parameter missing"}
-	//		}
-	//		if c.Params.AutoScalerProfile.ScaleDownDelayAfterAdd == nil || *c.Params.AutoScalerProfile.ScaleDownDelayAfterAdd == "" { // TODO format could also be validated
-	//			return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_add' parameter missing"}
-	//		}
-	//		if c.Params.AutoScalerProfile.ScaleDownDelayAfterDelete == nil || *c.Params.AutoScalerProfile.ScaleDownDelayAfterDelete == "" { // TODO format could also be validated
-	//			return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_delete' parameter missing"}
-	//		}
-	//		if c.Params.AutoScalerProfile.ScaleDownDelayAfterFailure == nil || *c.Params.AutoScalerProfile.ScaleDownDelayAfterFailure == "" { // TODO format could also be validated
-	//			return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_failure' parameter missing"}
-	//		}
-	//		if c.Params.AutoScalerProfile.ScanInterval == nil || *c.Params.AutoScalerProfile.ScanInterval == "" { // TODO format could also be validated
-	//			return &MinimalParamsValidationError{"'auto_scaler_profile.scan_interval' parameter missing"}
-	//		}
-	//		if c.Params.AutoScalerProfile.ScaleDownUnneeded == nil || *c.Params.AutoScalerProfile.ScaleDownUnneeded == "" { // TODO format could also be validated
-	//			return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_unneeded' parameter missing"}
-	//		}
-	//		if c.Params.AutoScalerProfile.ScaleDownUnready == nil || *c.Params.AutoScalerProfile.ScaleDownUnready == "" { // TODO format could also be validated
-	//			return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_unready' parameter missing"}
-	//		}
-	//		if c.Params.AutoScalerProfile.ScaleDownUtilizationThreshold == nil || *c.Params.AutoScalerProfile.ScaleDownUtilizationThreshold == "" { // TODO format could also be validated
-	//			return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_utilization_threshold' parameter missing"}
-	//		}
-	//	}
-	//
-	//}
 	return nil
 }
 
