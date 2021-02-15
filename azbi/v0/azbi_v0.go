@@ -21,7 +21,7 @@ type DataDisk struct {
 
 type Subnet struct {
 	Name            *string  `json:"name" validate:"required,min=1"`
-	AddressPrefixes []string `json:"address_prefixes" validate:"required,min=1,dive,required"`
+	AddressPrefixes []string `json:"address_prefixes" validate:"required,min=1,dive,required,cidr"`
 }
 
 type VmImage struct {
@@ -45,7 +45,7 @@ type Params struct {
 	Name             *string   `json:"name" validate:"required"`
 	Location         *string   `json:"location" validate:"required,min=1"`
 	AddressSpace     []string  `json:"address_space" validate:"omitempty,min=1,dive,min=1,cidr"`
-	Subnets          []Subnet  `json:"subnets" validate:"required_with=AddressSpace,excluded_without=AddressSpace,omitempty,min=1,dive,required"`
+	Subnets          []Subnet  `json:"subnets" validate:"required_with=AddressSpace,excluded_without=AddressSpace,omitempty,min=1,dive,required"` // TODO custom validator that subnets are in AddressSpaces
 	VmGroups         []VmGroup `json:"vm_groups" validate:"required,dive"`
 	RsaPublicKeyPath *string   `json:"rsa_pub_path" validate:"required,min=1"`
 }
