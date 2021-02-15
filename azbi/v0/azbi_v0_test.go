@@ -10,7 +10,7 @@ import (
 	"github.com/epiphany-platform/e-structures/utils/to"
 )
 
-func TestConfig_Load(t *testing.T) {
+func TestConfig_Load_general(t *testing.T) {
 	tests := []struct {
 		name    string
 		json    []byte
@@ -200,47 +200,6 @@ func TestConfig_Load(t *testing.T) {
 			},
 		},
 		{
-			name: "just vm_groups in params",
-			json: []byte(`{
-			"kind": "azbi",
-			"version": "v0.1.0",
-			"params": {
-				"vm_groups": [{
-					"name": "vm-group0",
-					"vm_count": 3,
-					"vm_size": "Standard_DS2_v2",
-					"use_public_ip": true,
-					"vm_image": {
-						"publisher": "Canonical",
-						"offer": "UbuntuServer",
-						"sku": "18.04-LTS",
-						"version": "18.04.202006101"
-					}, 
-					"data_disks": []
-				}]
-			}
-		}
-		`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.Name",
-					Field: "Name",
-					Tag:   "required",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.Location",
-					Field: "Location",
-					Tag:   "required",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.RsaPublicKeyPath",
-					Field: "RsaPublicKeyPath",
-					Tag:   "required",
-				},
-			},
-		},
-		{
 			name: "minimal correct json",
 			json: []byte(`{
 			"kind": "azbi",
@@ -291,6 +250,201 @@ func TestConfig_Load(t *testing.T) {
 				Unused: []string{},
 			},
 			wantErr: nil,
+		},
+		{
+			name: "major version mismatch",
+			json: []byte(`{
+			"kind": "azbi",
+			"version": "100.0.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"rsa_pub_path": "some-file-name",
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
+			}
+		}
+		`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Version",
+					Field: "Version",
+					Tag:   "version",
+				},
+			},
+		},
+		{
+			name: "minor version mismatch",
+			json: []byte(`{
+			"kind": "azbi",
+			"version": "0.100.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"rsa_pub_path": "some-file-name",
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
+			}
+		}
+		`),
+			want: &Config{
+				Kind:    to.StrPtr("azbi"),
+				Version: to.StrPtr("0.100.0"),
+				Params: &Params{
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
+					VmGroups: []VmGroup{
+						{
+							Name:        to.StrPtr("vm-group0"),
+							VmCount:     to.IntPtr(3),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(true),
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+					},
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "patch version mismatch",
+			json: []byte(`{
+			"kind": "azbi",
+			"version": "0.0.100",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"rsa_pub_path": "some-file-name",
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
+			}
+		}
+		`),
+			want: &Config{
+				Kind:    to.StrPtr("azbi"),
+				Version: to.StrPtr("0.0.100"),
+				Params: &Params{
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
+					VmGroups: []VmGroup{
+						{
+							Name:        to.StrPtr("vm-group0"),
+							VmCount:     to.IntPtr(3),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(true),
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+					},
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
+		})
+	}
+}
+
+func TestConfig_Load_Params(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    []byte
+		want    *Config
+		wantErr error
+	}{
+		{
+			name: "just vm_groups in params",
+			json: []byte(`{
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					}, 
+					"data_disks": []
+				}]
+			}
+		}
+		`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.Name",
+					Field: "Name",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.Location",
+					Field: "Location",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.RsaPublicKeyPath",
+					Field: "RsaPublicKeyPath",
+					Tag:   "required",
+				},
+			},
 		},
 		{
 			name: "missing requested subnets list",
@@ -364,58 +518,6 @@ func TestConfig_Load(t *testing.T) {
 					Tag:   "min",
 				},
 			},
-		},
-		{
-			name: "vm_group without networking",
-			json: []byte(`{
-			"kind": "azbi",
-			"version": "v0.1.0",
-			"params": {
-				"location": "northeurope",
-				"name": "epiphany",
-				"rsa_pub_path": "/shared/vms_rsa.pub",
-				"vm_groups": [{
-					"name": "vm-group0",
-					"vm_count": 3,
-					"vm_size": "Standard_DS2_v2",
-					"use_public_ip": true,
-					"vm_image": {
-						"publisher": "Canonical",
-						"offer": "UbuntuServer",
-						"sku": "18.04-LTS",
-						"version": "18.04.202006101"
-					},
-					"data_disks": []
-				}]
-			}
-		}
-		`),
-			want: &Config{
-				Kind:    to.StrPtr("azbi"),
-				Version: to.StrPtr("v0.1.0"),
-				Params: &Params{
-					Location: to.StrPtr("northeurope"),
-					Name:     to.StrPtr("epiphany"),
-					VmGroups: []VmGroup{
-						{
-							Name:        to.StrPtr("vm-group0"),
-							VmCount:     to.IntPtr(3),
-							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
-							VmImage: &VmImage{
-								Publisher: to.StrPtr("Canonical"),
-								Offer:     to.StrPtr("UbuntuServer"),
-								Sku:       to.StrPtr("18.04-LTS"),
-								Version:   to.StrPtr("18.04.202006101"),
-							},
-							DataDisks: []DataDisk{},
-						},
-					},
-					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
-				},
-				Unused: []string{},
-			},
-			wantErr: nil,
 		},
 		{
 			name: "missing subnet params",
@@ -822,6 +924,120 @@ func TestConfig_Load(t *testing.T) {
 			},
 		},
 		{
+			name: "empty params.rsa_pub_path",
+			json: []byte(`{
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"rsa_pub_path": "",  
+				"address_space": [
+					"10.0.0.0/16"
+				],
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
+			}
+		}
+		`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.RsaPublicKeyPath",
+					Field: "RsaPublicKeyPath",
+					Tag:   "min",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
+		})
+	}
+}
+
+func TestConfig_Load_VmGroups(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    []byte
+		want    *Config
+		wantErr error
+	}{
+		{
+			name: "vm_group without networking",
+			json: []byte(`{
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"rsa_pub_path": "/shared/vms_rsa.pub",
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
+			}
+		}
+		`),
+			want: &Config{
+				Kind:    to.StrPtr("azbi"),
+				Version: to.StrPtr("v0.1.0"),
+				Params: &Params{
+					Location: to.StrPtr("northeurope"),
+					Name:     to.StrPtr("epiphany"),
+					VmGroups: []VmGroup{
+						{
+							Name:        to.StrPtr("vm-group0"),
+							VmCount:     to.IntPtr(3),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(true),
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+					},
+					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
+		},
+		{
 			name: "missing vm_groups parameter",
 			json: []byte(`{
 			"kind": "azbi",
@@ -895,21 +1111,8 @@ func TestConfig_Load(t *testing.T) {
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
-				"rsa_pub_path": "some-file-name",  
-				"address_space": [
-					"10.0.0.0/16"
-				],
-				"subnets": [
-					{
-						"name": "main",
-						"address_prefixes": [
-							"10.0.1.0/24"
-						]
-					}
-				],
-				"vm_groups": [{
-					"subnet_names": ["main"]
-				}]
+				"rsa_pub_path": "some-file-name", 
+				"vm_groups": [{}]
 			}
 		}
 		`),
@@ -961,12 +1164,7 @@ func TestConfig_Load(t *testing.T) {
 					"vm_count": 0,
 					"vm_size": "",
 					"use_public_ip": true,
-					"vm_image": {
-						"publisher": "Canonical",
-						"offer": "UbuntuServer",
-						"sku": "18.04-LTS",
-						"version": "18.04.202006101"
-					},
+					"vm_image": {},
 					"data_disks": [{}]
 				}]
 			}
@@ -994,6 +1192,26 @@ func TestConfig_Load(t *testing.T) {
 					Field: "GbSize",
 					Tag:   "required",
 				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Publisher",
+					Field: "Publisher",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Offer",
+					Field: "Offer",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Sku",
+					Field: "Sku",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Version",
+					Field: "Version",
+					Tag:   "required",
+				},
 			},
 		},
 
@@ -1019,7 +1237,7 @@ func TestConfig_Load(t *testing.T) {
 				],
 				"vm_groups": [{
 					"name": "vm-group0",
-					"vm_count": -100,
+					"vm_count": -1,
 					"vm_size": "Standard_DS2_v2",
 					"use_public_ip": true,
 					"subnet_names": ["main"],
@@ -1187,123 +1405,6 @@ func TestConfig_Load(t *testing.T) {
 			},
 		},
 		{
-			name: "missing vm_groups.vm_image parameters",
-			json: []byte(`{
-			"kind": "azbi",
-			"version": "v0.1.0",
-			"params": {
-				"location": "northeurope",
-				"name": "epiphany",
-				"rsa_pub_path": "some-file-name",  
-				"address_space": [
-					"10.0.0.0/16"
-				],
-				"subnets": [
-					{
-						"name": "main",
-						"address_prefixes": [
-							"10.0.1.0/24"
-						]
-					}
-				],
-				"vm_groups": [{
-					"name": "vm-group0",
-					"vm_count": 3,
-					"vm_size": "Standard_DS2_v2",
-					"use_public_ip": true,
-					"subnet_names": ["main"],
-					"vm_image": {},
-					"data_disks": []
-				}]
-			}
-		}
-		`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.VmGroups[0].VmImage.Publisher",
-					Field: "Publisher",
-					Tag:   "required",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.VmGroups[0].VmImage.Offer",
-					Field: "Offer",
-					Tag:   "required",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.VmGroups[0].VmImage.Sku",
-					Field: "Sku",
-					Tag:   "required",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.VmGroups[0].VmImage.Version",
-					Field: "Version",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty vm_groups.vm_image parameters",
-			json: []byte(`{
-			"kind": "azbi",
-			"version": "v0.1.0",
-			"params": {
-				"location": "northeurope",
-				"name": "epiphany",
-				"rsa_pub_path": "some-file-name",  
-				"address_space": [
-					"10.0.0.0/16"
-				],
-				"subnets": [
-					{
-						"name": "main",
-						"address_prefixes": [
-							"10.0.1.0/24"
-						]
-					}
-				],
-				"vm_groups": [{
-					"name": "vm-group0",
-					"vm_count": 3,
-					"vm_size": "Standard_DS2_v2",
-					"use_public_ip": true,
-					"subnet_names": ["main"],
-					"vm_image": {
-						"publisher": "",
-						"offer": "",
-						"sku": "",
-						"version": ""
-					},
-					"data_disks": []
-				}]
-			}
-		}
-		`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.VmGroups[0].VmImage.Publisher",
-					Field: "Publisher",
-					Tag:   "min",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.VmGroups[0].VmImage.Offer",
-					Field: "Offer",
-					Tag:   "min",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.VmGroups[0].VmImage.Sku",
-					Field: "Sku",
-					Tag:   "min",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.VmGroups[0].VmImage.Version",
-					Field: "Version",
-					Tag:   "min",
-				},
-			},
-		},
-		{
 			name: "empty vm_groups.data_disks list value",
 			json: []byte(`{
 			"kind": "azbi",
@@ -1447,52 +1548,6 @@ func TestConfig_Load(t *testing.T) {
 				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].DataDisks[0].GbSize",
 					Field: "GbSize",
-					Tag:   "min",
-				},
-			},
-		},
-		{
-			name: "empty params.rsa_pub_path",
-			json: []byte(`{
-			"kind": "azbi",
-			"version": "v0.1.0",
-			"params": {
-				"location": "northeurope",
-				"name": "epiphany",
-				"rsa_pub_path": "",  
-				"address_space": [
-					"10.0.0.0/16"
-				],
-				"subnets": [
-					{
-						"name": "main",
-						"address_prefixes": [
-							"10.0.1.0/24"
-						]
-					}
-				],
-				"vm_groups": [{
-					"name": "vm-group0",
-					"vm_count": 3,
-					"vm_size": "Standard_DS2_v2",
-					"use_public_ip": true,
-					"subnet_names": ["main"],
-					"vm_image": {
-						"publisher": "Canonical",
-						"offer": "UbuntuServer",
-						"sku": "18.04-LTS",
-						"version": "18.04.202006101"
-					},
-					"data_disks": []
-				}]
-			}
-		}
-		`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.RsaPublicKeyPath",
-					Field: "RsaPublicKeyPath",
 					Tag:   "min",
 				},
 			},
@@ -1973,25 +2028,109 @@ func TestConfig_Load(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
+		})
+	}
+}
+
+func TestConfig_Load_VmGroup_VmImage(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    []byte
+		want    *Config
+		wantErr error
+	}{
 		{
-			name: "major version mismatch",
+			name: "missing vm_groups.vm_image parameters",
 			json: []byte(`{
 			"kind": "azbi",
-			"version": "100.0.0",
+			"version": "v0.1.0",
 			"params": {
 				"location": "northeurope",
 				"name": "epiphany",
-				"rsa_pub_path": "some-file-name",
+				"rsa_pub_path": "some-file-name",  
+				"address_space": [
+					"10.0.0.0/16"
+				],
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
 				"vm_groups": [{
 					"name": "vm-group0",
 					"vm_count": 3,
 					"vm_size": "Standard_DS2_v2",
 					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {},
+					"data_disks": []
+				}]
+			}
+		}
+		`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Publisher",
+					Field: "Publisher",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Offer",
+					Field: "Offer",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Sku",
+					Field: "Sku",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Version",
+					Field: "Version",
+					Tag:   "required",
+				},
+			},
+		},
+		{
+			name: "empty vm_groups.vm_image parameters",
+			json: []byte(`{
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "epiphany",
+				"rsa_pub_path": "some-file-name",  
+				"address_space": [
+					"10.0.0.0/16"
+				],
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
 					"vm_image": {
-						"publisher": "Canonical",
-						"offer": "UbuntuServer",
-						"sku": "18.04-LTS",
-						"version": "18.04.202006101"
+						"publisher": "",
+						"offer": "",
+						"sku": "",
+						"version": ""
 					},
 					"data_disks": []
 				}]
@@ -2001,115 +2140,26 @@ func TestConfig_Load(t *testing.T) {
 			want: nil,
 			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
-					Key:   "Config.Version",
+					Key:   "Config.Params.VmGroups[0].VmImage.Publisher",
+					Field: "Publisher",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Offer",
+					Field: "Offer",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Sku",
+					Field: "Sku",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Version",
 					Field: "Version",
-					Tag:   "version",
+					Tag:   "min",
 				},
 			},
-		},
-		{
-			name: "minor version mismatch",
-			json: []byte(`{
-			"kind": "azbi",
-			"version": "0.100.0",
-			"params": {
-				"location": "northeurope",
-				"name": "epiphany",
-				"rsa_pub_path": "some-file-name",
-				"vm_groups": [{
-					"name": "vm-group0",
-					"vm_count": 3,
-					"vm_size": "Standard_DS2_v2",
-					"use_public_ip": true,
-					"vm_image": {
-						"publisher": "Canonical",
-						"offer": "UbuntuServer",
-						"sku": "18.04-LTS",
-						"version": "18.04.202006101"
-					},
-					"data_disks": []
-				}]
-			}
-		}
-		`),
-			want: &Config{
-				Kind:    to.StrPtr("azbi"),
-				Version: to.StrPtr("0.100.0"),
-				Params: &Params{
-					Location:         to.StrPtr("northeurope"),
-					Name:             to.StrPtr("epiphany"),
-					RsaPublicKeyPath: to.StrPtr("some-file-name"),
-					VmGroups: []VmGroup{
-						{
-							Name:        to.StrPtr("vm-group0"),
-							VmCount:     to.IntPtr(3),
-							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
-							VmImage: &VmImage{
-								Publisher: to.StrPtr("Canonical"),
-								Offer:     to.StrPtr("UbuntuServer"),
-								Sku:       to.StrPtr("18.04-LTS"),
-								Version:   to.StrPtr("18.04.202006101"),
-							},
-							DataDisks: []DataDisk{},
-						},
-					},
-				},
-				Unused: []string{},
-			},
-			wantErr: nil,
-		},
-		{
-			name: "patch version mismatch",
-			json: []byte(`{
-			"kind": "azbi",
-			"version": "0.0.100",
-			"params": {
-				"location": "northeurope",
-				"name": "epiphany",
-				"rsa_pub_path": "some-file-name",
-				"vm_groups": [{
-					"name": "vm-group0",
-					"vm_count": 3,
-					"vm_size": "Standard_DS2_v2",
-					"use_public_ip": true,
-					"vm_image": {
-						"publisher": "Canonical",
-						"offer": "UbuntuServer",
-						"sku": "18.04-LTS",
-						"version": "18.04.202006101"
-					},
-					"data_disks": []
-				}]
-			}
-		}
-		`),
-			want: &Config{
-				Kind:    to.StrPtr("azbi"),
-				Version: to.StrPtr("0.0.100"),
-				Params: &Params{
-					Location:         to.StrPtr("northeurope"),
-					Name:             to.StrPtr("epiphany"),
-					RsaPublicKeyPath: to.StrPtr("some-file-name"),
-					VmGroups: []VmGroup{
-						{
-							Name:        to.StrPtr("vm-group0"),
-							VmCount:     to.IntPtr(3),
-							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
-							VmImage: &VmImage{
-								Publisher: to.StrPtr("Canonical"),
-								Offer:     to.StrPtr("UbuntuServer"),
-								Sku:       to.StrPtr("18.04-LTS"),
-								Version:   to.StrPtr("18.04.202006101"),
-							},
-							DataDisks: []DataDisk{},
-						},
-					},
-				},
-				Unused: []string{},
-			},
-			wantErr: nil,
 		},
 	}
 	for _, tt := range tests {
