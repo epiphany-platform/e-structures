@@ -32,17 +32,18 @@ func TestState_Load(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "unknown field in config",
+			name: "unknown fields in multiple places",
 			args: []byte(`{
 	"kind": "state",
 	"version": "0.0.2",
 	"azbi": {
 		"status": "initialized",
 		"config": {
-			"unknown_key": "unknown_value", 
+			"unknown_key_1": "unknown_value_1", 
 			"kind": "azbi",
 			"version": "0.0.1",
 			"params": {
+				"unknown_key_2": "unknown_value_2", 
 				"name": "epiphany",
 				"location": "northeurope",
 				"address_space": [
@@ -57,6 +58,7 @@ func TestState_Load(t *testing.T) {
 					}
 				],
 				"vm_groups": [{
+					"unknown_key_3": "unknown_value_3", 
 					"name": "vm-group0",
 					"vm_count": 3,
 					"vm_size": "Standard_DS2_v2",
@@ -74,10 +76,12 @@ func TestState_Load(t *testing.T) {
 			}
 		},
 		"output": {
+			"unknown_key_4": "unknown_value_4", 
 			"rg_name": "epiphany-rg",
 			"vm_groups": [
 				{
 					"vm_group_name": "vm-group0",
+					"unknown_key_5": "unknown_value_5", 
 					"vms": [
 						{
 							"private_ips": [
@@ -110,297 +114,13 @@ func TestState_Load(t *testing.T) {
 			want: &State{
 				Kind:    to.StrPtr("state"),
 				Version: to.StrPtr("0.0.2"),
-				Unused:  []string{"azbi.config.unknown_key"},
-				AzBI: &AzBIState{
-					Status: "initialized",
-					Config: &azbi.Config{
-						Kind:    to.StrPtr("azbi"),
-						Version: to.StrPtr("0.0.1"),
-						Params: &azbi.Params{
-							Name:         to.StrPtr("epiphany"),
-							Location:     to.StrPtr("northeurope"),
-							AddressSpace: []string{"10.0.0.0/16"},
-							Subnets: []azbi.Subnet{
-								{
-									Name:            to.StrPtr("main"),
-									AddressPrefixes: []string{"10.0.1.0/24"},
-								},
-							},
-							VmGroups: []azbi.VmGroup{
-								{
-									Name:        to.StrPtr("vm-group0"),
-									VmCount:     to.IntPtr(3),
-									VmSize:      to.StrPtr("Standard_DS2_v2"),
-									UsePublicIP: to.BooPtr(true),
-									SubnetNames: []string{"main"},
-									VmImage: &azbi.VmImage{
-										Publisher: to.StrPtr("Canonical"),
-										Offer:     to.StrPtr("UbuntuServer"),
-										Sku:       to.StrPtr("18.04-LTS"),
-										Version:   to.StrPtr("18.04.202006101"),
-									},
-									DataDisks: []azbi.DataDisk{},
-								},
-							},
-							RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
-						},
-						Unused: nil,
-					},
-					Output: &azbi.Output{
-						RgName:   to.StrPtr("epiphany-rg"),
-						VnetName: to.StrPtr("epiphany-vnet"),
-						VmGroups: []azbi.OutputVmGroup{
-							{
-								Name: to.StrPtr("vm-group0"),
-								Vms: []azbi.OutputVm{
-									{
-										Name:       to.StrPtr("epiphany-vm-group0-0"),
-										PrivateIps: []string{"10.0.1.4"},
-										PublicIp:   to.StrPtr("123.234.345.456"),
-									},
-									{
-										Name:       to.StrPtr("epiphany-vm-group0-1"),
-										PrivateIps: []string{"10.0.1.5"},
-										PublicIp:   to.StrPtr("123.234.345.457"),
-									},
-									{
-										Name:       to.StrPtr("epiphany-vm-group0-2"),
-										PrivateIps: []string{"10.0.1.6"},
-										PublicIp:   to.StrPtr("123.234.345.458"),
-									},
-								},
-							},
-						},
-					},
+				Unused: []string{
+					"azbi.config.params.vm_groups[0].unknown_key_3",
+					"azbi.config.params.unknown_key_2",
+					"azbi.config.unknown_key_1",
+					"azbi.output.vm_groups[0].unknown_key_5",
+					"azbi.output.unknown_key_4",
 				},
-			},
-			wantErr: nil,
-		},
-		{
-			name: "unknown field in config params",
-			args: []byte(`{
-	"kind": "state",
-	"version": "0.0.2",
-	"azbi": {
-		"status": "initialized",
-		"config": {
-			"kind": "azbi",
-			"version": "0.0.1",
-			"params": {
-				"name": "epiphany",
-				"unknown_key": "unknown_value",
-				"location": "northeurope",
-				"address_space": [
-					"10.0.0.0/16"
-				],
-				"subnets": [
-					{
-						"name": "main", 
-						"address_prefixes": [
-							"10.0.1.0/24"
-						]
-					}
-				],
-				"vm_groups": [{
-					"name": "vm-group0",
-					"vm_count": 3,
-					"vm_size": "Standard_DS2_v2",
-					"use_public_ip": true,
-					"subnet_names": ["main"],
-					"vm_image": {
-						"publisher": "Canonical",
-						"offer": "UbuntuServer",
-						"sku": "18.04-LTS",
-						"version": "18.04.202006101"
-					},
-					"data_disks": []
-				}],
-				"rsa_pub_path": "/shared/vms_rsa.pub"
-			}
-		},
-		"output": {
-			"rg_name": "epiphany-rg",
-			"vm_groups": [
-				{
-					"vm_group_name": "vm-group0",
-					"vms": [
-						{
-							"private_ips": [
-								"10.0.1.4"
-							],
-							"public_ip": "123.234.345.456",
-							"vm_name": "epiphany-vm-group0-0"
-						},
-						{
-							"private_ips": [
-								"10.0.1.5"
-							],
-							"public_ip": "123.234.345.457",
-							"vm_name": "epiphany-vm-group0-1"
-						},
-						{
-							"private_ips": [
-								"10.0.1.6"
-							],
-							"public_ip": "123.234.345.458",
-							"vm_name": "epiphany-vm-group0-2"
-						}
-					]
-				}
-			],
-			"vnet_name": "epiphany-vnet"
-		}
-	}
-}`),
-			want: &State{
-				Kind:    to.StrPtr("state"),
-				Version: to.StrPtr("0.0.2"),
-				Unused:  []string{"azbi.config.params.unknown_key"},
-				AzBI: &AzBIState{
-					Status: "initialized",
-					Config: &azbi.Config{
-						Kind:    to.StrPtr("azbi"),
-						Version: to.StrPtr("0.0.1"),
-						Params: &azbi.Params{
-							Name:         to.StrPtr("epiphany"),
-							Location:     to.StrPtr("northeurope"),
-							AddressSpace: []string{"10.0.0.0/16"},
-							Subnets: []azbi.Subnet{
-								{
-									Name:            to.StrPtr("main"),
-									AddressPrefixes: []string{"10.0.1.0/24"},
-								},
-							},
-							VmGroups: []azbi.VmGroup{
-								{
-									Name:        to.StrPtr("vm-group0"),
-									VmCount:     to.IntPtr(3),
-									VmSize:      to.StrPtr("Standard_DS2_v2"),
-									UsePublicIP: to.BooPtr(true),
-									SubnetNames: []string{"main"},
-									VmImage: &azbi.VmImage{
-										Publisher: to.StrPtr("Canonical"),
-										Offer:     to.StrPtr("UbuntuServer"),
-										Sku:       to.StrPtr("18.04-LTS"),
-										Version:   to.StrPtr("18.04.202006101"),
-									},
-									DataDisks: []azbi.DataDisk{},
-								},
-							},
-							RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
-						},
-						Unused: nil,
-					},
-					Output: &azbi.Output{
-						RgName:   to.StrPtr("epiphany-rg"),
-						VnetName: to.StrPtr("epiphany-vnet"),
-						VmGroups: []azbi.OutputVmGroup{
-							{
-								Name: to.StrPtr("vm-group0"),
-								Vms: []azbi.OutputVm{
-									{
-										Name:       to.StrPtr("epiphany-vm-group0-0"),
-										PrivateIps: []string{"10.0.1.4"},
-										PublicIp:   to.StrPtr("123.234.345.456"),
-									},
-									{
-										Name:       to.StrPtr("epiphany-vm-group0-1"),
-										PrivateIps: []string{"10.0.1.5"},
-										PublicIp:   to.StrPtr("123.234.345.457"),
-									},
-									{
-										Name:       to.StrPtr("epiphany-vm-group0-2"),
-										PrivateIps: []string{"10.0.1.6"},
-										PublicIp:   to.StrPtr("123.234.345.458"),
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			wantErr: nil,
-		},
-		{
-			name: "unknown field in output",
-			args: []byte(`{
-	"kind": "state",
-	"version": "0.0.2",
-	"azbi": {
-		"status": "initialized",
-		"config": { 
-			"kind": "azbi",
-			"version": "0.0.1",
-			"params": {
-				"name": "epiphany",
-				"location": "northeurope",
-				"address_space": [
-					"10.0.0.0/16"
-				],
-				"subnets": [
-					{
-						"name": "main", 
-						"address_prefixes": [
-							"10.0.1.0/24"
-						]
-					}
-				],
-				"vm_groups": [{
-					"name": "vm-group0",
-					"vm_count": 3,
-					"vm_size": "Standard_DS2_v2",
-					"use_public_ip": true,
-					"subnet_names": ["main"],
-					"vm_image": {
-						"publisher": "Canonical",
-						"offer": "UbuntuServer",
-						"sku": "18.04-LTS",
-						"version": "18.04.202006101"
-					},
-					"data_disks": []
-				}],
-				"rsa_pub_path": "/shared/vms_rsa.pub"
-			}
-		},
-		"output": {
-			"rg_name": "epiphany-rg",
-			"unknown_key": "unknown_value",
-			"vm_groups": [
-				{
-					"vm_group_name": "vm-group0",
-					"vms": [
-						{
-							"private_ips": [
-								"10.0.1.4"
-							],
-							"public_ip": "123.234.345.456",
-							"vm_name": "epiphany-vm-group0-0"
-						},
-						{
-							"private_ips": [
-								"10.0.1.5"
-							],
-							"public_ip": "123.234.345.457",
-							"vm_name": "epiphany-vm-group0-1"
-						},
-						{
-							"private_ips": [
-								"10.0.1.6"
-							],
-							"public_ip": "123.234.345.458",
-							"vm_name": "epiphany-vm-group0-2"
-						}
-					]
-				}
-			],
-			"vnet_name": "epiphany-vnet"
-		}
-	}
-}`),
-			want: &State{
-				Kind:    to.StrPtr("state"),
-				Version: to.StrPtr("0.0.2"),
-				Unused:  []string{"azbi.output.unknown_key"},
 				AzBI: &AzBIState{
 					Status: "initialized",
 					Config: &azbi.Config{

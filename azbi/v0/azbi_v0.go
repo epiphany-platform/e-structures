@@ -32,9 +32,9 @@ type VmImage struct {
 }
 
 type VmGroup struct {
-	Name        *string    `json:"name" validate:"required"`
+	Name        *string    `json:"name" validate:"required,min=1"`
 	VmCount     *int       `json:"vm_count" validate:"required,min=1"`
-	VmSize      *string    `json:"vm_size" validate:"required"`
+	VmSize      *string    `json:"vm_size" validate:"required,min=1"`
 	UsePublicIP *bool      `json:"use_public_ip" validate:"required"`
 	SubnetNames []string   `json:"subnet_names" validate:"omitempty,min=1,dive,required"`
 	VmImage     *VmImage   `json:"vm_image" validate:"required,dive"`
