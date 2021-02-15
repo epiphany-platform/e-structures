@@ -210,42 +210,6 @@ func TestConfig_Load_general(t *testing.T) {
 			},
 		},
 		{
-			name: "just kind field",
-			json: []byte(`{
-	"kind": "azks"
-}
-`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Version",
-					Field: "Version",
-					Tag:   "required",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params",
-					Field: "Params",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "just kind and version",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1"
-}
-`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params",
-					Field: "Params",
-					Tag:   "required",
-				},
-			},
-		},
-		{
 			name: "major version mismatch",
 			json: []byte(`{
 "kind": "azks",
@@ -404,19 +368,11 @@ func TestConfig_Load_Params(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name: "missing name",
+			name: "missing params",
 			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
 		"default_node_pool": {
 			"size": 2,
 			"min": 2,
@@ -443,10 +399,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			"admin_group_object_ids": [
 				"123123123123"
 			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
+		}
 	}
 }`),
 			want: nil,
@@ -456,575 +409,76 @@ func TestConfig_Load_Params(t *testing.T) {
 					Field: "Name",
 					Tag:   "required",
 				},
-			},
-		},
-		{
-			name: "empty name",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.Name",
-					Field: "Name",
-					Tag:   "min",
-				},
-			},
-		},
-		{
-			name: "missing location",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.Location",
 					Field: "Location",
 					Tag:   "required",
 				},
-			},
-		},
-		{
-			name: "empty location",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
-					Key:   "Config.Params.Location",
-					Field: "Location",
-					Tag:   "min",
+					Key:   "Config.Params.RsaPublicKeyPath",
+					Field: "RsaPublicKeyPath",
+					Tag:   "required",
 				},
-			},
-		},
-		{
-			name: "missing rg_name",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.RgName",
 					Field: "RgName",
 					Tag:   "required",
 				},
-			},
-		},
-		{
-			name: "empty rg_name",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.RgName",
-					Field: "RgName",
-					Tag:   "min",
-				},
-			},
-		},
-		{
-			name: "missing vnet_name",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.VnetName",
 					Field: "VnetName",
 					Tag:   "required",
 				},
-			},
-		},
-		{
-			name: "empty vnet_name",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.VnetName",
-					Field: "VnetName",
-					Tag:   "min",
-				},
-			},
-		},
-		{
-			name: "missing subnet_name",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.SubnetName",
 					Field: "SubnetName",
 					Tag:   "required",
 				},
-			},
-		},
-		{
-			name: "empty subnet_name",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.SubnetName",
-					Field: "SubnetName",
-					Tag:   "min",
-				},
-			},
-		},
-		{
-			name: "missing kubernetes_version",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.KubernetesVersion",
 					Field: "KubernetesVersion",
 					Tag:   "required",
 				},
+				test.TestValidationError{
+					Key:   "Config.Params.EnableNodePublicIp",
+					Field: "EnableNodePublicIp",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.EnableRbac",
+					Field: "EnableRbac",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.IdentityType",
+					Field: "IdentityType",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.KubeDashboardEnabled",
+					Field: "KubeDashboardEnabled",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.AdminUsername",
+					Field: "AdminUsername",
+					Tag:   "required",
+				},
 			},
 		},
+
 		{
-			name: "empty kubernetes_version",
+			name: "empty params",
 			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
 	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
+		"name": "",
+		"location": "",
+		"rsa_pub_path": "",
+		"rg_name": "",
+		"vnet_name": "",
+		"subnet_name": "",
 		"kubernetes_version": "",
 		"enable_node_public_ip": false,
 		"enable_rbac": false,
@@ -1055,16 +509,56 @@ func TestConfig_Load_Params(t *testing.T) {
 				"123123123123"
 			]
 		}, 
-		"identity_type": "SystemAssigned",
+		"identity_type": "",
 		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
+		"admin_username": ""
 	}
 }`),
 			want: nil,
 			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
+					Key:   "Config.Params.Name",
+					Field: "Name",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.Location",
+					Field: "Location",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.RsaPublicKeyPath",
+					Field: "RsaPublicKeyPath",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.RgName",
+					Field: "RgName",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VnetName",
+					Field: "VnetName",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.SubnetName",
+					Field: "SubnetName",
+					Tag:   "min",
+				},
+				test.TestValidationError{
 					Key:   "Config.Params.KubernetesVersion",
 					Field: "KubernetesVersion",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.IdentityType",
+					Field: "IdentityType",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.AdminUsername",
+					Field: "AdminUsername",
 					Tag:   "min",
 				},
 			},
@@ -1122,393 +616,6 @@ func TestConfig_Load_Params(t *testing.T) {
 					Key:   "Config.Params.KubernetesVersion",
 					Field: "KubernetesVersion",
 					Tag:   "version",
-				},
-			},
-		},
-		{
-			name: "missing enable_node_public_ip",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.EnableNodePublicIp",
-					Field: "EnableNodePublicIp",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "missing enable_rbac",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.EnableRbac",
-					Field: "EnableRbac",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "missing identity_type",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.IdentityType",
-					Field: "IdentityType",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty identity_type",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.IdentityType",
-					Field: "IdentityType",
-					Tag:   "min",
-				},
-			},
-		},
-		{
-			name: "missing kube_dashboard_enabled",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.KubeDashboardEnabled",
-					Field: "KubeDashboardEnabled",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "missing admin_username",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.AdminUsername",
-					Field: "AdminUsername",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty admin_username",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": ""
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.AdminUsername",
-					Field: "AdminUsername",
-					Tag:   "min",
 				},
 			},
 		},
@@ -1576,7 +683,7 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			},
 		},
 		{
-			name: "empty default_node_pool",
+			name: "empty default_node_pool aka missing params",
 			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
@@ -1654,7 +761,7 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			},
 		},
 		{
-			name: "missing default_node_pool.size",
+			name: "empty default_node_pool params",
 			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
@@ -1669,12 +776,13 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 		"enable_node_public_ip": false,
 		"enable_rbac": false,
 		"default_node_pool": {
+			"size": 2, 
 			"min": 2,
 			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"vm_size": "",
+			"disk_size": "",
 			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
+			"type": ""
 		},
 		"auto_scaler_profile": {
 			"balance_similar_node_groups": false,
@@ -1702,9 +810,19 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			want: nil,
 			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
-					Key:   "Config.Params.DefaultNodePool.Size",
-					Field: "Size",
-					Tag:   "required",
+					Key:   "Config.Params.DefaultNodePool.VmSize",
+					Field: "VmSize",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.DiskSize",
+					Field: "DiskSize",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.DefaultNodePool.Type",
+					Field: "Type",
+					Tag:   "min",
 				},
 			},
 		},
@@ -2072,394 +1190,6 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 				},
 			},
 		},
-		{
-			name: "missing default_node_pool.vm_size",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.DefaultNodePool.VmSize",
-					Field: "VmSize",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty default_node_pool.vm_size",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.DefaultNodePool.VmSize",
-					Field: "VmSize",
-					Tag:   "min",
-				},
-			},
-		},
-		{
-			name: "missing default_node_pool.disk_size",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.DefaultNodePool.DiskSize",
-					Field: "DiskSize",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty default_node_pool.disk_size",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.DefaultNodePool.DiskSize",
-					Field: "DiskSize",
-					Tag:   "min",
-				},
-			},
-		},
-		{
-			name: "missing default_node_pool.auto_scaling",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.DefaultNodePool.AutoScaling",
-					Field: "AutoScaling",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "missing default_node_pool.type",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.DefaultNodePool.Type",
-					Field: "Type",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty default_node_pool.type",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": ""
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.DefaultNodePool.Type",
-					Field: "Type",
-					Tag:   "min",
-				},
-			},
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -2522,7 +1252,7 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 			},
 		},
 		{
-			name: "empty auto_scaler_profile",
+			name: "empty auto_scaler_profile aka missing params",
 			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
@@ -2608,117 +1338,7 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 			},
 		},
 		{
-			name: "missing auto_scaler_profile.balance_similar_node_groups",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.AutoScalerProfile.BalanceSimilarNodeGroups",
-					Field: "BalanceSimilarNodeGroups",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "missing auto_scaler_profile.max_graceful_termination_sec",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.AutoScalerProfile.MaxGracefulTerminationSec",
-					Field: "MaxGracefulTerminationSec",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty auto_scaler_profile.max_graceful_termination_sec",
+			name: "empty auto_scaler_profile params",
 			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
@@ -2744,13 +1364,13 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 		"auto_scaler_profile": {
 			"balance_similar_node_groups": false,
 			"max_graceful_termination_sec": "",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
+			"scale_down_delay_after_add": "",
+			"scale_down_delay_after_delete": "",
+			"scale_down_delay_after_failure": "",
+			"scan_interval": "",
+			"scale_down_unneeded": "",
+			"scale_down_unready": "",
+			"scale_down_utilization_threshold": ""
 		},
 		"azure_ad": {
 			"managed": true,
@@ -2771,778 +1391,36 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 					Field: "MaxGracefulTerminationSec",
 					Tag:   "min",
 				},
-			},
-		},
-		{
-			name: "missing auto_scaler_profile.scale_down_delay_after_add",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterAdd",
-					Field: "ScaleDownDelayAfterAdd",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty auto_scaler_profile.scale_down_delay_after_add",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterAdd",
 					Field: "ScaleDownDelayAfterAdd",
 					Tag:   "min",
 				},
-			},
-		},
-		{
-			name: "missing auto_scaler_profile.scale_down_delay_after_delete",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterDelete",
-					Field: "ScaleDownDelayAfterDelete",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty auto_scaler_profile.scale_down_delay_after_delete",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterDelete",
 					Field: "ScaleDownDelayAfterDelete",
 					Tag:   "min",
 				},
-			},
-		},
-		{
-			name: "missing auto_scaler_profile.scale_down_delay_after_failure",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterFailure",
-					Field: "ScaleDownDelayAfterFailure",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty auto_scaler_profile.scale_down_delay_after_failure",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.AutoScalerProfile.ScaleDownDelayAfterFailure",
 					Field: "ScaleDownDelayAfterFailure",
 					Tag:   "min",
 				},
-			},
-		},
-		{
-			name: "missing auto_scaler_profile.scan_interval",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.AutoScalerProfile.ScanInterval",
-					Field: "ScanInterval",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty auto_scaler_profile.scan_interval",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.AutoScalerProfile.ScanInterval",
 					Field: "ScanInterval",
 					Tag:   "min",
 				},
-			},
-		},
-		{
-			name: "missing auto_scaler_profile.scale_down_unneeded",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.AutoScalerProfile.ScaleDownUnneeded",
-					Field: "ScaleDownUnneeded",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty auto_scaler_profile.scale_down_unneeded",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.AutoScalerProfile.ScaleDownUnneeded",
 					Field: "ScaleDownUnneeded",
 					Tag:   "min",
 				},
-			},
-		},
-		{
-			name: "missing auto_scaler_profile.scale_down_unready",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.AutoScalerProfile.ScaleDownUnready",
-					Field: "ScaleDownUnready",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty auto_scaler_profile.scale_down_unready",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.AutoScalerProfile.ScaleDownUnready",
 					Field: "ScaleDownUnready",
 					Tag:   "min",
 				},
-			},
-		},
-		{
-			name: "missing auto_scaler_profile.scale_down_utilization_threshold",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.AutoScalerProfile.ScaleDownUtilizationThreshold",
-					Field: "ScaleDownUtilizationThreshold",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty auto_scaler_profile.scale_down_utilization_threshold",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": ""
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.AutoScalerProfile.ScaleDownUtilizationThreshold",
 					Field: "ScaleDownUtilizationThreshold",
@@ -3730,7 +1608,7 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "missing azure_ad.managed",
+			name: "empty azure_ad aka missing params",
 			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
@@ -3764,12 +1642,7 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 			"scale_down_unready": "10m",
 			"scale_down_utilization_threshold": "0.5"
 		},
-		"azure_ad": {
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
+		"azure_ad": {}, 
 		"identity_type": "SystemAssigned",
 		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
@@ -3782,65 +1655,20 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 					Field: "Managed",
 					Tag:   "required",
 				},
-			},
-		},
-		{
-			name: "missing azure_ad.tenant_id",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.AzureAd.TenantId",
 					Field: "TenantId",
 					Tag:   "required",
 				},
+				test.TestValidationError{
+					Key:   "Config.Params.AzureAd.AdminGroupObjectIds",
+					Field: "AdminGroupObjectIds",
+					Tag:   "required",
+				},
 			},
 		},
 		{
-			name: "empty azure_ad.tenant_id",
+			name: "empty azure_ad params",
 			json: []byte(`{
 	"kind": "azks",
 	"version": "v0.0.1",
@@ -3877,9 +1705,7 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 		"azure_ad": {
 			"managed": true,
 			"tenant_id": "",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
+			"admin_group_object_ids": []
 		}, 
 		"identity_type": "SystemAssigned",
 		"kube_dashboard_enabled": true,
@@ -3893,108 +1719,6 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 					Field: "TenantId",
 					Tag:   "min",
 				},
-			},
-		},
-		{
-			name: "missing azure_ad.admin_group_object_ids",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123"
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.AzureAd.AdminGroupObjectIds",
-					Field: "AdminGroupObjectIds",
-					Tag:   "required",
-				},
-			},
-		},
-		{
-			name: "empty azure_ad.admin_group_object_ids",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.18.14",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": []
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
 					Key:   "Config.Params.AzureAd.AdminGroupObjectIds",
 					Field: "AdminGroupObjectIds",
