@@ -3,6 +3,7 @@ package v0
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
@@ -109,7 +110,7 @@ func (p *Params) ExtractEmptySubnets() []Subnet {
 
 type Config struct {
 	Kind    *string  `json:"kind" validate:"required,eq=azbi"`
-	Version *string  `json:"version" validate:"required,major=~0"`
+	Version *string  `json:"version" validate:"required,version=~0"`
 	Params  *Params  `json:"params" validate:"required"`
 	Unused  []string `json:"-"`
 }
@@ -195,10 +196,12 @@ func (c *Config) isValid() error {
 		return errors.New("azbi config is nil")
 	}
 	validate := validator.New()
-	err := validate.RegisterValidation("major", validators.HasMajorVersionLike)
+
+	err := validate.RegisterValidation("version", validators.HasVersion)
 	if err != nil {
 		return err
 	}
+	validate.RegisterStructValidation(AzBISubnetsValidation, Params{})
 	err = validate.Struct(c)
 	if err != nil {
 		if _, ok := err.(*validator.InvalidValidationError); ok {
@@ -206,37 +209,6 @@ func (c *Config) isValid() error {
 		}
 		return err
 	}
-
-	//if c.Params != nil && !reflect.DeepEqual(c.Params, &Params{}) {
-
-	//	if c.Params.Location == nil {
-	//		return &MinimalParamsValidationError{"'location' parameter missing"}
-	//	}
-	//	if c.Params.Subnets == nil || len(c.Params.Subnets) < 1 {
-	//		return &MinimalParamsValidationError{"'subnets' list parameter missing or is 0 length"}
-	//	}
-	//	if len(c.Params.VmGroups) > 0 {
-	//		for _, vmGroup := range c.Params.VmGroups {
-	//			if vmGroup.SubnetNames == nil || len(vmGroup.SubnetNames) < 1 {
-	//				return &MinimalParamsValidationError{"one of vm groups is missing 'subnet_names' list field or its length is 0"}
-	//			}
-	//			for _, sn := range vmGroup.SubnetNames {
-	//				if sn == "" {
-	//					return &MinimalParamsValidationError{"one of vm groups subnet names lists value is empty"}
-	//				}
-	//				found := false
-	//				for _, s := range c.Params.Subnets {
-	//					if sn == *s.Name {
-	//						found = true
-	//					}
-	//				}
-	//				if !found {
-	//					return &MinimalParamsValidationError{"one of vm groups subnet names wasn't found among subnets"}
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
 	return nil
 }
 
@@ -275,4 +247,47 @@ func (o *Output) GetVnetNameV() string {
 		return ""
 	}
 	return *o.VnetName
+}
+
+func AzBISubnetsValidation(sl validator.StructLevel) {
+	params := sl.Current().Interface().(Params)
+	if len(params.VmGroups) > 0 {
+		for i, vmGroup := range params.VmGroups {
+			if vmGroup.SubnetNames == nil || len(vmGroup.SubnetNames) < 1 {
+				sl.ReportError(
+					params.VmGroups[i],
+					fmt.Sprintf("VmGroups[%d].SubnetNames", i),
+					"SubnetNames",
+					"required",
+					"")
+				return
+			}
+			for j, sn := range vmGroup.SubnetNames {
+				if sn == "" {
+					sl.ReportError(
+						params.VmGroups[i].SubnetNames[j],
+						fmt.Sprintf("VmGroups[%d].SubnetNames[%d]", i, j),
+						fmt.Sprintf("SubnetNames[%d]", j),
+						"required",
+						"")
+					return
+				}
+				found := false
+				for _, s := range params.Subnets {
+					if s.Name != nil && sn == *s.Name {
+						found = true
+					}
+				}
+				if !found {
+					sl.ReportError(
+						params.VmGroups[i].SubnetNames[j],
+						fmt.Sprintf("VmGroups[%d].SubnetNames[%d]", i, j),
+						fmt.Sprintf("SubnetNames[%d]", j),
+						"insubnets",
+						"")
+					return
+				}
+			}
+		}
+	}
 }

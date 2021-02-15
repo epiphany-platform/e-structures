@@ -477,7 +477,7 @@ func TestState_Load(t *testing.T) {
 				test.TestValidationError{
 					Key:   "State.Version",
 					Field: "Version",
-					Tag:   "major",
+					Tag:   "version",
 				},
 			},
 		},

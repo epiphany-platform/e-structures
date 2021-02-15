@@ -66,7 +66,7 @@ func (s *AzKSState) GetOutput() *azks.Output {
 
 type State struct {
 	Kind    *string    `json:"kind" validate:"required,eq=state"`
-	Version *string    `json:"version" validate:"required,major=~0"`
+	Version *string    `json:"version" validate:"required,version=~0"`
 	Unused  []string   `json:"-"`
 	AzBI    *AzBIState `json:"azbi" validate:"omitempty"`
 	AzKS    *AzKSState `json:"azks" validate:"omitempty"`
@@ -131,7 +131,7 @@ func (s *State) isValid() error {
 		return errors.New("state is nil")
 	}
 	validate := validator.New()
-	err := validate.RegisterValidation("major", validators.HasMajorVersionLike)
+	err := validate.RegisterValidation("version", validators.HasVersion)
 	if err != nil {
 		return err
 	}

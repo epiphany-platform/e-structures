@@ -433,6 +433,11 @@ func TestConfig_Load(t *testing.T) {
 					Field: "Subnets",
 					Tag:   "required",
 				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SubnetNames[0]",
+					Field: "VmGroups[0].SubnetNames[0]",
+					Tag:   "insubnets",
+				},
 			},
 		},
 		{
@@ -533,6 +538,11 @@ func TestConfig_Load(t *testing.T) {
 					Field: "Subnets",
 					Tag:   "required",
 				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SubnetNames[0]",
+					Field: "VmGroups[0].SubnetNames[0]",
+					Tag:   "insubnets",
+				},
 			},
 		},
 		{
@@ -567,6 +577,11 @@ func TestConfig_Load(t *testing.T) {
 					Key:   "Config.Params.Subnets",
 					Field: "Subnets",
 					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SubnetNames[0]",
+					Field: "VmGroups[0].SubnetNames[0]",
+					Tag:   "insubnets",
 				},
 			},
 		},
@@ -609,6 +624,11 @@ func TestConfig_Load(t *testing.T) {
 					Field: "Name",
 					Tag:   "required",
 				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SubnetNames[0]",
+					Field: "VmGroups[0].SubnetNames[0]",
+					Tag:   "insubnets",
+				},
 			},
 		},
 		{
@@ -650,6 +670,11 @@ func TestConfig_Load(t *testing.T) {
 					Key:   "Config.Params.Subnets[0].Name",
 					Field: "Name",
 					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SubnetNames[0]",
+					Field: "VmGroups[0].SubnetNames[0]",
+					Tag:   "insubnets",
 				},
 			},
 		},
@@ -1161,6 +1186,11 @@ func TestConfig_Load(t *testing.T) {
 					Field: "SubnetNames",
 					Tag:   "required",
 				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SubnetNames",
+					Field: "VmGroups[0].SubnetNames",
+					Tag:   "required",
+				},
 			},
 		},
 		{
@@ -1202,6 +1232,11 @@ func TestConfig_Load(t *testing.T) {
 					Key:   "Config.Params.VmGroups[0].SubnetNames",
 					Field: "SubnetNames",
 					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SubnetNames",
+					Field: "VmGroups[0].SubnetNames",
+					Tag:   "required",
 				},
 			},
 		},
@@ -1245,6 +1280,11 @@ func TestConfig_Load(t *testing.T) {
 					Field: "SubnetNames[0]",
 					Tag:   "required",
 				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SubnetNames[0]",
+					Field: "VmGroups[0].SubnetNames[0]",
+					Tag:   "required",
+				},
 			},
 		},
 		{
@@ -1283,9 +1323,9 @@ func TestConfig_Load(t *testing.T) {
 			want: nil,
 			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
-					Key:   "TODO Custom Validator",
-					Field: "TODO",
-					Tag:   "TODO",
+					Key:   "Config.Params.VmGroups[0].SubnetNames[0]",
+					Field: "VmGroups[0].SubnetNames[0]",
+					Tag:   "insubnets",
 				},
 			},
 		},
@@ -2324,7 +2364,7 @@ func TestConfig_Load(t *testing.T) {
 				test.TestValidationError{
 					Key:   "Config.Version",
 					Field: "Version",
-					Tag:   "major",
+					Tag:   "version",
 				},
 			},
 		},

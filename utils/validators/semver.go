@@ -7,12 +7,11 @@ import (
 	"reflect"
 )
 
-func HasMajorVersionLike(fl validator.FieldLevel) bool {
+func HasVersion(fl validator.FieldLevel) bool {
 	field := fl.Field()
 
 	switch field.Kind() {
 	case reflect.String:
-		fmt.Println("nanana")
 		f := field.String()
 		r, err := checkVersionConstraint(f, fl.Param())
 		if err != nil {
