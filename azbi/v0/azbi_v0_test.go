@@ -2,25 +2,24 @@ package v0
 
 import (
 	"github.com/epiphany-platform/e-structures/utils/test"
+	"github.com/go-playground/validator/v10"
+	"github.com/google/go-cmp/cmp"
 	"reflect"
 	"testing"
 
-	"github.com/go-playground/validator/v10"
-
 	"github.com/epiphany-platform/e-structures/utils/to"
-	"github.com/google/go-cmp/cmp"
 )
 
 func TestConfig_Load(t *testing.T) {
 	tests := []struct {
 		name    string
-		args    []byte
+		json    []byte
 		want    *Config
 		wantErr error
 	}{
 		{
 			name: "happy path",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
 	"params": {
@@ -98,7 +97,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "unknown fields in multiple places",
-			args: []byte(`{
+			json: []byte(`{
 	"kind": "azbi",
 	"version": "v0.1.0",
 	"extra_outer_field" : "extra_outer_value",
@@ -180,7 +179,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty json",
-			args: []byte(`{}`),
+			json: []byte(`{}`),
 			want: nil,
 			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
@@ -202,7 +201,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "just vm_groups in params",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -243,7 +242,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "minimal correct json",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -295,7 +294,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing requested subnets list",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -330,7 +329,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty subnets list",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -368,7 +367,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "vm_group without networking",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -420,7 +419,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing subnet params",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -465,7 +464,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty subnet params",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -513,7 +512,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty subnet address prefixes element and not cidr",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -570,7 +569,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "multiple subnets configuration",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -652,7 +651,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing address_space when present subnets",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -694,7 +693,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing subnets when present address_space",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -731,7 +730,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "emtpy address_space",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -774,7 +773,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty address_space element or not cidr",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -824,7 +823,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing vm_groups parameter",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -845,7 +844,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty vm_groups parameter",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -890,7 +889,7 @@ func TestConfig_Load(t *testing.T) {
 
 		{
 			name: "missing vm_groups parameters",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -950,7 +949,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty vm_groups parameters",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1000,7 +999,7 @@ func TestConfig_Load(t *testing.T) {
 
 		{
 			name: "negative vm_groups vm_count parameter",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1046,7 +1045,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty vm_groups subnet_names list",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1092,7 +1091,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "vm_groups subnet_names list empty value",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1143,7 +1142,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "vm_groups subnet_names list value not existing in subnets",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1189,7 +1188,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "missing vm_groups.vm_image parameters",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1245,7 +1244,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty vm_groups.vm_image parameters",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1306,7 +1305,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty vm_groups.data_disks list value",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1354,7 +1353,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "zero vm_groups.data_disks list value",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1404,7 +1403,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "negative vm_groups.data_disks list value",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1454,7 +1453,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "empty params.rsa_pub_path",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1500,7 +1499,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "multiple vm_groups configuration",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1602,7 +1601,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "multiple vm_groups and subnets configuration",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1714,7 +1713,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "2 vm_groups and 3 subnets configuration",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1836,7 +1835,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "multiple vm_groups and subnets and data disks configuration",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
 			"params": {
@@ -1976,7 +1975,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "major version mismatch",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "100.0.0",
 			"params": {
@@ -2010,7 +2009,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "minor version mismatch",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "0.100.0",
 			"params": {
@@ -2062,7 +2061,7 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "patch version mismatch",
-			args: []byte(`{
+			json: []byte(`{
 			"kind": "azbi",
 			"version": "0.0.100",
 			"params": {
@@ -2115,42 +2114,46 @@ func TestConfig_Load(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := &Config{}
-			err := got.Unmarshal(tt.args)
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
+		})
+	}
+}
 
-			if tt.wantErr != nil {
-				if err != nil {
-					if _, ok := err.(*validator.InvalidValidationError); ok {
-						t.Fatal(err)
+func configLoadTestingBody(t *testing.T, json []byte, want *Config, wantErr error) {
+	got := &Config{}
+	err := got.Unmarshal(json)
+
+	if wantErr != nil {
+		if err != nil {
+			if _, ok := err.(*validator.InvalidValidationError); ok {
+				t.Fatal(err)
+			}
+			errs := err.(validator.ValidationErrors)
+			if len(errs) != len(wantErr.(test.TestValidationErrors)) {
+				t.Fatalf("incorrect length of found errors. Got: \n%s\nExpected: \n%s", errs.Error(), wantErr.Error())
+			}
+			for _, e := range errs {
+				found := false
+				for _, we := range wantErr.(test.TestValidationErrors) {
+					if we.Key == e.Namespace() && we.Tag == e.Tag() && we.Field == e.Field() {
+						found = true
+						break
 					}
-					errs := err.(validator.ValidationErrors)
-					if len(errs) != len(tt.wantErr.(test.TestValidationErrors)) {
-						t.Fatalf("incorrect length of found errors. Got: \n%s\nExpected: \n%s", errs.Error(), tt.wantErr.Error())
-					}
-					for _, e := range errs {
-						found := false
-						for _, we := range tt.wantErr.(test.TestValidationErrors) {
-							if we.Key == e.Namespace() && we.Tag == e.Tag() && we.Field == e.Field() {
-								found = true
-								break
-							}
-						}
-						if !found {
-							t.Errorf("Got unknown error:\n%s\nAll expected errors: \n%s", e.Error(), tt.wantErr.Error())
-						}
-					}
-				} else {
-					t.Errorf("No errors got. All expected errors: \n%s", tt.wantErr.Error())
 				}
-			} else {
-				if diff := cmp.Diff(tt.want, got); diff != "" {
-					t.Errorf("Unmarshal() mismatch (-want +got):\n%s", diff)
-				}
-				if err != nil {
-					t.Errorf("Unmarshal() unexpected error occured: %v", err)
+				if !found {
+					t.Errorf("Got unknown error:\n%s\nAll expected errors: \n%s", e.Error(), wantErr.Error())
 				}
 			}
-		})
+		} else {
+			t.Errorf("No errors got. All expected errors: \n%s", wantErr.Error())
+		}
+	} else {
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("Unmarshal() mismatch (-want +got):\n%s", diff)
+		}
+		if err != nil {
+			t.Errorf("Unmarshal() unexpected error occured: %v", err)
+		}
 	}
 }
 
