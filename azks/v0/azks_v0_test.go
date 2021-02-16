@@ -1820,14 +1820,6 @@ func configLoadTestingBody(t *testing.T, json []byte, want *Config, wantErr erro
 		} else {
 			t.Errorf("No errors got. All expected errors: \n%s", wantErr.Error())
 		}
-
-		//errMsg := ""
-		//if err != nil {
-		//	errMsg = err.Error()
-		//}
-		//if diff := cmp.Diff(wantErr.Error(), errMsg, cmpopts.EquateErrors()); diff != "" {
-		//	t.Errorf("Unmarshal() errors mismatch (-want +got):\n%s", diff)
-		//}
 	} else {
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("Unmarshal() mismatch (-want +got):\n%s", diff)
