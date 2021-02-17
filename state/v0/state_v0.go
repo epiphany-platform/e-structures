@@ -3,13 +3,14 @@ package v0
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"github.com/epiphany-platform/e-structures/utils/validators"
 
-	"github.com/Masterminds/semver"
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
 	azks "github.com/epiphany-platform/e-structures/azks/v0"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	maps "github.com/mitchellh/mapstructure"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type Status string
@@ -24,9 +25,9 @@ const (
 )
 
 type AzBIState struct {
-	Status Status       `json:"status"`
-	Config *azbi.Config `json:"config"`
-	Output *azbi.Output `json:"output"`
+	Status Status       `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
+	Config *azbi.Config `json:"config" validate:"omitempty"`
+	Output *azbi.Output `json:"output" validate:"omitempty"`
 }
 
 func (s *AzBIState) GetConfig() *azbi.Config {
@@ -44,9 +45,9 @@ func (s *AzBIState) GetOutput() *azbi.Output {
 }
 
 type AzKSState struct {
-	Status Status       `json:"status"`
-	Config *azks.Config `json:"config"`
-	Output *azks.Output `json:"output"`
+	Status Status       `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
+	Config *azks.Config `json:"config" validate:"omitempty"`
+	Output *azks.Output `json:"output" validate:"omitempty"`
 }
 
 func (s *AzKSState) GetConfig() *azks.Config {
@@ -64,11 +65,11 @@ func (s *AzKSState) GetOutput() *azks.Output {
 }
 
 type State struct {
-	Kind    *string    `json:"kind"`
-	Version *string    `json:"version"`
+	Kind    *string    `json:"kind" validate:"required,eq=state"`
+	Version *string    `json:"version" validate:"required,version=~0"`
 	Unused  []string   `json:"-"`
-	AzBI    *AzBIState `json:"azbi"`
-	AzKS    *AzKSState `json:"azks"`
+	AzBI    *AzBIState `json:"azbi" validate:"omitempty"`
+	AzKS    *AzKSState `json:"azks" validate:"omitempty"`
 }
 
 func (s *State) GetAzBIState() *AzBIState {
@@ -124,34 +125,21 @@ func (s *State) Unmarshal(b []byte) (err error) {
 	return
 }
 
-var (
-	KindMissingValidationError    = errors.New("field 'Kind' cannot be nil")
-	VersionMissingValidationError = errors.New("field 'Version' cannot be nil")
-	MajorVersionMismatchError     = errors.New("version of loaded structure has MAJOR part different than required")
-)
-
-//TODO implement more interesting validation
 func (s *State) isValid() error {
-	if s.Version == nil {
-		return VersionMissingValidationError
+	if s == nil {
+		return errors.New("state is nil")
 	}
-	if s.Kind == nil {
-		return KindMissingValidationError
-	}
-	v, err := semver.NewVersion(version)
+	validate := validator.New()
+	err := validate.RegisterValidation("version", validators.HasVersion)
 	if err != nil {
 		return err
 	}
-	constraint, err := semver.NewConstraint(fmt.Sprintf("~%d", v.Major()))
+	err = validate.Struct(s)
 	if err != nil {
+		if _, ok := err.(*validator.InvalidValidationError); ok {
+			return err
+		}
 		return err
-	}
-	vv, err := semver.NewVersion(*s.Version)
-	if err != nil {
-		return err
-	}
-	if !constraint.Check(vv) {
-		return MajorVersionMismatchError
 	}
 	return nil
 }

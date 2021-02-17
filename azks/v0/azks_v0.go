@@ -2,12 +2,10 @@ package v0
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
-	"github.com/Masterminds/semver"
 	"github.com/epiphany-platform/e-structures/utils/to"
+	"github.com/epiphany-platform/e-structures/utils/validators"
+	"github.com/go-playground/validator/v10"
 	maps "github.com/mitchellh/mapstructure"
-	"reflect"
 )
 
 const (
@@ -16,53 +14,53 @@ const (
 )
 
 type AzureAd struct {
-	Managed             *bool    `json:"managed"`
-	TenantId            *string  `json:"tenant_id"`
-	AdminGroupObjectIds []string `json:"admin_group_object_ids"`
+	Managed             *bool    `json:"managed" validate:"required"`
+	TenantId            *string  `json:"tenant_id" validate:"required,min=1"`
+	AdminGroupObjectIds []string `json:"admin_group_object_ids" validate:"required,min=1,dive,required,min=1"`
 }
 
 type AutoScalerProfile struct { //TODO consider changing types of string values here to make it more golang'ish
-	BalanceSimilarNodeGroups      *bool   `json:"balance_similar_node_groups"`
-	MaxGracefulTerminationSec     *string `json:"max_graceful_termination_sec"`
-	ScaleDownDelayAfterAdd        *string `json:"scale_down_delay_after_add"`
-	ScaleDownDelayAfterDelete     *string `json:"scale_down_delay_after_delete"`
-	ScaleDownDelayAfterFailure    *string `json:"scale_down_delay_after_failure"`
-	ScanInterval                  *string `json:"scan_interval"`
-	ScaleDownUnneeded             *string `json:"scale_down_unneeded"`
-	ScaleDownUnready              *string `json:"scale_down_unready"`
-	ScaleDownUtilizationThreshold *string `json:"scale_down_utilization_threshold"`
+	BalanceSimilarNodeGroups      *bool   `json:"balance_similar_node_groups" validate:"required"`
+	MaxGracefulTerminationSec     *string `json:"max_graceful_termination_sec" validate:"required,min=1"`
+	ScaleDownDelayAfterAdd        *string `json:"scale_down_delay_after_add" validate:"required,min=1"`
+	ScaleDownDelayAfterDelete     *string `json:"scale_down_delay_after_delete" validate:"required,min=1"`
+	ScaleDownDelayAfterFailure    *string `json:"scale_down_delay_after_failure" validate:"required,min=1"`
+	ScanInterval                  *string `json:"scan_interval" validate:"required,min=1"`
+	ScaleDownUnneeded             *string `json:"scale_down_unneeded" validate:"required,min=1"`
+	ScaleDownUnready              *string `json:"scale_down_unready" validate:"required,min=1"`
+	ScaleDownUtilizationThreshold *string `json:"scale_down_utilization_threshold" validate:"required,min=1"`
 }
 
 type DefaultNodePool struct {
-	Size        *int    `json:"size"`
-	Min         *int    `json:"min"`
-	Max         *int    `json:"max"`
-	VmSize      *string `json:"vm_size"`
-	DiskSize    *string `json:"disk_size"`
-	AutoScaling *bool   `json:"auto_scaling"`
-	Type        *string `json:"type"`
+	Size        *int    `json:"size" validate:"required,min=0,gtefield=Min,ltefield=Max"`
+	Min         *int    `json:"min" validate:"required,min=0"`
+	Max         *int    `json:"max" validate:"required,min=0,gtefield=Min"`
+	VmSize      *string `json:"vm_size" validate:"required,min=1"`
+	DiskSize    *string `json:"disk_size" validate:"required,min=1"`
+	AutoScaling *bool   `json:"auto_scaling" validate:"required"`
+	Type        *string `json:"type" validate:"required,min=1"`
 }
 
 type Params struct {
-	Name             *string `json:"name"`
-	Location         *string `json:"location"`
-	RsaPublicKeyPath *string `json:"rsa_pub_path"` // TODO check why this field is not validated
+	Name             *string `json:"name" validate:"required,min=1"`
+	Location         *string `json:"location" validate:"required,min=1"`
+	RsaPublicKeyPath *string `json:"rsa_pub_path" validate:"required,min=1"`
 
-	RgName     *string `json:"rg_name"`
-	VnetName   *string `json:"vnet_name"`
-	SubnetName *string `json:"subnet_name"`
+	RgName     *string `json:"rg_name" validate:"required,min=1"`
+	VnetName   *string `json:"vnet_name" validate:"required,min=1"`
+	SubnetName *string `json:"subnet_name" validate:"required,min=1"`
 
-	KubernetesVersion  *string `json:"kubernetes_version"`
-	EnableNodePublicIp *bool   `json:"enable_node_public_ip"`
-	EnableRbac         *bool   `json:"enable_rbac"`
+	KubernetesVersion  *string `json:"kubernetes_version" validate:"required,min=1,version=<1.19"` // version validation due to KubeDashboardEnabled field
+	EnableNodePublicIp *bool   `json:"enable_node_public_ip" validate:"required"`
+	EnableRbac         *bool   `json:"enable_rbac" validate:"required"`
 
-	DefaultNodePool   *DefaultNodePool   `json:"default_node_pool"`
-	AutoScalerProfile *AutoScalerProfile `json:"auto_scaler_profile"`
-	AzureAd           *AzureAd           `json:"azure_ad"`
+	DefaultNodePool   *DefaultNodePool   `json:"default_node_pool" validate:"required,dive"`
+	AutoScalerProfile *AutoScalerProfile `json:"auto_scaler_profile" validate:"required,dive"`
+	AzureAd           *AzureAd           `json:"azure_ad" validate:"omitempty"`
 
-	IdentityType         *string `json:"identity_type"`
-	KubeDashboardEnabled *bool   `json:"kube_dashboard_enabled"` // TODO remove https://docs.microsoft.com/en-us/azure/aks/kubernetes-dashboard
-	AdminUsername        *string `json:"admin_username"`
+	IdentityType         *string `json:"identity_type" validate:"required,min=1"`
+	KubeDashboardEnabled *bool   `json:"kube_dashboard_enabled" validate:"required"` // TODO remove https://docs.microsoft.com/en-us/azure/aks/kubernetes-dashboard
+	AdminUsername        *string `json:"admin_username" validate:"required,min=1"`
 }
 
 func (p *Params) GetRsaPublicKeyV() string {
@@ -80,9 +78,9 @@ func (p *Params) GetNameV() string {
 }
 
 type Config struct {
-	Kind    *string  `json:"kind"`
-	Version *string  `json:"version"`
-	Params  *Params  `json:"params"`
+	Kind    *string  `json:"kind" validate:"required,eq=azks"`
+	Version *string  `json:"version" validate:"required,version=~0"`
+	Params  *Params  `json:"params" validate:"required"`
 	Unused  []string `json:"-"`
 }
 
@@ -169,159 +167,20 @@ func (c *Config) Unmarshal(b []byte) (err error) {
 	return
 }
 
-var (
-	KindMissingValidationError    = errors.New("field 'Kind' cannot be nil")
-	VersionMissingValidationError = errors.New("field 'Version' cannot be nil")
-	ParamsMissingValidationError  = errors.New("params section missing")
-	MajorVersionMismatchError     = errors.New("version of loaded structure has MAJOR part different than required")
-)
-
-type MinimalParamsValidationError struct {
-	msg string
-}
-
-func (e MinimalParamsValidationError) Error() string {
-	return fmt.Sprintf("validation error: %s", e.msg)
-}
-
 func (c *Config) isValid() error {
-	if c.Kind == nil {
-		return KindMissingValidationError
-	}
-	if c.Version == nil {
-		return VersionMissingValidationError
-	}
-	if c.Params == nil {
-		return ParamsMissingValidationError
-	}
-	v, err := semver.NewVersion(version)
+	validate := validator.New()
+
+	err := validate.RegisterValidation("version", validators.HasVersion)
 	if err != nil {
 		return err
 	}
-	constraint, err := semver.NewConstraint(fmt.Sprintf("~%d", v.Major()))
+
+	err = validate.Struct(c)
 	if err != nil {
+		if _, ok := err.(*validator.InvalidValidationError); ok {
+			return err
+		}
 		return err
-	}
-	newVersion, err := semver.NewVersion(*c.Version)
-	if err != nil {
-		return err
-	}
-	if !constraint.Check(newVersion) {
-		return MajorVersionMismatchError
-	}
-	if c.Params != nil && !reflect.DeepEqual(c.Params, &Params{}) {
-		if c.Params.Name == nil || *c.Params.Name == "" {
-			return &MinimalParamsValidationError{"'name' parameter missing"}
-		}
-		if c.Params.Location == nil || *c.Params.Location == "" {
-			return &MinimalParamsValidationError{"'location' parameter missing"}
-		}
-		if c.Params.RgName == nil || *c.Params.RgName == "" {
-			return &MinimalParamsValidationError{"'rg_name' parameter missing"}
-		}
-		if c.Params.VnetName == nil || *c.Params.VnetName == "" {
-			return &MinimalParamsValidationError{"'vnet_name' parameter missing"}
-		}
-		if c.Params.SubnetName == nil || *c.Params.SubnetName == "" {
-			return &MinimalParamsValidationError{"'subnet_name' parameter missing"}
-		}
-		if c.Params.KubernetesVersion == nil || *c.Params.KubernetesVersion == "" { // TODO semver format could also be validated
-			return &MinimalParamsValidationError{"'kubernetes_version' parameter missing"}
-		}
-		if c.Params.EnableNodePublicIp == nil {
-			return &MinimalParamsValidationError{"'enable_node_public_ip' parameter missing"}
-		}
-		if c.Params.EnableRbac == nil {
-			return &MinimalParamsValidationError{"'enable_rbac' parameter missing"}
-		}
-
-		if c.Params.IdentityType == nil || *c.Params.IdentityType == "" {
-			return &MinimalParamsValidationError{"'identity_type' parameter missing"}
-		}
-		if c.Params.KubeDashboardEnabled == nil {
-			return &MinimalParamsValidationError{"'kube_dashboard_enabled' parameter missing"}
-		}
-		fmt.Println("[DEPRECATION] 'kube_dashboard_enabled' parameter will soon be deprecated due to Azure removing Dashboard support in AKS.")
-		if c.Params.AdminUsername == nil || *c.Params.AdminUsername == "" {
-			return &MinimalParamsValidationError{"'admin_username' parameter missing"}
-		}
-
-		if c.Params.DefaultNodePool == nil {
-			return &MinimalParamsValidationError{"'default_node_pool' parameter missing"}
-		} else {
-			if c.Params.DefaultNodePool.Size == nil {
-				return &MinimalParamsValidationError{"'default_node_pool.size' parameter missing"}
-			}
-			if c.Params.DefaultNodePool.Min == nil {
-				return &MinimalParamsValidationError{"'default_node_pool.min' parameter missing"}
-			}
-			if c.Params.DefaultNodePool.Max == nil {
-				return &MinimalParamsValidationError{"'default_node_pool.max' parameter missing"}
-			}
-			if c.Params.DefaultNodePool.VmSize == nil || *c.Params.DefaultNodePool.VmSize == "" {
-				return &MinimalParamsValidationError{"'default_node_pool.vm_size' parameter missing"}
-			}
-			if c.Params.DefaultNodePool.DiskSize == nil || *c.Params.DefaultNodePool.DiskSize == "" {
-				return &MinimalParamsValidationError{"'default_node_pool.disk_size' parameter missing"}
-			}
-			if c.Params.DefaultNodePool.AutoScaling == nil {
-				return &MinimalParamsValidationError{"'default_node_pool.auto_scaling' parameter missing"}
-			}
-			if c.Params.DefaultNodePool.Type == nil || *c.Params.DefaultNodePool.Type == "" {
-				return &MinimalParamsValidationError{"'default_node_pool.type' parameter missing"}
-			}
-		}
-
-		if c.Params.AutoScalerProfile == nil {
-			return &MinimalParamsValidationError{"'auto_scaler_profile' parameter missing"}
-		} else {
-			if c.Params.AutoScalerProfile.BalanceSimilarNodeGroups == nil {
-				return &MinimalParamsValidationError{"'auto_scaler_profile.balance_similar_node_groups' parameter missing"}
-			}
-			if c.Params.AutoScalerProfile.MaxGracefulTerminationSec == nil || *c.Params.AutoScalerProfile.MaxGracefulTerminationSec == "" { // TODO format could also be validated
-				return &MinimalParamsValidationError{"'auto_scaler_profile.max_graceful_termination_sec' parameter missing"}
-			}
-			if c.Params.AutoScalerProfile.ScaleDownDelayAfterAdd == nil || *c.Params.AutoScalerProfile.ScaleDownDelayAfterAdd == "" { // TODO format could also be validated
-				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_add' parameter missing"}
-			}
-			if c.Params.AutoScalerProfile.ScaleDownDelayAfterDelete == nil || *c.Params.AutoScalerProfile.ScaleDownDelayAfterDelete == "" { // TODO format could also be validated
-				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_delete' parameter missing"}
-			}
-			if c.Params.AutoScalerProfile.ScaleDownDelayAfterFailure == nil || *c.Params.AutoScalerProfile.ScaleDownDelayAfterFailure == "" { // TODO format could also be validated
-				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_delay_after_failure' parameter missing"}
-			}
-			if c.Params.AutoScalerProfile.ScanInterval == nil || *c.Params.AutoScalerProfile.ScanInterval == "" { // TODO format could also be validated
-				return &MinimalParamsValidationError{"'auto_scaler_profile.scan_interval' parameter missing"}
-			}
-			if c.Params.AutoScalerProfile.ScaleDownUnneeded == nil || *c.Params.AutoScalerProfile.ScaleDownUnneeded == "" { // TODO format could also be validated
-				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_unneeded' parameter missing"}
-			}
-			if c.Params.AutoScalerProfile.ScaleDownUnready == nil || *c.Params.AutoScalerProfile.ScaleDownUnready == "" { // TODO format could also be validated
-				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_unready' parameter missing"}
-			}
-			if c.Params.AutoScalerProfile.ScaleDownUtilizationThreshold == nil || *c.Params.AutoScalerProfile.ScaleDownUtilizationThreshold == "" { // TODO format could also be validated
-				return &MinimalParamsValidationError{"'auto_scaler_profile.scale_down_utilization_threshold' parameter missing"}
-			}
-		}
-
-		if c.Params.AzureAd == nil {
-			// Azure AD can be null
-		} else {
-			if c.Params.AzureAd.Managed == nil {
-				return &MinimalParamsValidationError{"'azure_ad.managed' parameter missing"}
-			}
-			if c.Params.AzureAd.TenantId == nil || *c.Params.AzureAd.TenantId == "" {
-				return &MinimalParamsValidationError{"'azure_ad.tenant_id' parameter missing"}
-			}
-			if c.Params.AzureAd.AdminGroupObjectIds == nil || len(c.Params.AzureAd.AdminGroupObjectIds) < 1 {
-				return &MinimalParamsValidationError{"'azure_ad.admin_group_object_ids' parameter list is missing or its length is 0"}
-			}
-			for _, ago := range c.Params.AzureAd.AdminGroupObjectIds {
-				if ago == "" {
-					return &MinimalParamsValidationError{"one of Azure AD Admin Group IDs lists value is empty"}
-				}
-			}
-		}
 	}
 	return nil
 }
