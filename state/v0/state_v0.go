@@ -7,6 +7,7 @@ import (
 
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
 	azks "github.com/epiphany-platform/e-structures/azks/v0"
+	hi "github.com/epiphany-platform/e-structures/hi/v0"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	maps "github.com/mitchellh/mapstructure"
 
@@ -23,6 +24,18 @@ const (
 	Applied     Status = "applied"
 	Destroyed   Status = "destroyed"
 )
+
+type HiState struct {
+	Status Status     `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
+	Config *hi.Config `json:"config" validate:"omitempty"`
+}
+
+func (s *HiState) GetConfig() *hi.Config {
+	if s == nil {
+		return nil
+	}
+	return s.Config
+}
 
 type AzBIState struct {
 	Status Status       `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
@@ -70,6 +83,7 @@ type State struct {
 	Unused  []string   `json:"-"`
 	AzBI    *AzBIState `json:"azbi" validate:"omitempty"`
 	AzKS    *AzKSState `json:"azks" validate:"omitempty"`
+	Hi      *HiState   `json:"hi" validate:"omitempty"`
 }
 
 func (s *State) GetAzBIState() *AzBIState {
@@ -86,14 +100,19 @@ func (s *State) GetAzKSState() *AzKSState {
 	return s.AzKS
 }
 
+func (s *State) GetHiState() *HiState {
+	if s == nil {
+		return nil
+	}
+	return s.Hi
+}
+
 //TODO test
 func NewState() *State {
 	return &State{
 		Kind:    to.StrPtr(kind),
 		Version: to.StrPtr(version),
 		Unused:  []string{},
-		AzBI:    &AzBIState{},
-		AzKS:    &AzKSState{},
 	}
 }
 

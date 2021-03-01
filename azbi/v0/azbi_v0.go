@@ -229,6 +229,16 @@ type OutputVmGroup struct {
 	Vms  []OutputVm `json:"vms"`
 }
 
+func (g *OutputVmGroup) GetFirstVm() *OutputVm {
+	if g == nil {
+		return nil
+	}
+	if g.Vms == nil || len(g.Vms) == 0 {
+		return nil
+	}
+	return &g.Vms[0]
+}
+
 type Output struct {
 	RgName   *string         `json:"rg_name"`
 	VnetName *string         `json:"vnet_name"`
@@ -247,6 +257,16 @@ func (o *Output) GetVnetNameV() string {
 		return ""
 	}
 	return *o.VnetName
+}
+
+func (o *Output) GetVmGroups() []OutputVmGroup {
+	if o == nil {
+		return nil
+	}
+	if o.VmGroups == nil || len(o.VmGroups) == 0 {
+		return []OutputVmGroup{}
+	}
+	return o.VmGroups
 }
 
 func AzBISubnetsValidation(sl validator.StructLevel) {
