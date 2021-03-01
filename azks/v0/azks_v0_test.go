@@ -1,12 +1,11 @@
 package v0
 
 import (
-	"github.com/epiphany-platform/e-structures/utils/test"
-	"github.com/go-playground/validator/v10"
 	"testing"
 
+	"github.com/epiphany-platform/e-structures/utils/test"
 	"github.com/epiphany-platform/e-structures/utils/to"
-
+	"github.com/go-playground/validator/v10"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -56,7 +55,6 @@ func TestConfig_Load_general(t *testing.T) {
 		},
 		"azure_ad": null,
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -93,10 +91,9 @@ func TestConfig_Load_general(t *testing.T) {
 						ScaleDownUnready:              to.StrPtr("10m"),
 						ScaleDownUtilizationThreshold: to.StrPtr("0.5"),
 					},
-					AzureAd:              nil,
-					IdentityType:         to.StrPtr("SystemAssigned"),
-					KubeDashboardEnabled: to.BooPtr(true),
-					AdminUsername:        to.StrPtr("operations"),
+					AzureAd:       nil,
+					IdentityType:  to.StrPtr("SystemAssigned"),
+					AdminUsername: to.StrPtr("operations"),
 				},
 				Unused: []string{},
 			},
@@ -141,7 +138,6 @@ func TestConfig_Load_general(t *testing.T) {
 		},
 		"azure_ad": null,
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -178,10 +174,9 @@ func TestConfig_Load_general(t *testing.T) {
 						ScaleDownUnready:              to.StrPtr("10m"),
 						ScaleDownUtilizationThreshold: to.StrPtr("0.5"),
 					},
-					AzureAd:              nil,
-					IdentityType:         to.StrPtr("SystemAssigned"),
-					KubeDashboardEnabled: to.BooPtr(true),
-					AdminUsername:        to.StrPtr("operations"),
+					AzureAd:       nil,
+					IdentityType:  to.StrPtr("SystemAssigned"),
+					AdminUsername: to.StrPtr("operations"),
 				},
 				Unused: []string{"params.extra_inner_field", "extra_outer_field"},
 			},
@@ -245,7 +240,6 @@ func TestConfig_Load_general(t *testing.T) {
 			"scale_down_utilization_threshold": "0.5"
 		},
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -301,7 +295,6 @@ func TestConfig_Load_general(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -343,9 +336,8 @@ func TestConfig_Load_general(t *testing.T) {
 						TenantId:            to.StrPtr("123123123123"),
 						AdminGroupObjectIds: []string{"123123123123"},
 					},
-					IdentityType:         to.StrPtr("SystemAssigned"),
-					KubeDashboardEnabled: to.BooPtr(true),
-					AdminUsername:        to.StrPtr("operations"),
+					IdentityType:  to.StrPtr("SystemAssigned"),
+					AdminUsername: to.StrPtr("operations"),
 				},
 				Unused: []string{},
 			},
@@ -455,11 +447,6 @@ func TestConfig_Load_Params(t *testing.T) {
 					Tag:   "required",
 				},
 				test.TestValidationError{
-					Key:   "Config.Params.KubeDashboardEnabled",
-					Field: "KubeDashboardEnabled",
-					Tag:   "required",
-				},
-				test.TestValidationError{
 					Key:   "Config.Params.AdminUsername",
 					Field: "AdminUsername",
 					Tag:   "required",
@@ -510,7 +497,6 @@ func TestConfig_Load_Params(t *testing.T) {
 			]
 		}, 
 		"identity_type": "",
-		"kube_dashboard_enabled": true,
 		"admin_username": ""
 	}
 }`),
@@ -560,62 +546,6 @@ func TestConfig_Load_Params(t *testing.T) {
 					Key:   "Config.Params.AdminUsername",
 					Field: "AdminUsername",
 					Tag:   "min",
-				},
-			},
-		},
-		{
-			name: "kubernetes_version over 1.18",
-			json: []byte(`{
-	"kind": "azks",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"location": "northeurope",
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"rg_name": "epiphany-rg",
-		"vnet_name": "epiphany-vnet",
-		"subnet_name": "azks",
-		"kubernetes_version": "1.19.1",
-		"enable_node_public_ip": false,
-		"enable_rbac": false,
-		"default_node_pool": {
-			"size": 2,
-			"min": 2,
-			"max": 5,
-			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
-			"auto_scaling": true,
-			"type": "VirtualMachineScaleSets"
-		},
-		"auto_scaler_profile": {
-			"balance_similar_node_groups": false,
-			"max_graceful_termination_sec": "600",
-			"scale_down_delay_after_add": "10m",
-			"scale_down_delay_after_delete": "10s",
-			"scale_down_delay_after_failure": "10m",
-			"scan_interval": "10s",
-			"scale_down_unneeded": "10m",
-			"scale_down_unready": "10m",
-			"scale_down_utilization_threshold": "0.5"
-		},
-		"azure_ad": {
-			"managed": true,
-			"tenant_id": "123123123123",
-			"admin_group_object_ids": [
-				"123123123123"
-			]
-		}, 
-		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
-		"admin_username": "operations"
-	}
-}`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.KubernetesVersion",
-					Field: "KubernetesVersion",
-					Tag:   "version",
 				},
 			},
 		},
@@ -669,7 +599,6 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -717,7 +646,6 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -803,7 +731,6 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -868,7 +795,6 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -933,7 +859,6 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -994,7 +919,6 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -1055,7 +979,6 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -1111,7 +1034,6 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -1167,7 +1089,6 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -1238,7 +1159,6 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -1284,7 +1204,6 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -1380,7 +1299,6 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -1480,7 +1398,6 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 			"scale_down_utilization_threshold": "0.5"
 		},
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -1517,9 +1434,8 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 						ScaleDownUnready:              to.StrPtr("10m"),
 						ScaleDownUtilizationThreshold: to.StrPtr("0.5"),
 					},
-					IdentityType:         to.StrPtr("SystemAssigned"),
-					KubeDashboardEnabled: to.BooPtr(true),
-					AdminUsername:        to.StrPtr("operations"),
+					IdentityType:  to.StrPtr("SystemAssigned"),
+					AdminUsername: to.StrPtr("operations"),
 				},
 				Unused: []string{},
 			},
@@ -1562,7 +1478,6 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 		},
 		"azure_ad": null, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -1599,9 +1514,8 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 						ScaleDownUnready:              to.StrPtr("10m"),
 						ScaleDownUtilizationThreshold: to.StrPtr("0.5"),
 					},
-					IdentityType:         to.StrPtr("SystemAssigned"),
-					KubeDashboardEnabled: to.BooPtr(true),
-					AdminUsername:        to.StrPtr("operations"),
+					IdentityType:  to.StrPtr("SystemAssigned"),
+					AdminUsername: to.StrPtr("operations"),
 				},
 				Unused: []string{},
 			},
@@ -1644,7 +1558,6 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 		},
 		"azure_ad": {}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -1708,7 +1621,6 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 			"admin_group_object_ids": []
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),
@@ -1769,7 +1681,6 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 			]
 		}, 
 		"identity_type": "SystemAssigned",
-		"kube_dashboard_enabled": true,
 		"admin_username": "operations"
 	}
 }`),

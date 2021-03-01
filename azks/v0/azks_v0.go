@@ -2,6 +2,7 @@ package v0
 
 import (
 	"encoding/json"
+
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
@@ -10,7 +11,7 @@ import (
 
 const (
 	kind    = "azks"
-	version = "v0.0.1"
+	version = "v0.0.2"
 )
 
 type AzureAd struct {
@@ -42,25 +43,20 @@ type DefaultNodePool struct {
 }
 
 type Params struct {
-	Name             *string `json:"name" validate:"required,min=1"`
-	Location         *string `json:"location" validate:"required,min=1"`
-	RsaPublicKeyPath *string `json:"rsa_pub_path" validate:"required,min=1"`
-
-	RgName     *string `json:"rg_name" validate:"required,min=1"`
-	VnetName   *string `json:"vnet_name" validate:"required,min=1"`
-	SubnetName *string `json:"subnet_name" validate:"required,min=1"`
-
-	KubernetesVersion  *string `json:"kubernetes_version" validate:"required,min=1,version=<1.19"` // version validation due to KubeDashboardEnabled field
-	EnableNodePublicIp *bool   `json:"enable_node_public_ip" validate:"required"`
-	EnableRbac         *bool   `json:"enable_rbac" validate:"required"`
-
-	DefaultNodePool   *DefaultNodePool   `json:"default_node_pool" validate:"required,dive"`
-	AutoScalerProfile *AutoScalerProfile `json:"auto_scaler_profile" validate:"required,dive"`
-	AzureAd           *AzureAd           `json:"azure_ad" validate:"omitempty"`
-
-	IdentityType         *string `json:"identity_type" validate:"required,min=1"`
-	KubeDashboardEnabled *bool   `json:"kube_dashboard_enabled" validate:"required"` // TODO remove https://docs.microsoft.com/en-us/azure/aks/kubernetes-dashboard
-	AdminUsername        *string `json:"admin_username" validate:"required,min=1"`
+	Name               *string            `json:"name" validate:"required,min=1"`
+	Location           *string            `json:"location" validate:"required,min=1"`
+	RsaPublicKeyPath   *string            `json:"rsa_pub_path" validate:"required,min=1"`
+	RgName             *string            `json:"rg_name" validate:"required,min=1"`
+	VnetName           *string            `json:"vnet_name" validate:"required,min=1"`
+	SubnetName         *string            `json:"subnet_name" validate:"required,min=1"`
+	KubernetesVersion  *string            `json:"kubernetes_version" validate:"required,min=1"`
+	EnableNodePublicIp *bool              `json:"enable_node_public_ip" validate:"required"`
+	EnableRbac         *bool              `json:"enable_rbac" validate:"required"`
+	DefaultNodePool    *DefaultNodePool   `json:"default_node_pool" validate:"required,dive"`
+	AutoScalerProfile  *AutoScalerProfile `json:"auto_scaler_profile" validate:"required,dive"`
+	AzureAd            *AzureAd           `json:"azure_ad" validate:"omitempty"`
+	IdentityType       *string            `json:"identity_type" validate:"required,min=1"`
+	AdminUsername      *string            `json:"admin_username" validate:"required,min=1"`
 }
 
 func (p *Params) GetRsaPublicKeyV() string {
@@ -131,9 +127,8 @@ func NewConfig() *Config {
 			},
 			AzureAd: nil,
 
-			IdentityType:         to.StrPtr("SystemAssigned"),
-			KubeDashboardEnabled: to.BooPtr(true),
-			AdminUsername:        to.StrPtr("operations"),
+			IdentityType:  to.StrPtr("SystemAssigned"),
+			AdminUsername: to.StrPtr("operations"),
 		},
 		Unused: []string{},
 	}

@@ -7,4 +7,5 @@ require (
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/google/go-cmp v0.5.3
 	github.com/mitchellh/mapstructure v1.3.3
+	github.com/stretchr/testify v1.6.1 // indirect
 )
