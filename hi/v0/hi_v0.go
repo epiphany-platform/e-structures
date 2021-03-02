@@ -58,6 +58,12 @@ func NewConfig() *Config {
 			VmGroups: []VmGroup{
 				{
 					Name: to.StrPtr("vm-group0"),
+					Hosts: []Host{
+						{
+							Name: to.StrPtr("epiphany-vm-group0-1"),
+							Ip:   to.StrPtr("10.0.1.4"),
+						},
+					},
 					MountPoints: []MountPoint{
 						{
 							Lun:  to.IntPtr(10),
