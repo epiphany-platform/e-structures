@@ -19,8 +19,14 @@ type MountPoint struct {
 	Path *string `json:"path"`
 }
 
+type Host struct {
+	Name *string `json:"name" validate:"required"`
+	Ip   *string `json:"ip" validate:"required"`
+}
+
 type VmGroup struct {
 	Name        *string      `json:"name" validate:"required,min=1"`
+	Hosts       []Host       `json:"hosts" validate:"omitempty"`
 	MountPoints []MountPoint `json:"mount_point" validate:"required,dive"`
 }
 

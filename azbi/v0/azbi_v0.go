@@ -224,9 +224,29 @@ type OutputVm struct {
 	DataDisks  []OutputDataDisk `json:"data_disks"`
 }
 
+func (v *OutputVm) GetDataDisks() []OutputDataDisk {
+	if v == nil {
+		return nil
+	}
+	if v.DataDisks == nil || len(v.DataDisks) == 0 {
+		return []OutputDataDisk{}
+	}
+	return v.DataDisks
+}
+
 type OutputVmGroup struct {
 	Name *string    `json:"vm_group_name"`
 	Vms  []OutputVm `json:"vms"`
+}
+
+func (g *OutputVmGroup) GetVms() []OutputVm {
+	if g == nil {
+		return nil
+	}
+	if g.Vms == nil || len(g.Vms) == 0 {
+		return []OutputVm{}
+	}
+	return g.Vms
 }
 
 func (g *OutputVmGroup) GetFirstVm() *OutputVm {
