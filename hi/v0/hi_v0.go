@@ -26,13 +26,14 @@ type Host struct {
 
 type VmGroup struct {
 	Name        *string      `json:"name" validate:"required,min=1"`
+	AdminUser   *string      `json:"admin_user" validate:"required"`
 	Hosts       []Host       `json:"hosts" validate:"omitempty"`
 	MountPoints []MountPoint `json:"mount_point" validate:"required,dive"`
 }
 
 type Params struct {
-	VmGroups         []VmGroup `json:"vm_groups" validate:"required,dive"`
-	RsaPublicKeyPath *string   `json:"rsa_pub_path" validate:"required,min=1"`
+	VmGroups          []VmGroup `json:"vm_groups" validate:"required,dive"`
+	RsaPrivateKeyPath *string   `json:"rsa_private_path" validate:"required,min=1"`
 }
 
 type Config struct {
@@ -57,7 +58,8 @@ func NewConfig() *Config {
 		Params: &Params{
 			VmGroups: []VmGroup{
 				{
-					Name: to.StrPtr("vm-group0"),
+					Name:      to.StrPtr("vm-group0"),
+					AdminUser: to.StrPtr("operations"),
 					Hosts: []Host{
 						{
 							Name: to.StrPtr("epiphany-vm-group0-1"),
