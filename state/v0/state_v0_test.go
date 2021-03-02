@@ -1,12 +1,12 @@
 package v0
 
 import (
-	"github.com/epiphany-platform/e-structures/utils/test"
-	"github.com/go-playground/validator/v10"
 	"testing"
 
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
+	"github.com/epiphany-platform/e-structures/utils/test"
 	"github.com/epiphany-platform/e-structures/utils/to"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/go-cmp/cmp"
 )
 
