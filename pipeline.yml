@@ -1,0 +1,50 @@
+trigger:
+  branches:
+    include:
+      - main
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  name: $(poolName)
+
+variables:
+  goVersion: '1.15.2'
+
+jobs:
+  - job: Test
+    steps:
+      - task: GoTool@0
+        displayName: 'Ensure Go'
+        inputs:
+          version: $(goVersion)
+      - task: Bash@3
+        displayName: 'Prepend PATH'
+        inputs:
+          targetType: 'inline'
+          script: |
+            echo "##vso[task.prependpath]/tools/go/$(goVersion)/x64/bin"
+          failOnStderr: true
+      - task: Go@0
+        displayName: 'Run: go get go-junit-report'
+        inputs:
+          command: get
+          arguments: '-u github.com/jstemmer/go-junit-report'
+      - task: Bash@3
+        displayName: 'Run: make test'
+        inputs:
+          targetType: 'inline'
+          script: |
+            go env
+            make test | tee tests.output
+            go-junit-report < tests.output > report.xml
+          failOnStderr: true
+        env:
+          GOBIN: "/tools/go/$(goVersion)/x64/bin"
+      - task: PublishTestResults@2
+        inputs:
+          testRunner: JUnit
+          testResultsFiles: $(System.DefaultWorkingDirectory)/**/report.xml
+          failTaskOnFailedTests: true
