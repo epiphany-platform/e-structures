@@ -15,20 +15,20 @@ const (
 )
 
 type MountPoint struct {
-	Lun  *int    `json:"lun"`
-	Path *string `json:"path"`
+	Lun  *int    `json:"lun" validate:"required,min=0"`
+	Path *string `json:"path" validate:"required,min=1"`
 }
 
 type Host struct {
-	Name *string `json:"name" validate:"required"`
-	Ip   *string `json:"ip" validate:"required"`
+	Name *string `json:"name" validate:"required,min=1"`
+	Ip   *string `json:"ip" validate:"required,min=1"`
 }
 
 type VmGroup struct {
 	Name        *string      `json:"name" validate:"required,min=1"`
-	AdminUser   *string      `json:"admin_user" validate:"required"`
-	Hosts       []Host       `json:"hosts" validate:"omitempty"`
-	MountPoints []MountPoint `json:"mount_point" validate:"required,dive"`
+	AdminUser   *string      `json:"admin_user" validate:"required,min=1"`
+	Hosts       []Host       `json:"hosts" validate:"required,min=1,dive"`
+	MountPoints []MountPoint `json:"mount_point" validate:"omitempty,dive"`
 }
 
 type Params struct {

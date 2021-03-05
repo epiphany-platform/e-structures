@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestConfig_Load_general(t *testing.T) {
+func TestConfig_Load_General(t *testing.T) {
 	tests := []struct {
 		name    string
 		json    []byte
@@ -236,6 +236,212 @@ func TestConfig_Load_general(t *testing.T) {
 				Unused: []string{},
 			},
 			wantErr: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
+		})
+	}
+}
+
+func TestConfig_Load_Params(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    []byte
+		want    *Config
+		wantErr error
+	}{
+		{
+			name: "nothing in params",
+			json: []byte(`{
+  "kind": "hi",
+  "version": "v0.0.1",
+  "params": {}
+}
+`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups",
+					Field: "VmGroups",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.RsaPrivateKeyPath",
+					Field: "RsaPrivateKeyPath",
+					Tag:   "required",
+				},
+			},
+		},
+		{
+			name: "empty params elements",
+			json: []byte(`{
+  "kind": "hi",
+  "version": "v0.0.1",
+  "params": {
+    "vm_groups": [],
+    "rsa_private_path": ""
+  }
+}
+`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.RsaPrivateKeyPath",
+					Field: "RsaPrivateKeyPath",
+					Tag:   "min",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
+		})
+	}
+}
+
+func TestConfig_Load_VmGroups(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    []byte
+		want    *Config
+		wantErr error
+	}{
+		{
+			name: "empty vm groups elements",
+			json: []byte(`{
+  "kind": "hi",
+  "version": "v0.0.1",
+  "params": {
+    "vm_groups": [
+      {
+        "name": "",
+        "admin_user": "",
+        "hosts": []
+      }
+    ],
+    "rsa_private_path": "/shared/vms_rsa"
+  }
+}
+`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].Name",
+					Field: "Name",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].AdminUser",
+					Field: "AdminUser",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].Hosts",
+					Field: "Hosts",
+					Tag:   "min",
+				},
+			},
+		},
+		{
+			name: "empty vm groups arrays elements",
+			json: []byte(`{
+  "kind": "hi",
+  "version": "v0.0.1",
+  "params": {
+    "vm_groups": [
+      {
+        "name": "vm-group0",
+        "admin_user": "operations",
+        "hosts": [
+          {}
+        ],
+        "mount_point": [
+          {}
+        ]
+      }
+    ],
+    "rsa_private_path": "/shared/vms_rsa"
+  }
+}
+`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].Hosts[0].Name",
+					Field: "Name",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].Hosts[0].Ip",
+					Field: "Ip",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].MountPoints[0].Lun",
+					Field: "Lun",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].MountPoints[0].Path",
+					Field: "Path",
+					Tag:   "required",
+				},
+			},
+		},
+		{
+			name: "empty vm groups arrays object elements",
+			json: []byte(`{
+  "kind": "hi",
+  "version": "v0.0.1",
+  "params": {
+    "vm_groups": [
+      {
+        "name": "vm-group0",
+        "admin_user": "operations",
+        "hosts": [
+          {
+            "name": "",
+            "ip": ""
+          }
+        ],
+        "mount_point": [
+          {
+            "lun": -1,
+            "path": ""
+          }
+        ]
+      }
+    ],
+    "rsa_private_path": "/shared/vms_rsa"
+  }
+}
+`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].Hosts[0].Name",
+					Field: "Name",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].Hosts[0].Ip",
+					Field: "Ip",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].MountPoints[0].Lun",
+					Field: "Lun",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].MountPoints[0].Path",
+					Field: "Path",
+					Tag:   "min",
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
