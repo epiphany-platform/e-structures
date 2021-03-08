@@ -3,6 +3,7 @@ package v0
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"

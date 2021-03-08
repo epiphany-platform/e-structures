@@ -1,11 +1,12 @@
 package load
 
 import (
+	"io/ioutil"
+	"os"
+
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
 	azks "github.com/epiphany-platform/e-structures/azks/v0"
 	hi "github.com/epiphany-platform/e-structures/hi/v0"
-	"io/ioutil"
-	"os"
 
 	st "github.com/epiphany-platform/e-structures/state/v0"
 )
