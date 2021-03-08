@@ -116,8 +116,11 @@ func NewState() *State {
 	}
 }
 
-func (s *State) Marshal() (b []byte, err error) {
-	//TODO validate that all required fields are filled
+func (s *State) Marshal() ([]byte, error) {
+	err := s.isValid()
+	if err != nil {
+		return nil, err
+	}
 	return json.MarshalIndent(s, "", "\t")
 }
 

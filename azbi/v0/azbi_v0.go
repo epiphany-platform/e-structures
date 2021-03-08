@@ -163,8 +163,11 @@ func NewConfig() *Config {
 	}
 }
 
-func (c *Config) Marshal() (b []byte, err error) {
-	//TODO validate that all required fields are filled
+func (c *Config) Marshal() ([]byte, error) {
+	err := c.isValid()
+	if err != nil {
+		return nil, err
+	}
 	return json.MarshalIndent(c, "", "\t")
 }
 
