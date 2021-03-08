@@ -165,3 +165,35 @@ func (s *State) isValid() error {
 	}
 	return nil
 }
+
+// DO NOT USE!!!
+// This is temporary function used to fix existing issue (https://github.com/epiphany-platform/e-structures/issues/10)
+// in some modules and will be removed shortly after issue is resolved in all modules
+func (s *State) UnmarshalDoNotUse(b []byte) error {
+	var input map[string]interface{}
+	if err := json.Unmarshal(b, &input); err != nil {
+		return err
+	}
+	var md maps.Metadata
+	d, err := maps.NewDecoder(&maps.DecoderConfig{
+		Metadata: &md,
+		TagName:  "json",
+		Result:   &s,
+	})
+	if err != nil {
+		return err
+	}
+	err = d.Decode(input)
+	if err != nil {
+		return err
+	}
+	s.Unused = md.Unused
+	return nil
+}
+
+// DO NOT USE!!!
+// This is temporary function used to fix existing issue (https://github.com/epiphany-platform/e-structures/issues/10)
+// in some modules and will be removed shortly after issue is resolved in all modules
+func (s *State) IsValidDoNotUse() error {
+	return s.isValid()
+}

@@ -10,7 +10,6 @@ import (
 	st "github.com/epiphany-platform/e-structures/state/v0"
 )
 
-// TODO handle problematic situation when some of config structures are "almost" empty and validation fails (https://github.com/epiphany-platform/e-structures/issues/10)
 func State(path string) (*st.State, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return st.NewState(), nil
@@ -20,10 +19,29 @@ func State(path string) (*st.State, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = state.Unmarshal(bytes)
+		// TODO after issue https://github.com/epiphany-platform/e-structures/issues/10 is solved
+		// TODO this should be changed back to err = state.Unmarshal(bytes)
+		err = state.UnmarshalDoNotUse(bytes)
 		if err != nil {
 			return nil, err
 		}
+
+		// TODO temporary code because of before mentioned issue
+		if state.GetAzBIState() != nil && state.GetAzBIState().Status == "" {
+			state.AzBI = nil
+		}
+		if state.GetAzKSState() != nil && state.GetAzKSState().Status == "" {
+			state.AzKS = nil
+		}
+		if state.GetHiState() != nil && state.GetHiState().Status == "" {
+			state.Hi = nil
+		}
+		err = state.IsValidDoNotUse()
+		if err != nil {
+			return nil, err
+		}
+		// TODO end of temporary code
+
 		return state, nil
 	}
 }
