@@ -37,7 +37,7 @@ type DefaultNodePool struct {
 	Min         *int    `json:"min" validate:"required,min=0"`
 	Max         *int    `json:"max" validate:"required,min=0,gtefield=Min"`
 	VmSize      *string `json:"vm_size" validate:"required,min=1"`
-	DiskSize    *string `json:"disk_size" validate:"required,min=1"`
+	DiskGbSize  *int    `json:"disk_gb_size" validate:"required,min=1"`
 	AutoScaling *bool   `json:"auto_scaling" validate:"required"`
 	Type        *string `json:"type" validate:"required,min=1"`
 }
@@ -110,7 +110,7 @@ func NewConfig() *Config {
 				Min:         to.IntPtr(2),
 				Max:         to.IntPtr(5),
 				VmSize:      to.StrPtr("Standard_DS2_v2"),
-				DiskSize:    to.StrPtr("36"),
+				DiskGbSize:  to.IntPtr(36),
 				AutoScaling: to.BooPtr(true),
 				Type:        to.StrPtr("VirtualMachineScaleSets"),
 			},

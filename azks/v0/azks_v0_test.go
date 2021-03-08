@@ -38,7 +38,7 @@ func TestConfig_Load_general(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -76,7 +76,7 @@ func TestConfig_Load_general(t *testing.T) {
 						Min:         to.IntPtr(2),
 						Max:         to.IntPtr(5),
 						VmSize:      to.StrPtr("Standard_DS2_v2"),
-						DiskSize:    to.StrPtr("36"),
+						DiskGbSize:  to.IntPtr(36),
 						AutoScaling: to.BooPtr(true),
 						Type:        to.StrPtr("VirtualMachineScaleSets"),
 					},
@@ -121,7 +121,7 @@ func TestConfig_Load_general(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -159,7 +159,7 @@ func TestConfig_Load_general(t *testing.T) {
 						Min:         to.IntPtr(2),
 						Max:         to.IntPtr(5),
 						VmSize:      to.StrPtr("Standard_DS2_v2"),
-						DiskSize:    to.StrPtr("36"),
+						DiskGbSize:  to.IntPtr(36),
 						AutoScaling: to.BooPtr(true),
 						Type:        to.StrPtr("VirtualMachineScaleSets"),
 					},
@@ -224,7 +224,7 @@ func TestConfig_Load_general(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -272,7 +272,7 @@ func TestConfig_Load_general(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -316,7 +316,7 @@ func TestConfig_Load_general(t *testing.T) {
 						Min:         to.IntPtr(2),
 						Max:         to.IntPtr(5),
 						VmSize:      to.StrPtr("Standard_DS2_v2"),
-						DiskSize:    to.StrPtr("36"),
+						DiskGbSize:  to.IntPtr(36),
 						AutoScaling: to.BooPtr(true),
 						Type:        to.StrPtr("VirtualMachineScaleSets"),
 					},
@@ -370,7 +370,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -474,7 +474,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -672,8 +672,8 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 					Tag:   "required",
 				},
 				test.TestValidationError{
-					Key:   "Config.Params.DefaultNodePool.DiskSize",
-					Field: "DiskSize",
+					Key:   "Config.Params.DefaultNodePool.DiskGbSize",
+					Field: "DiskGbSize",
 					Tag:   "required",
 				},
 				test.TestValidationError{
@@ -708,7 +708,7 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "",
-			"disk_size": "",
+			"disk_gb_size": 0,
 			"auto_scaling": true,
 			"type": ""
 		},
@@ -742,8 +742,8 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 					Tag:   "min",
 				},
 				test.TestValidationError{
-					Key:   "Config.Params.DefaultNodePool.DiskSize",
-					Field: "DiskSize",
+					Key:   "Config.Params.DefaultNodePool.DiskGbSize",
+					Field: "DiskGbSize",
 					Tag:   "min",
 				},
 				test.TestValidationError{
@@ -772,7 +772,7 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			"size": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -836,7 +836,7 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			"size": 2,
 			"min": 2,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -896,7 +896,7 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			"min": 2,
 			"max": 1, 
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -956,7 +956,7 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			"min": 2,
 			"max": 3, 
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -1011,7 +1011,7 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			"min": 2,
 			"max": 3, 
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -1066,7 +1066,7 @@ func TestConfig_Load_DefaultNodePool(t *testing.T) {
 			"min": -1,
 			"max": -1, 
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -1147,7 +1147,7 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -1191,7 +1191,7 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -1276,7 +1276,7 @@ func TestConfig_Load_AutoScalerProfile(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -1382,7 +1382,7 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -1419,7 +1419,7 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 						Min:         to.IntPtr(2),
 						Max:         to.IntPtr(5),
 						VmSize:      to.StrPtr("Standard_DS2_v2"),
-						DiskSize:    to.StrPtr("36"),
+						DiskGbSize:  to.IntPtr(36),
 						AutoScaling: to.BooPtr(true),
 						Type:        to.StrPtr("VirtualMachineScaleSets"),
 					},
@@ -1461,7 +1461,7 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -1499,7 +1499,7 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 						Min:         to.IntPtr(2),
 						Max:         to.IntPtr(5),
 						VmSize:      to.StrPtr("Standard_DS2_v2"),
-						DiskSize:    to.StrPtr("36"),
+						DiskGbSize:  to.IntPtr(36),
 						AutoScaling: to.BooPtr(true),
 						Type:        to.StrPtr("VirtualMachineScaleSets"),
 					},
@@ -1541,7 +1541,7 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -1600,7 +1600,7 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},
@@ -1658,7 +1658,7 @@ func TestConfig_Load_AzureAd(t *testing.T) {
 			"min": 2,
 			"max": 5,
 			"vm_size": "Standard_DS2_v2",
-			"disk_size": "36",
+			"disk_gb_size": 36,
 			"auto_scaling": true,
 			"type": "VirtualMachineScaleSets"
 		},

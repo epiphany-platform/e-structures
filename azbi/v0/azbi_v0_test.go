@@ -969,6 +969,52 @@ func TestConfig_Load_Params(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "empty params.name",
+			json: []byte(`{
+			"kind": "azbi",
+			"version": "v0.1.0",
+			"params": {
+				"location": "northeurope",
+				"name": "",
+				"rsa_pub_path": "some-file-name",  
+				"address_space": [
+					"10.0.0.0/16"
+				],
+				"subnets": [
+					{
+						"name": "main",
+						"address_prefixes": [
+							"10.0.1.0/24"
+						]
+					}
+				],
+				"vm_groups": [{
+					"name": "vm-group0",
+					"vm_count": 3,
+					"vm_size": "Standard_DS2_v2",
+					"use_public_ip": true,
+					"subnet_names": ["main"],
+					"vm_image": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "18.04.202006101"
+					},
+					"data_disks": []
+				}]
+			}
+		}
+		`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.Name",
+					Field: "Name",
+					Tag:   "min",
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
