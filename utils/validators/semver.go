@@ -2,9 +2,10 @@ package validators
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/Masterminds/semver"
 	"github.com/go-playground/validator/v10"
-	"reflect"
 )
 
 func HasVersion(fl validator.FieldLevel) bool {

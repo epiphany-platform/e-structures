@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
@@ -42,7 +43,7 @@ type VmGroup struct {
 }
 
 type Params struct {
-	Name             *string   `json:"name" validate:"required"`
+	Name             *string   `json:"name" validate:"required,min=1"`
 	Location         *string   `json:"location" validate:"required,min=1"`
 	AddressSpace     []string  `json:"address_space" validate:"omitempty,min=1,dive,min=1,cidr"`
 	Subnets          []Subnet  `json:"subnets" validate:"required_with=AddressSpace,excluded_without=AddressSpace,omitempty,min=1,dive,required"` // TODO custom validator that subnets are in AddressSpaces

@@ -3,6 +3,7 @@ package v0
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/epiphany-platform/e-structures/utils/validators"
 
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
