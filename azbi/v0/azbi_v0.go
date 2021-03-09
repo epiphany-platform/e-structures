@@ -164,8 +164,11 @@ func NewConfig() *Config {
 	}
 }
 
-func (c *Config) Marshal() (b []byte, err error) {
-	//TODO validate that all required fields are filled
+func (c *Config) Marshal() ([]byte, error) {
+	err := c.isValid()
+	if err != nil {
+		return nil, err
+	}
 	return json.MarshalIndent(c, "", "\t")
 }
 
@@ -225,9 +228,39 @@ type OutputVm struct {
 	DataDisks  []OutputDataDisk `json:"data_disks"`
 }
 
+func (v *OutputVm) GetDataDisks() []OutputDataDisk {
+	if v == nil {
+		return nil
+	}
+	if v.DataDisks == nil || len(v.DataDisks) == 0 {
+		return []OutputDataDisk{}
+	}
+	return v.DataDisks
+}
+
 type OutputVmGroup struct {
 	Name *string    `json:"vm_group_name"`
 	Vms  []OutputVm `json:"vms"`
+}
+
+func (g *OutputVmGroup) GetVms() []OutputVm {
+	if g == nil {
+		return nil
+	}
+	if g.Vms == nil || len(g.Vms) == 0 {
+		return []OutputVm{}
+	}
+	return g.Vms
+}
+
+func (g *OutputVmGroup) GetFirstVm() *OutputVm {
+	if g == nil {
+		return nil
+	}
+	if g.Vms == nil || len(g.Vms) == 0 {
+		return nil
+	}
+	return &g.Vms[0]
 }
 
 type Output struct {
@@ -248,6 +281,16 @@ func (o *Output) GetVnetNameV() string {
 		return ""
 	}
 	return *o.VnetName
+}
+
+func (o *Output) GetVmGroups() []OutputVmGroup {
+	if o == nil {
+		return nil
+	}
+	if o.VmGroups == nil || len(o.VmGroups) == 0 {
+		return []OutputVmGroup{}
+	}
+	return o.VmGroups
 }
 
 func AzBISubnetsValidation(sl validator.StructLevel) {

@@ -8,6 +8,7 @@ import (
 
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
 	azks "github.com/epiphany-platform/e-structures/azks/v0"
+	hi "github.com/epiphany-platform/e-structures/hi/v0"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	maps "github.com/mitchellh/mapstructure"
 
@@ -24,6 +25,18 @@ const (
 	Applied     Status = "applied"
 	Destroyed   Status = "destroyed"
 )
+
+type HiState struct {
+	Status Status     `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
+	Config *hi.Config `json:"config" validate:"omitempty"`
+}
+
+func (s *HiState) GetConfig() *hi.Config {
+	if s == nil {
+		return nil
+	}
+	return s.Config
+}
 
 type AzBIState struct {
 	Status Status       `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
@@ -71,6 +84,7 @@ type State struct {
 	Unused  []string   `json:"-"`
 	AzBI    *AzBIState `json:"azbi" validate:"omitempty"`
 	AzKS    *AzKSState `json:"azks" validate:"omitempty"`
+	Hi      *HiState   `json:"hi" validate:"omitempty"`
 }
 
 func (s *State) GetAzBIState() *AzBIState {
@@ -87,19 +101,27 @@ func (s *State) GetAzKSState() *AzKSState {
 	return s.AzKS
 }
 
+func (s *State) GetHiState() *HiState {
+	if s == nil {
+		return nil
+	}
+	return s.Hi
+}
+
 //TODO test
 func NewState() *State {
 	return &State{
 		Kind:    to.StrPtr(kind),
 		Version: to.StrPtr(version),
 		Unused:  []string{},
-		AzBI:    &AzBIState{},
-		AzKS:    &AzKSState{},
 	}
 }
 
-func (s *State) Marshal() (b []byte, err error) {
-	//TODO validate that all required fields are filled
+func (s *State) Marshal() ([]byte, error) {
+	err := s.isValid()
+	if err != nil {
+		return nil, err
+	}
 	return json.MarshalIndent(s, "", "\t")
 }
 
@@ -143,4 +165,36 @@ func (s *State) isValid() error {
 		return err
 	}
 	return nil
+}
+
+// DO NOT USE!!!
+// This is temporary function used to fix existing issue (https://github.com/epiphany-platform/e-structures/issues/10)
+// in some modules and will be removed shortly after issue is resolved in all modules
+func (s *State) UnmarshalDoNotUse(b []byte) error {
+	var input map[string]interface{}
+	if err := json.Unmarshal(b, &input); err != nil {
+		return err
+	}
+	var md maps.Metadata
+	d, err := maps.NewDecoder(&maps.DecoderConfig{
+		Metadata: &md,
+		TagName:  "json",
+		Result:   &s,
+	})
+	if err != nil {
+		return err
+	}
+	err = d.Decode(input)
+	if err != nil {
+		return err
+	}
+	s.Unused = md.Unused
+	return nil
+}
+
+// DO NOT USE!!!
+// This is temporary function used to fix existing issue (https://github.com/epiphany-platform/e-structures/issues/10)
+// in some modules and will be removed shortly after issue is resolved in all modules
+func (s *State) IsValidDoNotUse() error {
+	return s.isValid()
 }
