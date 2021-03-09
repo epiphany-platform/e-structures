@@ -13,7 +13,7 @@ import (
 
 const (
 	kind    = "azbi"
-	version = "v0.1.2"
+	version = "v0.1.3"
 )
 
 type DataDisk struct {
