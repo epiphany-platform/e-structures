@@ -3,6 +3,7 @@ package v0
 import (
 	"encoding/json"
 	"errors"
+	awsbi "github.com/epiphany-platform/e-structures/awsbi/v0"
 
 	"github.com/epiphany-platform/e-structures/utils/validators"
 
@@ -25,6 +26,12 @@ const (
 	Applied     Status = "applied"
 	Destroyed   Status = "destroyed"
 )
+
+type AwsBIState struct {
+	Status Status        `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
+	Config *awsbi.Config `json:"config" validate:"omitempty"`
+	Output *awsbi.Output `json:"output" validate:"omitempty"`
+}
 
 type HiState struct {
 	Status Status     `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
@@ -79,12 +86,13 @@ func (s *AzKSState) GetOutput() *azks.Output {
 }
 
 type State struct {
-	Kind    *string    `json:"kind" validate:"required,eq=state"`
-	Version *string    `json:"version" validate:"required,version=~0"`
-	Unused  []string   `json:"-"`
-	AzBI    *AzBIState `json:"azbi" validate:"omitempty"`
-	AzKS    *AzKSState `json:"azks" validate:"omitempty"`
-	Hi      *HiState   `json:"hi" validate:"omitempty"`
+	Kind    *string     `json:"kind" validate:"required,eq=state"`
+	Version *string     `json:"version" validate:"required,version=~0"`
+	Unused  []string    `json:"-"`
+	AzBI    *AzBIState  `json:"azbi" validate:"omitempty"`
+	AzKS    *AzKSState  `json:"azks" validate:"omitempty"`
+	Hi      *HiState    `json:"hi" validate:"omitempty"`
+	AwsBI   *AwsBIState `json:"awsbi" validate:"omitempty"`
 }
 
 func (s *State) GetAzBIState() *AzBIState {

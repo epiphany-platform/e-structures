@@ -1,6 +1,7 @@
 package save
 
 import (
+	awsbi "github.com/epiphany-platform/e-structures/awsbi/v0"
 	"io/ioutil"
 
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
@@ -46,6 +47,17 @@ func AzKSConfig(path string, config *azks.Config) error {
 }
 
 func HiConfig(path string, config *hi.Config) error {
+	bytes, err := config.Marshal()
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(path, bytes, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func AwsBIConfig(path string, config *awsbi.Config) error {
 	bytes, err := config.Marshal()
 	if err != nil {
 		return err
