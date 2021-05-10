@@ -3,6 +3,7 @@ package v0
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
@@ -30,8 +31,8 @@ type VmGroup struct {
 	VmCount            *int       `json:"vm_count" validate:"required,min=1"`
 	VmSize             *string    `json:"vm_size" validate:"required,min=1"`
 	UsePublicIp        *bool      `json:"use_public_ip" validate:"required"`
-	SubnetNames        []string   `json:"subnet_names" validate:"omitempty,min=1,dive,required"` // TODO cross validate with defined subnets
-	SecurityGroupNames []string   `json:"sg_names" validate:"omitempty,min=1,dive,required"`     // TODO cross validate with defined security groups
+	SubnetNames        []string   `json:"subnet_names" validate:"omitempty,min=1,dive,required"`
+	SecurityGroupNames []string   `json:"sg_names" validate:"omitempty,min=1,dive,required"`
 	VmImage            *VmImage   `json:"vm_image" validate:"required,dive"`
 	RootVolumeGbSize   *int       `json:"root_volume_size" validate:"required,min=1"`
 	DataDisks          []DataDisk `json:"data_disks" validate:"required,dive"`
@@ -41,7 +42,7 @@ type SecurityRule struct {
 	Protocol   *string  `json:"protocol" validate:"required,min=1"`
 	FromPort   *int     `json:"from_port" validate:"required,min=0"`
 	ToPort     *int     `json:"to_port" validate:"required,min=0"`
-	CidrBlocks []string `json:"cidr_blocks" validate:"omitempty,min=1,dive,required"`
+	CidrBlocks []string `json:"cidr_blocks" validate:"omitempty,min=1,dive,required,cidr"`
 }
 
 type Rules struct {
@@ -57,10 +58,10 @@ type SecurityGroup struct {
 type Subnet struct {
 	Name             *string `json:"name" validate:"required,min=1"`
 	AvailabilityZone *string `json:"availability_zone" validate:"required,min=1"`
-	AddressPrefixes  *string `json:"address_prefixes" validate:"required,min=1"`
+	AddressPrefixes  *string `json:"address_prefixes" validate:"required,min=1,cidr"`
 }
 
-type Subnets struct { // TODO validate terraform length(var.subnets.private) > 0 || length(var.subnets.public) > 0
+type Subnets struct {
 	Private []Subnet `json:"private" validate:"required_without=Public"`
 	Public  []Subnet `json:"public" validate:"required_without=Private"`
 }
@@ -73,8 +74,8 @@ type Params struct {
 
 	RsaPublicKeyPath *string `json:"rsa_pub_path" validate:"required,min=1"`
 
-	VpcAddressSpace *string         `json:"vpc_address_space" validate:"required,min=1"`
-	Subnets         *Subnets        `json:"subnets" validate:"required,dive"`
+	VpcAddressSpace *string         `json:"vpc_address_space" validate:"required,min=1,cidr"`
+	Subnets         *Subnets        `json:"subnets" validate:"required,dive,omitempty"`
 	SecurityGroups  []SecurityGroup `json:"security_groups" validate:"required,dive"`
 	VmGroups        []VmGroup       `json:"vm_groups" validate:"required,dive"`
 }
@@ -211,6 +212,7 @@ func (c *Config) isValid() error {
 	if err != nil {
 		return err
 	}
+	validate.RegisterStructValidation(AwsBIParamsValidation, Params{})
 	err = validate.Struct(c)
 	if err != nil {
 		if _, ok := err.(*validator.InvalidValidationError); ok {
@@ -244,4 +246,117 @@ type Output struct {
 	PublicSubnetIds   []string        `json:"public_subnet_ids"`
 	PrivateRouteTable *string         `json:"private_route_table"`
 	VmGroups          []OutputVmGroup `json:"vm_groups"`
+}
+
+func AwsBIParamsValidation(sl validator.StructLevel) {
+	params := sl.Current().Interface().(Params)
+	if len(params.VmGroups) > 0 {
+		for i, vmGroup := range params.VmGroups {
+			for j, sn := range vmGroup.SubnetNames {
+				if sn == "" {
+					sl.ReportError(
+						params.VmGroups[i].SubnetNames[j],
+						fmt.Sprintf("VmGroups[%d].SubnetNames[%d]", i, j),
+						fmt.Sprintf("SubnetNames[%d]", j),
+						"required",
+						"")
+				}
+				found := false
+				if params.Subnets != nil {
+					for _, s := range params.Subnets.Private {
+						if s.Name != nil && sn == *s.Name {
+							found = true
+						}
+					}
+					for _, s := range params.Subnets.Public {
+						if s.Name != nil && sn == *s.Name {
+							found = true
+						}
+					}
+				}
+				if !found {
+					sl.ReportError(
+						params.VmGroups[i].SubnetNames[j],
+						fmt.Sprintf("VmGroups[%d].SubnetNames[%d]", i, j),
+						fmt.Sprintf("SubnetNames[%d]", j),
+						"insubnets",
+						"")
+				}
+			}
+			for j, sg := range vmGroup.SecurityGroupNames {
+				if sg == "" {
+					sl.ReportError(
+						params.VmGroups[i].SecurityGroupNames[j],
+						fmt.Sprintf("VmGroups[%d].SecurityGroupNames[%d]", i, j),
+						fmt.Sprintf("SecurityGroupNames[%d]", j),
+						"required",
+						"")
+				}
+				found := false
+				if params.SecurityGroups != nil {
+					for _, s := range params.SecurityGroups {
+						if s.Name != nil && sg == *s.Name {
+							found = true
+						}
+					}
+				}
+				if !found {
+					sl.ReportError(
+						params.VmGroups[i].SecurityGroupNames[j],
+						fmt.Sprintf("VmGroups[%d].SecurityGroupNames[%d]", i, j),
+						fmt.Sprintf("SecurityGroupNames[%d]", j),
+						"insecuritygroups",
+						"")
+				}
+			}
+		}
+	}
+	if params.Subnets != nil {
+		if len(params.Subnets.Private) == 0 && len(params.Subnets.Public) == 0 {
+			sl.ReportError(
+				params.Subnets,
+				"Subnets",
+				"Subnets",
+				"private_or_public",
+				"")
+		}
+		if len(params.Subnets.Private) > 0 {
+			for i, s := range params.Subnets.Private {
+				validate := validator.New()
+				err := validate.Struct(s)
+				if err != nil {
+					if e, ok := err.(validator.ValidationErrors); ok {
+						namespace := fmt.Sprintf("Subnets.Private[%d].", i)
+						sl.ReportValidationErrors(namespace, namespace, e)
+					} else {
+						sl.ReportError(
+							params.Subnets,
+							"Subnets.Private",
+							"Private",
+							"fatal",
+							"")
+					}
+				}
+			}
+		}
+		if len(params.Subnets.Public) > 0 {
+			for i, s := range params.Subnets.Public {
+				validate := validator.New()
+				err := validate.Struct(s)
+				if err != nil {
+					if e, ok := err.(validator.ValidationErrors); ok {
+						namespace := fmt.Sprintf("Subnets.Public[%d].", i)
+						sl.ReportValidationErrors(namespace, namespace, e)
+					} else {
+						sl.ReportError(
+							params.Subnets,
+							"Subnets.Public",
+							"Public",
+							"fatal",
+							"")
+					}
+				}
+			}
+		}
+	}
 }
