@@ -1,11 +1,12 @@
 package v0
 
 import (
+	"testing"
+
 	"github.com/epiphany-platform/e-structures/utils/test"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/go-cmp/cmp"
-	"testing"
 )
 
 func TestConfig_Load_general(t *testing.T) {

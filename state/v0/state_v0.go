@@ -3,17 +3,15 @@ package v0
 import (
 	"encoding/json"
 	"errors"
+
 	awsbi "github.com/epiphany-platform/e-structures/awsbi/v0"
-
-	"github.com/epiphany-platform/e-structures/utils/validators"
-
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
 	azks "github.com/epiphany-platform/e-structures/azks/v0"
 	hi "github.com/epiphany-platform/e-structures/hi/v0"
 	"github.com/epiphany-platform/e-structures/utils/to"
-	maps "github.com/mitchellh/mapstructure"
-
+	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
+	maps "github.com/mitchellh/mapstructure"
 )
 
 type Status string
