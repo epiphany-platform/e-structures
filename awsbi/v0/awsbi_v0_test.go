@@ -1119,113 +1119,6 @@ func TestConfig_Load_Params(t *testing.T) {
 			},
 		},
 		{
-			name: "missing subnet params",
-			json: []byte(`{
-	"kind": "awsbi",
-	"version": "v0.0.1",
-	"params": {
-		"name": "epiphany",
-		"region": "eu-central-1",
-		"nat_gateway_count": 1,
-		"virtual_private_gateway": false,
-		"rsa_pub_path": "/shared/vms_rsa.pub",
-		"vpc_address_space": "10.1.0.0/20",
-		"subnets": {
-			"private": [
-				{}
-			],
-			"public": [
-				{}
-			]
-		},
-		"security_groups": [
-			{
-				"name": "default_sg",
-				"rules": {
-					"ingress": [
-						{
-							"protocol": "-1",
-							"from_port": 0,
-							"to_port": 0,
-							"cidr_blocks": [
-								"10.1.0.0/20"
-							]
-						}
-					],
-					"egress": [
-						{
-							"protocol": "-1",
-							"from_port": 0,
-							"to_port": 0,
-							"cidr_blocks": [
-								"0.0.0.0/0"
-							]
-						}
-					]
-				}
-			}
-		],
-		"vm_groups": [
-			{
-				"name": "vm-group0",
-				"vm_count": 1,
-				"vm_size": "t3.medium",
-				"use_public_ip": false,
-				"sg_names": [
-					"default_sg"
-				],
-				"vm_image": {
-					"ami": "RHEL-7.8_HVM_GA-20200225-x86_64-1-Hourly2-GP2",
-					"owner": "309956199498"
-				},
-				"root_volume_size": 30,
-				"data_disks": [
-					{
-						"device_name": "/dev/sdf",
-						"disk_size_gb": 16,
-						"type": "gp2"
-					}
-				]
-			}
-		]
-	}
-}
-`),
-			want: nil,
-			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Params.Subnets.Private[0].Subnet.Name",
-					Field: "Name",
-					Tag:   "required",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.Subnets.Private[0].Subnet.AvailabilityZone",
-					Field: "AvailabilityZone",
-					Tag:   "required",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.Subnets.Private[0].Subnet.AddressPrefixes",
-					Field: "AddressPrefixes",
-					Tag:   "required",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.Subnets.Public[0].Subnet.Name",
-					Field: "Name",
-					Tag:   "required",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.Subnets.Public[0].Subnet.AvailabilityZone",
-					Field: "AvailabilityZone",
-					Tag:   "required",
-				},
-				test.TestValidationError{
-					Key:   "Config.Params.Subnets.Public[0].Subnet.AddressPrefixes",
-					Field: "AddressPrefixes",
-					Tag:   "required",
-				},
-			},
-		},
-		{
 			name: "multiple subnets configuration",
 			json: []byte(`{
 	"kind": "awsbi",
@@ -1511,11 +1404,6 @@ func TestConfig_Load_Params(t *testing.T) {
 					Tag:   "required",
 				},
 				test.TestValidationError{
-					Key:   "Config.Params.VmGroups[0].DataDisks",
-					Field: "DataDisks",
-					Tag:   "required",
-				},
-				test.TestValidationError{
 					Key:   "Config.Params.Subnets.Private[0].Subnet.Name",
 					Field: "Name",
 					Tag:   "required",
@@ -1665,6 +1553,390 @@ func TestConfig_Load_Params(t *testing.T) {
 					Key:   "Config.Params.Subnets.Public[0].Subnet.AddressPrefixes",
 					Field: "AddressPrefixes",
 					Tag:   "cidr",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
+		})
+	}
+}
+
+func TestConfig_Load_VmGroups(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    []byte
+		want    *Config
+		wantErr error
+	}{
+		{
+			name: "empty fields",
+			json: []byte(`{
+	"kind": "awsbi",
+	"version": "v0.0.1",
+	"params": {
+		"name": "epiphany",
+		"region": "eu-central-1",
+		"nat_gateway_count": 0,
+		"virtual_private_gateway": false,
+		"rsa_pub_path": "/shared/vms_rsa.pub",
+		"vpc_address_space": "10.1.0.0/20",
+		"subnets": {
+			"private": [
+				{
+					"name": "first_private_subnet",
+					"availability_zone": "any",
+					"address_prefixes": "10.1.1.0/24"
+				}
+			]
+		},
+		"security_groups": [],
+		"vm_groups": [
+			{
+				"name": "",
+				"vm_count": 0,
+				"vm_size": "",
+				"use_public_ip": false,
+				"subnet_names": [],
+				"sg_names": [],
+				"vm_image": {
+					"ami": "",
+					"owner": ""
+				},
+				"root_volume_size": 0,
+				"data_disks": []
+			}
+		]
+	}
+}
+`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].Name",
+					Field: "Name",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmCount",
+					Field: "VmCount",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmSize",
+					Field: "VmSize",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SubnetNames",
+					Field: "SubnetNames",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].SecurityGroupNames",
+					Field: "SecurityGroupNames",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.AMI",
+					Field: "AMI",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Owner",
+					Field: "Owner",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].RootVolumeGbSize",
+					Field: "RootVolumeGbSize",
+					Tag:   "min",
+				},
+			},
+		},
+		{
+			name: "missing fields",
+			json: []byte(`{
+	"kind": "awsbi",
+	"version": "v0.0.1",
+	"params": {
+		"name": "epiphany",
+		"region": "eu-central-1",
+		"nat_gateway_count": 0,
+		"virtual_private_gateway": false,
+		"rsa_pub_path": "/shared/vms_rsa.pub",
+		"vpc_address_space": "10.1.0.0/20",
+		"subnets": {
+			"private": [
+				{
+					"name": "first_private_subnet",
+					"availability_zone": "any",
+					"address_prefixes": "10.1.1.0/24"
+				}
+			]
+		},
+		"security_groups": [],
+		"vm_groups": [
+			{}
+		]
+	}
+}
+`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].Name",
+					Field: "Name",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmCount",
+					Field: "VmCount",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmSize",
+					Field: "VmSize",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].UsePublicIp",
+					Field: "UsePublicIp",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage",
+					Field: "VmImage",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].RootVolumeGbSize",
+					Field: "RootVolumeGbSize",
+					Tag:   "required",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configLoadTestingBody(t, tt.json, tt.want, tt.wantErr)
+		})
+	}
+}
+
+func TestConfig_Load_VmGroups_VmImage_and_DataDisks(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    []byte
+		want    *Config
+		wantErr error
+	}{
+		{
+			name: "empty fields",
+			json: []byte(`{
+	"kind": "awsbi",
+	"version": "v0.0.1",
+	"params": {
+		"name": "epiphany",
+		"region": "eu-central-1",
+		"nat_gateway_count": 1,
+		"virtual_private_gateway": false,
+		"rsa_pub_path": "/shared/vms_rsa.pub",
+		"vpc_address_space": "10.1.0.0/20",
+		"subnets": {
+			"private": [
+				{
+					"name": "first_private_subnet",
+					"availability_zone": "any",
+					"address_prefixes": "10.1.1.0/24"
+				}
+			]
+		},
+		"security_groups": [
+			{
+				"name": "default_sg",
+				"rules": {
+					"ingress": [
+						{
+							"protocol": "-1",
+							"from_port": 0,
+							"to_port": 0,
+							"cidr_blocks": [
+								"10.1.0.0/20"
+							]
+						}
+					],
+					"egress": [
+						{
+							"protocol": "-1",
+							"from_port": 0,
+							"to_port": 0,
+							"cidr_blocks": [
+								"0.0.0.0/0"
+							]
+						}
+					]
+				}
+			}
+		],
+		"vm_groups": [
+			{
+				"name": "vm-group0",
+				"vm_count": 1,
+				"vm_size": "t3.medium",
+				"use_public_ip": false,
+				"subnet_names": [
+					"first_private_subnet"
+				],
+				"sg_names": [
+					"default_sg"
+				],
+				"vm_image": {
+					"ami": "",
+					"owner": ""
+				},
+				"root_volume_size": 30,
+				"data_disks": [
+					{
+						"device_name": "",
+						"disk_size_gb": 0,
+						"type": ""
+					}
+				]
+			}
+		]
+	}
+}
+`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.AMI",
+					Field: "AMI",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Owner",
+					Field: "Owner",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].DeviceName",
+					Field: "DeviceName",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].GbSize",
+					Field: "GbSize",
+					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].Type",
+					Field: "Type",
+					Tag:   "eq=standard|eq=gp2|eq=gp3|eq=io1|eq=io2|eq=sc1|eq=st1",
+				},
+			},
+		},
+		{
+			name: "missing fields",
+			json: []byte(`{
+	"kind": "awsbi",
+	"version": "v0.0.1",
+	"params": {
+		"name": "epiphany",
+		"region": "eu-central-1",
+		"nat_gateway_count": 1,
+		"virtual_private_gateway": false,
+		"rsa_pub_path": "/shared/vms_rsa.pub",
+		"vpc_address_space": "10.1.0.0/20",
+		"subnets": {
+			"private": [
+				{
+					"name": "first_private_subnet",
+					"availability_zone": "any",
+					"address_prefixes": "10.1.1.0/24"
+				}
+			]
+		},
+		"security_groups": [
+			{
+				"name": "default_sg",
+				"rules": {
+					"ingress": [
+						{
+							"protocol": "-1",
+							"from_port": 0,
+							"to_port": 0,
+							"cidr_blocks": [
+								"10.1.0.0/20"
+							]
+						}
+					],
+					"egress": [
+						{
+							"protocol": "-1",
+							"from_port": 0,
+							"to_port": 0,
+							"cidr_blocks": [
+								"0.0.0.0/0"
+							]
+						}
+					]
+				}
+			}
+		],
+		"vm_groups": [
+			{
+				"name": "vm-group0",
+				"vm_count": 1,
+				"vm_size": "t3.medium",
+				"use_public_ip": false,
+				"subnet_names": [
+					"first_private_subnet"
+				],
+				"sg_names": [
+					"default_sg"
+				],
+				"vm_image": {},
+				"root_volume_size": 30,
+				"data_disks": [
+					{}
+				]
+			}
+		]
+	}
+}
+`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.AMI",
+					Field: "AMI",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].VmImage.Owner",
+					Field: "Owner",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].DeviceName",
+					Field: "DeviceName",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].GbSize",
+					Field: "GbSize",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].Type",
+					Field: "Type",
+					Tag:   "required",
 				},
 			},
 		},

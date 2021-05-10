@@ -35,7 +35,7 @@ type VmGroup struct {
 	SecurityGroupNames []string   `json:"sg_names" validate:"omitempty,min=1,dive,required"`
 	VmImage            *VmImage   `json:"vm_image" validate:"required,dive"`
 	RootVolumeGbSize   *int       `json:"root_volume_size" validate:"required,min=1"`
-	DataDisks          []DataDisk `json:"data_disks" validate:"required,dive"`
+	DataDisks          []DataDisk `json:"data_disks" validate:"omitempty,dive"`
 }
 
 type SecurityRule struct {
