@@ -4,27 +4,32 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/epiphany-platform/e-structures/utils/validators"
-
+	awsbi "github.com/epiphany-platform/e-structures/awsbi/v0"
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
 	azks "github.com/epiphany-platform/e-structures/azks/v0"
 	hi "github.com/epiphany-platform/e-structures/hi/v0"
 	"github.com/epiphany-platform/e-structures/utils/to"
-	maps "github.com/mitchellh/mapstructure"
-
+	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
+	maps "github.com/mitchellh/mapstructure"
 )
 
 type Status string
 
 const (
 	kind    = "state"
-	version = "v0.0.4"
+	version = "v0.0.5"
 
 	Initialized Status = "initialized"
 	Applied     Status = "applied"
 	Destroyed   Status = "destroyed"
 )
+
+type AwsBIState struct {
+	Status Status        `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
+	Config *awsbi.Config `json:"config" validate:"omitempty"`
+	Output *awsbi.Output `json:"output" validate:"omitempty"`
+}
 
 type HiState struct {
 	Status Status     `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
@@ -79,12 +84,13 @@ func (s *AzKSState) GetOutput() *azks.Output {
 }
 
 type State struct {
-	Kind    *string    `json:"kind" validate:"required,eq=state"`
-	Version *string    `json:"version" validate:"required,version=~0"`
-	Unused  []string   `json:"-"`
-	AzBI    *AzBIState `json:"azbi" validate:"omitempty"`
-	AzKS    *AzKSState `json:"azks" validate:"omitempty"`
-	Hi      *HiState   `json:"hi" validate:"omitempty"`
+	Kind    *string     `json:"kind" validate:"required,eq=state"`
+	Version *string     `json:"version" validate:"required,version=~0"`
+	Unused  []string    `json:"-"`
+	AzBI    *AzBIState  `json:"azbi" validate:"omitempty"`
+	AzKS    *AzKSState  `json:"azks" validate:"omitempty"`
+	Hi      *HiState    `json:"hi" validate:"omitempty"`
+	AwsBI   *AwsBIState `json:"awsbi" validate:"omitempty"`
 }
 
 func (s *State) GetAzBIState() *AzBIState {

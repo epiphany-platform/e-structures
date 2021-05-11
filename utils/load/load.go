@@ -4,10 +4,10 @@ import (
 	"io/ioutil"
 	"os"
 
+	awsbi "github.com/epiphany-platform/e-structures/awsbi/v0"
 	azbi "github.com/epiphany-platform/e-structures/azbi/v0"
 	azks "github.com/epiphany-platform/e-structures/azks/v0"
 	hi "github.com/epiphany-platform/e-structures/hi/v0"
-
 	st "github.com/epiphany-platform/e-structures/state/v0"
 )
 
@@ -86,6 +86,23 @@ func HiConfig(path string) (*hi.Config, error) {
 		return hi.NewConfig(), nil
 	} else {
 		config := &hi.Config{}
+		bytes, err := ioutil.ReadFile(path)
+		if err != nil {
+			return nil, err
+		}
+		err = config.Unmarshal(bytes)
+		if err != nil {
+			return nil, err
+		}
+		return config, nil
+	}
+}
+
+func AwsBIConfig(path string) (*awsbi.Config, error) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return awsbi.NewConfig(), nil
+	} else {
+		config := &awsbi.Config{}
 		bytes, err := ioutil.ReadFile(path)
 		if err != nil {
 			return nil, err
