@@ -18,7 +18,7 @@ type Status string
 
 const (
 	kind    = "state"
-	version = "v0.0.4"
+	version = "v0.0.5"
 
 	Initialized Status = "initialized"
 	Applied     Status = "applied"
