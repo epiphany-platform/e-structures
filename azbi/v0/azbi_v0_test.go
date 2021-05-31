@@ -48,7 +48,8 @@ func TestConfig_Load_general(t *testing.T) {
 			}, 
 			"data_disks": [
 				{
-					"disk_size_gb": 10
+					"disk_size_gb": 10, 
+					"storage_type": "Premium_LRS"
 				}
 			]
 		}],
@@ -85,7 +86,8 @@ func TestConfig_Load_general(t *testing.T) {
 							},
 							DataDisks: []DataDisk{
 								{
-									GbSize: to.IntPtr(10),
+									GbSize:      to.IntPtr(10),
+									StorageType: to.StrPtr("Premium_LRS"),
 								},
 							},
 						},
@@ -130,7 +132,8 @@ func TestConfig_Load_general(t *testing.T) {
 			}, 
 			"data_disks": [
 				{
-					"disk_size_gb": 10
+					"disk_size_gb": 10, 
+					"storage_type": "Premium_LRS"
 				}
 			]
 		}],
@@ -166,7 +169,8 @@ func TestConfig_Load_general(t *testing.T) {
 							},
 							DataDisks: []DataDisk{
 								{
-									GbSize: to.IntPtr(10),
+									GbSize:      to.IntPtr(10),
+									StorageType: to.StrPtr("Premium_LRS"),
 								},
 							},
 						},
@@ -1239,6 +1243,11 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 					Tag:   "required",
 				},
 				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].StorageType",
+					Field: "StorageType",
+					Tag:   "required",
+				},
+				test.TestValidationError{
 					Key:   "Config.Params.VmGroups[0].VmImage.Publisher",
 					Field: "Publisher",
 					Tag:   "required",
@@ -1496,10 +1505,15 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 					Field: "GbSize",
 					Tag:   "required",
 				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].StorageType",
+					Field: "StorageType",
+					Tag:   "required",
+				},
 			},
 		},
 		{
-			name: "zero vm_groups.data_disks list value",
+			name: "incorrect vm_groups.data_disks list value",
 			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
@@ -1532,7 +1546,8 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 					},
 					"data_disks": [
 						{
-							"disk_size_gb": 0
+							"disk_size_gb": 0, 
+							"storage_type": "incorrect"
 						}
 					]
 				}]
@@ -1546,10 +1561,15 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 					Field: "GbSize",
 					Tag:   "min",
 				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].StorageType",
+					Field: "StorageType",
+					Tag:   "eq=Standard_LRS|eq=Premium_LRS|eq=StandardSSD_LRS|eq=UltraSSD_LRS",
+				},
 			},
 		},
 		{
-			name: "negative vm_groups.data_disks list value",
+			name: "another incorrect vm_groups.data_disks list value",
 			json: []byte(`{
 			"kind": "azbi",
 			"version": "v0.1.0",
@@ -1582,7 +1602,8 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 					},
 					"data_disks": [
 						{
-							"disk_size_gb": -1
+							"disk_size_gb": -1, 
+							"storage_type": ""
 						}
 					]
 				}]
@@ -1595,6 +1616,11 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 					Key:   "Config.Params.VmGroups[0].DataDisks[0].GbSize",
 					Field: "GbSize",
 					Tag:   "min",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params.VmGroups[0].DataDisks[0].StorageType",
+					Field: "StorageType",
+					Tag:   "eq=Standard_LRS|eq=Premium_LRS|eq=StandardSSD_LRS|eq=UltraSSD_LRS",
 				},
 			},
 		},
@@ -1975,10 +2001,12 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 						},
 						"data_disks": [
 							{
-								"disk_size_gb": 10
+								"disk_size_gb": 10, 
+								"storage_type": "Premium_LRS"
 							},
 							{
-								"disk_size_gb": 20
+								"disk_size_gb": 20, 
+								"storage_type": "Standard_LRS"
 							}
 						]
 					},
@@ -1996,10 +2024,12 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 						},
 						"data_disks": [
 							{
-								"disk_size_gb": 30
+								"disk_size_gb": 30, 
+								"storage_type": "StandardSSD_LRS"
 							},
 							{
-								"disk_size_gb": 40
+								"disk_size_gb": 40, 
+								"storage_type": "UltraSSD_LRS"
 							}
 						]
 					}
@@ -2040,10 +2070,12 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 							},
 							DataDisks: []DataDisk{
 								{
-									GbSize: to.IntPtr(10),
+									GbSize:      to.IntPtr(10),
+									StorageType: to.StrPtr("Premium_LRS"),
 								},
 								{
-									GbSize: to.IntPtr(20),
+									GbSize:      to.IntPtr(20),
+									StorageType: to.StrPtr("Standard_LRS"),
 								},
 							},
 						},
@@ -2061,10 +2093,12 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 							},
 							DataDisks: []DataDisk{
 								{
-									GbSize: to.IntPtr(30),
+									GbSize:      to.IntPtr(30),
+									StorageType: to.StrPtr("StandardSSD_LRS"),
 								},
 								{
-									GbSize: to.IntPtr(40),
+									GbSize:      to.IntPtr(40),
+									StorageType: to.StrPtr("UltraSSD_LRS"),
 								},
 							},
 						},
@@ -2222,6 +2256,9 @@ func configLoadTestingBody(t *testing.T, json []byte, want *Config, wantErr erro
 	if wantErr != nil {
 		if err != nil {
 			if _, ok := err.(*validator.InvalidValidationError); ok {
+				t.Fatal(err)
+			}
+			if _, ok := err.(validator.ValidationErrors); !ok {
 				t.Fatal(err)
 			}
 			errs := err.(validator.ValidationErrors)

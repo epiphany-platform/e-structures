@@ -13,11 +13,12 @@ import (
 
 const (
 	kind    = "azbi"
-	version = "v0.1.3"
+	version = "v0.1.4"
 )
 
 type DataDisk struct {
-	GbSize *int `json:"disk_size_gb" validate:"required,min=1"`
+	GbSize      *int    `json:"disk_size_gb" validate:"required,min=1"`
+	StorageType *string `json:"storage_type" validate:"required,eq=Standard_LRS|eq=Premium_LRS|eq=StandardSSD_LRS|eq=UltraSSD_LRS"` // https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/managed_disk#storage_account_type
 }
 
 type Subnet struct {
@@ -154,7 +155,8 @@ func NewConfig() *Config {
 					},
 					DataDisks: []DataDisk{
 						{
-							GbSize: to.IntPtr(10),
+							GbSize:      to.IntPtr(10),
+							StorageType: to.StrPtr("Premium_LRS"),
 						},
 					},
 				},
