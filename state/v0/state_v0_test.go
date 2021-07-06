@@ -124,8 +124,11 @@ func TestState_Load(t *testing.T) {
 				AzBI: &AzBIState{
 					Status: "initialized",
 					Config: &azbi.Config{
-						Kind:    to.StrPtr("azbi"),
-						Version: to.StrPtr("0.0.1"),
+						Meta: &azbi.Meta{
+							Kind:          to.StrPtr("azbi"),
+							Version:       to.StrPtr("v0.1.0"),
+							ModuleVersion: to.StrPtr("v0.0.1"),
+						},
 						Params: &azbi.Params{
 							Name:         to.StrPtr("epiphany"),
 							Location:     to.StrPtr("northeurope"),

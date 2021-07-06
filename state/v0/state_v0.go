@@ -83,6 +83,8 @@ func (s *AzKSState) GetOutput() *azks.Output {
 	return s.Output
 }
 
+// TODO change into Modules
+
 type State struct {
 	Kind    *string     `json:"kind" validate:"required,eq=state"`
 	Version *string     `json:"version" validate:"required,version=~0"`
