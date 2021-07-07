@@ -101,9 +101,7 @@ func (c *Config) Load(path string) error {
 
 	config.Unused = md.Unused
 
-	// TODO rethink if validation should be done here
-
-	err = config.Valid()
+	err = config.Valid() // TODO rethink if validation should be done here
 	if err != nil {
 		return err
 	}
