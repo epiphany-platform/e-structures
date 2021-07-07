@@ -24,7 +24,7 @@ func TestConfig_Load_general(t *testing.T) {
 			name: "happy path",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -65,7 +65,7 @@ func TestConfig_Load_general(t *testing.T) {
 `),
 			want: &Config{
 				Meta: &Meta{
-					Kind:          to.StrPtr("azbi"),
+					Kind:          to.StrPtr("azbiConfig"),
 					Version:       to.StrPtr("v0.1.0"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
@@ -110,7 +110,7 @@ func TestConfig_Load_general(t *testing.T) {
 			name: "unknown fields in multiple places",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -155,7 +155,7 @@ func TestConfig_Load_general(t *testing.T) {
 `),
 			want: &Config{
 				Meta: &Meta{
-					Kind:          to.StrPtr("azbi"),
+					Kind:          to.StrPtr("azbiConfig"),
 					Version:       to.StrPtr("v0.1.0"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
@@ -217,7 +217,7 @@ func TestConfig_Load_general(t *testing.T) {
 			name: "minimal correct json",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -243,7 +243,7 @@ func TestConfig_Load_general(t *testing.T) {
 `),
 			want: &Config{
 				Meta: &Meta{
-					Kind:          to.StrPtr("azbi"),
+					Kind:          to.StrPtr("azbiConfig"),
 					Version:       to.StrPtr("v0.1.0"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
@@ -307,7 +307,7 @@ func TestConfig_Load_general(t *testing.T) {
 			name: "major version mismatch",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v100.0.0",
 		"module_version": "v0.0.1"
 	},
@@ -344,7 +344,7 @@ func TestConfig_Load_general(t *testing.T) {
 			name: "minor version mismatch",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.100.0",
 		"module_version": "v0.0.1"
 	},
@@ -370,7 +370,7 @@ func TestConfig_Load_general(t *testing.T) {
 `),
 			want: &Config{
 				Meta: &Meta{
-					Kind:          to.StrPtr("azbi"),
+					Kind:          to.StrPtr("azbiConfig"),
 					Version:       to.StrPtr("v0.100.0"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
@@ -402,7 +402,7 @@ func TestConfig_Load_general(t *testing.T) {
 			name: "patch version mismatch",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.0.100",
 		"module_version": "v0.0.1"
 	},
@@ -428,7 +428,7 @@ func TestConfig_Load_general(t *testing.T) {
 `),
 			want: &Config{
 				Meta: &Meta{
-					Kind:          to.StrPtr("azbi"),
+					Kind:          to.StrPtr("azbiConfig"),
 					Version:       to.StrPtr("v0.0.100"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
@@ -476,7 +476,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "just vm_groups in params",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -520,7 +520,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "missing requested subnets list",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -558,7 +558,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "empty subnets list",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -599,7 +599,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "missing subnet params",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -647,7 +647,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "empty subnet params",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -698,7 +698,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "empty subnet address prefixes element and not cidr",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -758,7 +758,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "multiple subnets configuration",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -802,7 +802,7 @@ func TestConfig_Load_Params(t *testing.T) {
 `),
 			want: &Config{
 				Meta: &Meta{
-					Kind:          to.StrPtr("azbi"),
+					Kind:          to.StrPtr("azbiConfig"),
 					Version:       to.StrPtr("v0.1.0"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
@@ -846,7 +846,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "missing address_space when present subnets",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -891,7 +891,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "missing subnets when present address_space",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -931,7 +931,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "emtpy address_space",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -977,7 +977,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "empty address_space element or not cidr",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1030,7 +1030,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "empty params.rsa_pub_path",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1079,7 +1079,7 @@ func TestConfig_Load_Params(t *testing.T) {
 			name: "empty params.name",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1144,7 +1144,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "vm_group without networking",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1170,7 +1170,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 `),
 			want: &Config{
 				Meta: &Meta{
-					Kind:          to.StrPtr("azbi"),
+					Kind:          to.StrPtr("azbiConfig"),
 					Version:       to.StrPtr("v0.1.0"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
@@ -1202,7 +1202,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "missing vm_groups parameter",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1226,7 +1226,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "empty vm_groups parameter",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1251,7 +1251,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 `),
 			want: &Config{
 				Meta: &Meta{
-					Kind:          to.StrPtr("azbi"),
+					Kind:          to.StrPtr("azbiConfig"),
 					Version:       to.StrPtr("v0.1.0"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
@@ -1277,7 +1277,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "missing vm_groups parameters",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1327,7 +1327,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "empty vm_groups parameters",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1400,7 +1400,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "negative vm_groups vm_count parameter",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1449,7 +1449,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "empty vm_groups subnet_names list",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1498,7 +1498,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "vm_groups subnet_names list empty value",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1552,7 +1552,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "vm_groups subnet_names list value not existing in subnets",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1601,7 +1601,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "empty vm_groups.data_disks list value",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1657,7 +1657,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "incorrect vm_groups.data_disks list value",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1716,7 +1716,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "another incorrect vm_groups.data_disks list value",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1775,7 +1775,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "multiple vm_groups configuration",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1829,7 +1829,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 `),
 			want: &Config{
 				Meta: &Meta{
-					Kind:          to.StrPtr("azbi"),
+					Kind:          to.StrPtr("azbiConfig"),
 					Version:       to.StrPtr("v0.1.0"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
@@ -1883,7 +1883,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "multiple vm_groups and subnets configuration",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -1943,7 +1943,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 `),
 			want: &Config{
 				Meta: &Meta{
-					Kind:          to.StrPtr("azbi"),
+					Kind:          to.StrPtr("azbiConfig"),
 					Version:       to.StrPtr("v0.1.0"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
@@ -2001,7 +2001,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "2 vm_groups and 3 subnets configuration",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -2067,7 +2067,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 `),
 			want: &Config{
 				Meta: &Meta{
-					Kind:          to.StrPtr("azbi"),
+					Kind:          to.StrPtr("azbiConfig"),
 					Version:       to.StrPtr("v0.1.0"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
@@ -2129,7 +2129,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 			name: "multiple vm_groups and subnets and data disks configuration",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -2207,7 +2207,7 @@ func TestConfig_Load_VmGroups(t *testing.T) {
 `),
 			want: &Config{
 				Meta: &Meta{
-					Kind:          to.StrPtr("azbi"),
+					Kind:          to.StrPtr("azbiConfig"),
 					Version:       to.StrPtr("v0.1.0"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
@@ -2299,7 +2299,7 @@ func TestConfig_Load_VmGroup_VmImage(t *testing.T) {
 			name: "missing vm_groups.vm_image parameters",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -2358,7 +2358,7 @@ func TestConfig_Load_VmGroup_VmImage(t *testing.T) {
 			name: "empty vm_groups.vm_image parameters",
 			json: []byte(`{
 	"meta": {
-		"kind": "azbi",
+		"kind": "azbiConfig",
 		"version": "v0.1.0",
 		"module_version": "v0.0.1"
 	},
@@ -2660,7 +2660,11 @@ func configLoadTestingBody(t *testing.T, json []byte, want *Config, wantErr erro
 		}
 	} else {
 		a.NoError(err)
-		a.Equal(want, got)
+		wj, err2 := want.Print()
+		a.NoError(err2)
+		gj, err2 := got.Print()
+		a.NoError(err2)
+		a.Equal(string(wj), string(gj))
 	}
 }
 

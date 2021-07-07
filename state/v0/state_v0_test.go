@@ -41,7 +41,7 @@ func TestState_Load(t *testing.T) {
 		"config": {
 			"unknown_key_1": "unknown_value_1", 
 			"meta": {
-				"kind": "azbi",
+				"kind": "azbiConfig",
 				"version": "v0.1.0",
 				"module_version": "v0.0.1"
 			},
@@ -128,7 +128,7 @@ func TestState_Load(t *testing.T) {
 					Status: "initialized",
 					Config: &azbi.Config{
 						Meta: &azbi.Meta{
-							Kind:          to.StrPtr("azbi"),
+							Kind:          to.StrPtr("azbiConfig"),
 							Version:       to.StrPtr("v0.1.0"),
 							ModuleVersion: to.StrPtr("v0.0.1"),
 						},

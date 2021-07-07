@@ -20,8 +20,8 @@ type Config struct {
 func (c *Config) Init(moduleVersion string) {
 	*c = Config{
 		Meta: &Meta{
-			Kind:          to.StrPtr(kind),
-			Version:       to.StrPtr(version),
+			Kind:          to.StrPtr(configKind),
+			Version:       to.StrPtr(configVersion),
 			ModuleVersion: to.StrPtr(moduleVersion),
 		},
 		Params: &Params{
@@ -160,7 +160,7 @@ func (c *Config) Upgrade(_ string) error {
 }
 
 type Meta struct {
-	Kind          *string `json:"kind" validate:"required,eq=azbi"`
+	Kind          *string `json:"kind" validate:"required,eq=azbiConfig"`
 	Version       *string `json:"version" validate:"required,version=~0"`
 	ModuleVersion *string `json:"module_version" validate:"required"` // TODO check if it is possible to just check that it is a version
 }

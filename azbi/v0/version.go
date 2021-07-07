@@ -1,6 +1,8 @@
 package v0
 
 const (
-	kind    = "azbi"
-	version = "v0.1.4"
+	configKind    = "azbiConfig"
+	stateKind     = "azbiState"
+	configVersion = "v0.2.0"
+	stateVersion  = "v0.0.1"
 )

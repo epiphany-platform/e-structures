@@ -2,12 +2,27 @@ package v0
 
 import (
 	"github.com/epiphany-platform/e-structures/globals"
+	"github.com/epiphany-platform/e-structures/utils/to"
 )
 
 type State struct {
+	Meta   *Meta          `json:"meta" validate:"required"`
 	Status globals.Status `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
 	Config *Config        `json:"config" validate:"omitempty"`
 	Output *Output        `json:"output" validate:"omitempty"`
+}
+
+func (s *State) Init(moduleVersion string) {
+	*s = State{
+		Meta: &Meta{
+			Kind:          to.StrPtr(stateKind),
+			Version:       to.StrPtr(stateVersion),
+			ModuleVersion: to.StrPtr(moduleVersion),
+		},
+		Status: globals.Initialized,
+		Config: nil,
+		Output: nil,
+	}
 }
 
 type Output struct {
