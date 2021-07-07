@@ -3,6 +3,7 @@ package v0
 import (
 	"encoding/json"
 	"errors"
+	"github.com/epiphany-platform/e-structures/globals"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
@@ -61,15 +62,8 @@ func (c *Config) Init(moduleVersion string) {
 	}
 }
 
-func (c *Config) Backup(new string) error {
-	if _, err := os.Stat(new); os.IsExist(err) {
-		return err
-	}
-	bytes, err := json.MarshalIndent(c, "", "\t")
-	if err != nil {
-		return err
-	}
-	return ioutil.WriteFile(new, bytes, 0644)
+func (c *Config) Backup(path string) error {
+	return globals.Backup(c, path)
 }
 
 func (c *Config) Load(path string) error {
@@ -120,18 +114,11 @@ func (c *Config) Load(path string) error {
 }
 
 func (c *Config) Save(path string) error {
-	bytes, err := c.Print()
-	if err != nil {
-		return err
-	}
-	return ioutil.WriteFile(path, bytes, 0644)
+	return globals.Save(c, path)
 }
 
 func (c *Config) Print() ([]byte, error) {
-	if err := c.Valid(); err != nil {
-		return nil, err
-	}
-	return json.MarshalIndent(c, "", "\t")
+	return globals.Print(c)
 }
 
 func (c *Config) Valid() error {
