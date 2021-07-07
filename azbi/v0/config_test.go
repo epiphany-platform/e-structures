@@ -202,13 +202,8 @@ func TestConfig_Load_general(t *testing.T) {
 			want: nil,
 			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
-					Key:   "Config.Kind",
-					Field: "Kind",
-					Tag:   "required",
-				},
-				test.TestValidationError{
-					Key:   "Config.Version",
-					Field: "Version",
+					Key:   "Config.Meta",
+					Field: "Meta",
 					Tag:   "required",
 				},
 				test.TestValidationError{
@@ -277,6 +272,38 @@ func TestConfig_Load_general(t *testing.T) {
 			wantErr: nil,
 		},
 		{
+			name: "meta missing",
+			json: []byte(`{
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"rsa_pub_path": "some-file-name",
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 3,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": true,
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			},
+			"data_disks": []
+		}]
+	}
+}
+`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Meta",
+					Field: "Meta",
+					Tag:   "required",
+				},
+			},
+		},
+		{
 			name: "major version mismatch",
 			json: []byte(`{
 	"meta": {
@@ -307,7 +334,7 @@ func TestConfig_Load_general(t *testing.T) {
 			want: nil,
 			wantErr: test.TestValidationErrors{
 				test.TestValidationError{
-					Key:   "Config.Version",
+					Key:   "Config.Meta.Version",
 					Field: "Version",
 					Tag:   "version",
 				},

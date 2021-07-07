@@ -40,8 +40,11 @@ func TestState_Load(t *testing.T) {
 		"status": "initialized",
 		"config": {
 			"unknown_key_1": "unknown_value_1", 
-			"kind": "azbi",
-			"version": "0.0.1",
+			"meta": {
+				"kind": "azbi",
+				"version": "v0.1.0",
+				"module_version": "v0.0.1"
+			},
 			"params": {
 				"unknown_key_2": "unknown_value_2", 
 				"name": "epiphany",
