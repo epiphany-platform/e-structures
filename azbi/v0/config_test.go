@@ -2,15 +2,15 @@ package v0
 
 import (
 	"fmt"
+	"github.com/epiphany-platform/e-structures/utils/test"
+	"github.com/epiphany-platform/e-structures/utils/to"
+	"github.com/go-playground/validator/v10"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"path"
 	"reflect"
 	"testing"
-
-	"github.com/epiphany-platform/e-structures/utils/test"
-	"github.com/epiphany-platform/e-structures/utils/to"
-	"github.com/go-playground/validator/v10"
-	"github.com/google/go-cmp/cmp"
 )
 
 func TestConfig_Load_general(t *testing.T) {
@@ -2630,47 +2630,37 @@ func TestParams_ExtractEmptySubnets(t *testing.T) {
 }
 
 func configLoadTestingBody(t *testing.T, json []byte, want *Config, wantErr error) {
-	path, err := createTempDocumentFile("azbi-load", json)
-	if err != nil {
-		t.Fatal(err)
-	}
-	config := &Config{}
-	err = config.Load(path)
+	a := assert.New(t)
+	r := require.New(t)
+	p, err := createTempDocumentFile("azbi-load", json)
+	r.NoError(err)
+	got := &Config{}
+	err = got.Load(p)
 
 	if wantErr != nil {
-		if err != nil {
-			if _, ok := err.(*validator.InvalidValidationError); ok {
-				t.Fatal(err)
-			}
-			if _, ok := err.(validator.ValidationErrors); !ok {
-				t.Fatal(err)
-			}
-			errs := err.(validator.ValidationErrors)
-			if len(errs) != len(wantErr.(test.TestValidationErrors)) {
-				t.Fatalf("incorrect length of found errors. Got: \n%s\nExpected: \n%s", errs.Error(), wantErr.Error())
-			}
-			for _, e := range errs {
-				found := false
-				for _, we := range wantErr.(test.TestValidationErrors) {
-					if we.Key == e.Namespace() && we.Tag == e.Tag() && we.Field == e.Field() {
-						found = true
-						break
-					}
-				}
-				if !found {
-					t.Errorf("Got unknown error:\n%s\nAll expected errors: \n%s", e.Error(), wantErr.Error())
+		r.Error(err)
+		_, ok := err.(*validator.InvalidValidationError)
+		r.Equal(false, ok)
+		_, ok = err.(validator.ValidationErrors)
+		r.Equal(true, ok)
+		errs := err.(validator.ValidationErrors)
+		a.Equal(len(wantErr.(test.TestValidationErrors)), len(errs))
+
+		for _, e := range errs {
+			found := false
+			for _, we := range wantErr.(test.TestValidationErrors) {
+				if we.Key == e.Namespace() && we.Tag == e.Tag() && we.Field == e.Field() {
+					found = true
+					break
 				}
 			}
-		} else {
-			t.Errorf("No errors got. All expected errors: \n%s", wantErr.Error())
+			if !found {
+				t.Errorf("Got unknown error:\n%s\nAll expected errors: \n%s", e.Error(), wantErr.Error())
+			}
 		}
 	} else {
-		if diff := cmp.Diff(want, config); diff != "" {
-			t.Errorf("Unmarshal() mismatch (-want +got):\n%s", diff)
-		}
-		if err != nil {
-			t.Errorf("Unmarshal() unexpected error occured: %v", err)
-		}
+		a.NoError(err)
+		a.Equal(want, got)
 	}
 }
 
