@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 )
 
@@ -98,11 +98,11 @@ func TestConfig_Backup(t *testing.T) {
 			a := assert.New(t)
 			p, err := createTempDirectory("azbi-backup")
 			if errors.Is(tt.wantErr, os.ErrExist) {
-				err = ioutil.WriteFile(path.Join(p, "backup-file.json"), []byte("content"), 0644)
-				t.Logf("path: %s", path.Join(p, "backup-file.json"))
+				err = ioutil.WriteFile(filepath.Join(p, "backup-file.json"), []byte("content"), 0644)
+				t.Logf("path: %s", filepath.Join(p, "backup-file.json"))
 				a.NoError(err)
 			}
-			err = tt.config.Backup(path.Join(p, "backup-file.json"))
+			err = tt.config.Backup(filepath.Join(p, "backup-file.json"))
 			if tt.wantErr != nil {
 				a.Error(err)
 				a.Equal(tt.wantErr, err)
@@ -1149,13 +1149,13 @@ func TestConfig_Save(t *testing.T) {
 			p, err := createTempDirectory("azbi-save")
 			a.NoError(err)
 
-			err = tt.config.Save(path.Join(p, "file.json"))
+			err = tt.config.Save(filepath.Join(p, "file.json"))
 			if tt.wantErr {
 				a.Error(err)
 			} else {
 				a.NoError(err)
-				a.FileExists(path.Join(p, "file.json"))
-				got, err2 := ioutil.ReadFile(path.Join(p, "file.json"))
+				a.FileExists(filepath.Join(p, "file.json"))
+				got, err2 := ioutil.ReadFile(filepath.Join(p, "file.json"))
 				a.NoError(err2)
 				a.Equal(string(tt.want), string(got))
 			}
@@ -2702,8 +2702,8 @@ func createTempDocumentFile(name string, document []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	err = ioutil.WriteFile(path.Join(p, "file.json"), document, 0644)
-	return path.Join(p, "file.json"), err
+	err = ioutil.WriteFile(filepath.Join(p, "file.json"), document, 0644)
+	return filepath.Join(p, "file.json"), err
 }
 
 func createTempDirectory(name string) (string, error) {
