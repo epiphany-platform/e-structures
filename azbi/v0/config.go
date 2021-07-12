@@ -142,6 +142,7 @@ func (c *Config) Valid() error {
 }
 
 func (c *Config) Upgrade(_ string) error {
+	// add tests after implementation of first upgrade process
 	return nil
 }
 
