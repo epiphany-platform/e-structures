@@ -113,6 +113,36 @@ func (h InfrastructureModuleHelper) Load(config Modulator, state Modulator) (Mod
 	return config, state, nil
 }
 
+func (h InfrastructureModuleHelper) Save(config Modulator, state Modulator) error {
+	// check if required fields are set
+	if h.ModuleDirectoryPath == "" {
+		return fmt.Errorf("setup module directory path first")
+	}
+	if h.ModuleVersion == "" {
+		return fmt.Errorf("setup module version first")
+	}
+
+	// ensure module directory
+	err := os.MkdirAll(h.ModuleDirectoryPath, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	// create default files paths
+	configFilePath := filepath.Join(h.ModuleDirectoryPath, configFileName)
+	stateFilePath := filepath.Join(h.ModuleDirectoryPath, stateFileName)
+
+	err = state.Save(stateFilePath)
+	if err != nil {
+		return err
+	}
+	err = config.Save(configFilePath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func backup(moduleDirectoryPath string, config Modulator, state Modulator) error {
 	backupDirectoryPath := filepath.Join(moduleDirectoryPath, backupDirectoryName)
 
