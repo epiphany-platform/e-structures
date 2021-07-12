@@ -7,7 +7,13 @@ import (
 )
 
 func Backup(i interface{}, new string) error {
-	if _, err := os.Stat(new); os.IsExist(err) {
+	if _, err := os.Stat(new); err == nil {
+		// file does exist
+		return os.ErrExist
+	} else if os.IsNotExist(err) {
+		// ok, file does not exist
+	} else {
+		// file may or may not exist. See err for details.
 		return err
 	}
 	bytes, err := json.MarshalIndent(i, "", "\t")

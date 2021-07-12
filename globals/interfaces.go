@@ -8,9 +8,10 @@ type Initializer interface {
 
 type Backuper interface { // TODO that name is not a real word
 
-	// Backup is responsible for storing current version of structure in new file. It should fail if there is
+	// Backup is responsible for storing current version of structure in new file. It MUST fail if there is
 	// file already in place pointed by path.
 	Backup(path string) error // TODO this should not take path as string
+	// TODO add BackupRaw() method
 }
 
 type Loader interface {

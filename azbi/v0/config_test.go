@@ -1,6 +1,7 @@
 package v0
 
 import (
+	"errors"
 	"fmt"
 	"github.com/epiphany-platform/e-structures/utils/test"
 	"github.com/epiphany-platform/e-structures/utils/to"
@@ -8,10 +9,109 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
+	"os"
 	"path"
-	"reflect"
 	"testing"
 )
+
+func TestConfig_Init(t *testing.T) {
+	tests := []struct {
+		name          string
+		moduleVersion string
+		want          *Config
+	}{
+		{
+			name:          "happy path",
+			moduleVersion: "v1.1.1",
+			want: &Config{
+				Meta: &Meta{
+					Kind:          to.StrPtr("azbiConfig"),
+					Version:       to.StrPtr("v0.2.0"),
+					ModuleVersion: to.StrPtr("v1.1.1"),
+				},
+				Params: &Params{
+					Name:             to.StrPtr("unknown"),
+					Location:         to.StrPtr("northeurope"),
+					AddressSpace:     []string{"10.0.0.0/16"},
+					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
+					Subnets: []Subnet{
+						{
+							Name:            to.StrPtr("main"),
+							AddressPrefixes: []string{"10.0.1.0/24"},
+						},
+					},
+					VmGroups: []VmGroup{
+						{
+							Name:        to.StrPtr("vm-group-0"),
+							VmCount:     to.IntPtr(1),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(true),
+							SubnetNames: []string{"main"},
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{
+								{
+									GbSize:      to.IntPtr(10),
+									StorageType: to.StrPtr("Premium_LRS"),
+								},
+							},
+						},
+					},
+				},
+				Unused: []string{},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := assert.New(t)
+			got := &Config{}
+			got.Init(tt.moduleVersion)
+			a.Equal(tt.want, got)
+		})
+	}
+}
+
+func TestConfig_Backup(t *testing.T) {
+	tests := []struct {
+		name    string
+		config  *Config
+		wantErr error
+	}{
+		{
+			name:    "happy path",
+			config:  &Config{},
+			wantErr: nil,
+		},
+		{
+			name:    "file already exists",
+			config:  &Config{},
+			wantErr: os.ErrExist,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := assert.New(t)
+			p, err := createTempDirectory("azbi-backup")
+			if errors.Is(tt.wantErr, os.ErrExist) {
+				err = ioutil.WriteFile(path.Join(p, "backup-file.json"), []byte("content"), 0644)
+				t.Logf("path: %s", path.Join(p, "backup-file.json"))
+				a.NoError(err)
+			}
+			err = tt.config.Backup(path.Join(p, "backup-file.json"))
+			if tt.wantErr != nil {
+				a.Error(err)
+				a.Equal(tt.wantErr, err)
+			} else {
+				a.NoError(err)
+			}
+		})
+	}
+}
 
 func TestConfig_Load(t *testing.T) {
 	tests := []struct {
@@ -962,6 +1062,192 @@ func TestConfig_Load(t *testing.T) {
 				gj, err2 := got.Print()
 				a.NoError(err2)
 				a.Equal(string(wj), string(gj))
+			}
+		})
+	}
+}
+
+func TestConfig_Save(t *testing.T) {
+	tests := []struct {
+		name    string
+		config  *Config
+		want    []byte
+		wantErr bool
+	}{
+		{
+			name: "happy path",
+			config: &Config{
+				Meta: &Meta{
+					Kind:          to.StrPtr("azbiConfig"),
+					Version:       to.StrPtr("v0.1.0"),
+					ModuleVersion: to.StrPtr("v0.0.1"),
+				},
+				Params: &Params{
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
+					VmGroups: []VmGroup{
+						{
+							Name:        to.StrPtr("vm-group0"),
+							VmCount:     to.IntPtr(1),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(false),
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+					},
+				},
+				Unused: []string{},
+			},
+			want: []byte(`{
+	"meta": {
+		"kind": "azbiConfig",
+		"version": "v0.1.0",
+		"module_version": "v0.0.1"
+	},
+	"params": {
+		"name": "epiphany",
+		"location": "northeurope",
+		"address_space": null,
+		"subnets": null,
+		"vm_groups": [
+			{
+				"name": "vm-group0",
+				"vm_count": 1,
+				"vm_size": "Standard_DS2_v2",
+				"use_public_ip": false,
+				"subnet_names": null,
+				"vm_image": {
+					"publisher": "Canonical",
+					"offer": "UbuntuServer",
+					"sku": "18.04-LTS",
+					"version": "18.04.202006101"
+				},
+				"data_disks": []
+			}
+		],
+		"rsa_pub_path": "some-file-name"
+	}
+}`),
+			wantErr: false,
+		},
+		{
+			name:    "invalid",
+			config:  &Config{},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := assert.New(t)
+			p, err := createTempDirectory("azbi-save")
+			a.NoError(err)
+
+			err = tt.config.Save(path.Join(p, "file.json"))
+			if tt.wantErr {
+				a.Error(err)
+			} else {
+				a.NoError(err)
+				a.FileExists(path.Join(p, "file.json"))
+				got, err2 := ioutil.ReadFile(path.Join(p, "file.json"))
+				a.NoError(err2)
+				a.Equal(string(tt.want), string(got))
+			}
+		})
+	}
+}
+
+func TestConfig_Print(t *testing.T) {
+	tests := []struct {
+		name    string
+		config  *Config
+		want    []byte
+		wantErr bool
+	}{
+		{
+			name: "happy path",
+			config: &Config{
+				Meta: &Meta{
+					Kind:          to.StrPtr("azbiConfig"),
+					Version:       to.StrPtr("v0.1.0"),
+					ModuleVersion: to.StrPtr("v0.0.1"),
+				},
+				Params: &Params{
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
+					VmGroups: []VmGroup{
+						{
+							Name:        to.StrPtr("vm-group0"),
+							VmCount:     to.IntPtr(1),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(false),
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+					},
+				},
+				Unused: []string{},
+			},
+			want: []byte(`{
+	"meta": {
+		"kind": "azbiConfig",
+		"version": "v0.1.0",
+		"module_version": "v0.0.1"
+	},
+	"params": {
+		"name": "epiphany",
+		"location": "northeurope",
+		"address_space": null,
+		"subnets": null,
+		"vm_groups": [
+			{
+				"name": "vm-group0",
+				"vm_count": 1,
+				"vm_size": "Standard_DS2_v2",
+				"use_public_ip": false,
+				"subnet_names": null,
+				"vm_image": {
+					"publisher": "Canonical",
+					"offer": "UbuntuServer",
+					"sku": "18.04-LTS",
+					"version": "18.04.202006101"
+				},
+				"data_disks": []
+			}
+		],
+		"rsa_pub_path": "some-file-name"
+	}
+}`),
+			wantErr: false,
+		},
+		{
+			name:    "invalid",
+			config:  &Config{},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := assert.New(t)
+			got, err := tt.config.Print()
+			if tt.wantErr {
+				a.Error(err)
+			} else {
+				a.NoError(err)
+				a.Equal(string(tt.want), string(got))
 			}
 		})
 	}
@@ -2404,9 +2690,9 @@ func TestParams_ExtractEmptySubnets(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.params.ExtractEmptySubnets(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ExtractEmptySubnets() = %v, want %v", got, tt.want)
-			}
+			a := assert.New(t)
+			got := tt.params.ExtractEmptySubnets()
+			a.Equal(tt.want, got)
 		})
 	}
 }
@@ -2418,4 +2704,8 @@ func createTempDocumentFile(name string, document []byte) (string, error) {
 	}
 	err = ioutil.WriteFile(path.Join(p, "file.json"), document, 0644)
 	return path.Join(p, "file.json"), err
+}
+
+func createTempDirectory(name string) (string, error) {
+	return ioutil.TempDir("", fmt.Sprintf("e-structures-%s-*", name))
 }

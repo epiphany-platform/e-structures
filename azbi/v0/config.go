@@ -60,6 +60,7 @@ func (c *Config) Init(moduleVersion string) {
 		},
 		Unused: []string{},
 	}
+	// TODO consider if we should call Valid() here
 }
 
 func (c *Config) Backup(path string) error {
