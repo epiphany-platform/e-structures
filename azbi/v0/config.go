@@ -169,7 +169,7 @@ func (c *Config) SetUnused(unused []string) {
 type Meta struct {
 	Kind          *string `json:"kind" validate:"required,eq=azbiConfig|eq=azbiState"`
 	Version       *string `json:"version" validate:"required,version=~0"`
-	ModuleVersion *string `json:"module_version" validate:"required"` // TODO check if it is possible to just check that it is a version
+	ModuleVersion *string `json:"module_version" validate:"required"`
 }
 
 type Params struct {

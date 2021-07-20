@@ -2,10 +2,10 @@ package globals
 
 import "fmt"
 
-type OldVersionError struct {
+type NotCurrentVersionError struct {
 	Version string
 }
 
-func (e OldVersionError) Error() string {
+func (e NotCurrentVersionError) Error() string {
 	return fmt.Sprintf("Structure is of not currect version: %s", e.Version)
 }

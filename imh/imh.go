@@ -56,7 +56,7 @@ func (h InfrastructureModuleHelper) Initialize(config Modulator, state Modulator
 	if os.IsNotExist(err) {
 		// if no state loaded then init it
 		state.Init(h.ModuleVersion)
-	} else if errors.Is(err, globals.OldVersionError{}) {
+	} else if errors.Is(err, globals.NotCurrentVersionError{}) {
 		// if old version was found try to upgrade it
 		err2 := state.Upgrade(stateFilePath)
 		if err2 != nil {
@@ -70,7 +70,7 @@ func (h InfrastructureModuleHelper) Initialize(config Modulator, state Modulator
 	if os.IsNotExist(err) {
 		// if no config loaded then init it
 		config.Init(h.ModuleVersion)
-	} else if errors.Is(err, globals.OldVersionError{}) {
+	} else if errors.Is(err, globals.NotCurrentVersionError{}) {
 		// if old version was found try to upgrade it
 		err2 := config.Upgrade(configFilePath)
 		if err2 != nil {
@@ -111,7 +111,7 @@ func (h InfrastructureModuleHelper) Load(config Modulator, state Modulator) (Mod
 
 	// load state file
 	err = state.Load(stateFilePath)
-	if errors.Is(err, globals.OldVersionError{}) {
+	if errors.Is(err, globals.NotCurrentVersionError{}) {
 		// if old version was found try to upgrade it
 		err2 := state.Upgrade(stateFilePath)
 		if err2 != nil {
@@ -122,7 +122,7 @@ func (h InfrastructureModuleHelper) Load(config Modulator, state Modulator) (Mod
 	}
 	// load config file
 	err = config.Load(configFilePath)
-	if errors.Is(err, globals.OldVersionError{}) {
+	if errors.Is(err, globals.NotCurrentVersionError{}) {
 		// if old version was found try to upgrade it
 		err2 := config.Upgrade(configFilePath)
 		if err2 != nil {

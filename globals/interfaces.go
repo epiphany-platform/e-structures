@@ -50,7 +50,7 @@ type Validator interface {
 type Upgrader interface {
 
 	// Upgrade is responsible for upgrading structure to current version. It is designed to be a fallback
-	// method after Loader.Load wasn't able to load structure from file and returned with OldVersionError.
+	// method after Loader.Load wasn't able to load structure from file and returned with NotCurrentVersionError.
 	Upgrade(path string) error
 }
 

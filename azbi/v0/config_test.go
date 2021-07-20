@@ -1075,7 +1075,7 @@ func TestConfig_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: globals.OldVersionError{Version: "v0.2.0"},
+			wantErr: globals.NotCurrentVersionError{Version: "v0.2.0"},
 		},
 	}
 	for _, tt := range tests {
@@ -1125,7 +1125,7 @@ func TestConfig_Save(t *testing.T) {
 		name    string
 		config  *Config
 		want    []byte
-		wantErr bool
+		wantErr error
 	}{
 		{
 			name: "happy path",
@@ -1189,24 +1189,56 @@ func TestConfig_Save(t *testing.T) {
 		"rsa_pub_path": "some-file-name"
 	}
 }`),
-			wantErr: false,
+			wantErr: nil,
 		},
 		{
-			name:    "invalid",
-			config:  &Config{},
-			want:    nil,
-			wantErr: true,
+			name:   "invalid",
+			config: &Config{},
+			want:   nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Meta",
+					Field: "Meta",
+					Tag:   "required",
+				},
+				test.TestValidationError{
+					Key:   "Config.Params",
+					Field: "Params",
+					Tag:   "required",
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			a := assert.New(t)
+			r := require.New(t)
 			p, err := createTempDirectory("azbi-config-save")
 			a.NoError(err)
 
 			err = tt.config.Save(filepath.Join(p, "file.json"))
-			if tt.wantErr {
+			if tt.wantErr != nil {
 				a.Error(err)
+				_, ok := err.(*validator.InvalidValidationError)
+				r.Equal(false, ok)
+				errs, ok := err.(validator.ValidationErrors)
+				if ok {
+					for _, e := range errs {
+						found := false
+						for _, we := range tt.wantErr.(test.TestValidationErrors) {
+							if we.Key == e.Namespace() && we.Tag == e.Tag() && we.Field == e.Field() {
+								found = true
+								break
+							}
+						}
+						if !found {
+							t.Errorf("Got unknown error:\n%s\nAll expected errors: \n%s", e.Error(), tt.wantErr.Error())
+						}
+					}
+					a.Equal(len(tt.wantErr.(test.TestValidationErrors)), len(errs))
+				} else {
+					a.Equal(tt.wantErr, err)
+				}
 			} else {
 				a.NoError(err)
 				a.FileExists(filepath.Join(p, "file.json"))

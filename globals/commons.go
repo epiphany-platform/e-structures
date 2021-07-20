@@ -137,7 +137,7 @@ func checkVersion(input map[string]interface{}, version string) error {
 		return err
 	}
 	if version != v {
-		return OldVersionError{Version: v}
+		return NotCurrentVersionError{Version: v}
 	}
 	return nil
 }
