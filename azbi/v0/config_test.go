@@ -3,6 +3,7 @@ package v0
 import (
 	"errors"
 	"fmt"
+	"github.com/epiphany-platform/e-structures/globals"
 	"github.com/epiphany-platform/e-structures/utils/test"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/go-playground/validator/v10"
@@ -26,13 +27,14 @@ func TestConfig_Init(t *testing.T) {
 			want: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.2.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v1.1.1"),
 				},
 				Params: &Params{
 					Name:             to.StrPtr("unknown"),
 					Location:         to.StrPtr("northeurope"),
 					AddressSpace:     []string{"10.0.0.0/16"},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 					Subnets: []Subnet{
 						{
@@ -96,7 +98,7 @@ func TestConfig_Backup(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			a := assert.New(t)
-			p, err := createTempDirectory("azbi-backup")
+			p, err := createTempDirectory("azbi-config-backup")
 			if errors.Is(tt.wantErr, os.ErrExist) {
 				err = ioutil.WriteFile(filepath.Join(p, "backup-file.json"), []byte("content"), 0644)
 				t.Logf("path: %s", filepath.Join(p, "backup-file.json"))
@@ -125,7 +127,7 @@ func TestConfig_Load(t *testing.T) {
 			json: []byte(`{
 	"meta": {
 		"kind": "azbiConfig",
-		"version": "v0.1.0",
+		"version": "v0.2.1",
 		"module_version": "v0.0.1"
 	},
 	"params": {
@@ -159,6 +161,7 @@ func TestConfig_Load(t *testing.T) {
 				}
 			]
 		}],
+		"admin_username": "operations", 
 		"rsa_pub_path": "/shared/vms_rsa.pub"
 	}
 }
@@ -166,13 +169,14 @@ func TestConfig_Load(t *testing.T) {
 			want: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
 					AddressSpace:     []string{"10.0.0.0/16"},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 					Subnets: []Subnet{
 						{
@@ -211,7 +215,7 @@ func TestConfig_Load(t *testing.T) {
 			json: []byte(`{
 	"meta": {
 		"kind": "azbiConfig",
-		"version": "v0.1.0",
+		"version": "v0.2.1",
 		"module_version": "v0.0.1"
 	},
 	"extra_outer_field" : "extra_outer_value",
@@ -249,6 +253,7 @@ func TestConfig_Load(t *testing.T) {
 				}
 			]
 		}],
+		"admin_username": "operations", 
 		"rsa_pub_path": "/shared/vms_rsa.pub"
 	}
 }
@@ -256,7 +261,7 @@ func TestConfig_Load(t *testing.T) {
 			want: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
@@ -290,6 +295,7 @@ func TestConfig_Load(t *testing.T) {
 							},
 						},
 					},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 				},
 				Unused: []string{"params.extra_inner_field", "extra_outer_field"},
@@ -298,14 +304,15 @@ func TestConfig_Load(t *testing.T) {
 		},
 		{
 			name: "ensure load is performing validation",
-			json: []byte(`{}`),
+			json: []byte(`{
+	"meta": {
+		"kind": "azbiConfig",
+		"version": "v0.2.1",
+		"module_version": "v0.0.1"
+	}
+}`),
 			want: nil,
 			wantErr: test.TestValidationErrors{
-				test.TestValidationError{
-					Key:   "Config.Meta",
-					Field: "Meta",
-					Tag:   "required",
-				},
 				test.TestValidationError{
 					Key:   "Config.Params",
 					Field: "Params",
@@ -318,12 +325,13 @@ func TestConfig_Load(t *testing.T) {
 			json: []byte(`{
 	"meta": {
 		"kind": "azbiConfig",
-		"version": "v0.1.0",
+		"version": "v0.2.1",
 		"module_version": "v0.0.1"
 	},
 	"params": {
 		"location": "northeurope",
 		"name": "epiphany",
+		"admin_username": "operations", 
 		"rsa_pub_path": "some-file-name", 
 		"vm_groups": [{
 			"name": "vm-group0",
@@ -344,12 +352,13 @@ func TestConfig_Load(t *testing.T) {
 			want: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					VmGroups: []VmGroup{
 						{
@@ -376,12 +385,13 @@ func TestConfig_Load(t *testing.T) {
 			json: []byte(`{
 	"meta": {
 		"kind": "azbiConfig",
-		"version": "v0.1.0",
+		"version": "v0.2.1",
 		"module_version": "v0.0.1"
 	},
 	"params": {
 		"location": "northeurope",
 		"name": "epiphany",
+		"admin_username": "operations", 
 		"rsa_pub_path": "some-file-name",  
 		"address_space": [
 			"10.0.0.0/16"
@@ -420,12 +430,13 @@ func TestConfig_Load(t *testing.T) {
 			want: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					AddressSpace:     []string{"10.0.0.0/16"},
 					Subnets: []Subnet{
@@ -464,12 +475,13 @@ func TestConfig_Load(t *testing.T) {
 			json: []byte(`{
 	"meta": {
 		"kind": "azbiConfig",
-		"version": "v0.1.0",
+		"version": "v0.2.1",
 		"module_version": "v0.0.1"
 	},
 	"params": {
 		"location": "northeurope",
 		"name": "epiphany",
+		"admin_username": "operations", 
 		"rsa_pub_path": "/shared/vms_rsa.pub",
 		"vm_groups": [{
 			"name": "vm-group0",
@@ -490,7 +502,7 @@ func TestConfig_Load(t *testing.T) {
 			want: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
@@ -511,6 +523,7 @@ func TestConfig_Load(t *testing.T) {
 							DataDisks: []DataDisk{},
 						},
 					},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 				},
 				Unused: []string{},
@@ -522,12 +535,13 @@ func TestConfig_Load(t *testing.T) {
 			json: []byte(`{
 	"meta": {
 		"kind": "azbiConfig",
-		"version": "v0.1.0",
+		"version": "v0.2.1",
 		"module_version": "v0.0.1"
 	},
 	"params": {
 		"location": "northeurope",
 		"name": "epiphany",
+		"admin_username": "operations", 
 		"rsa_pub_path": "some-file-name",  
 		"address_space": [
 			"10.0.0.0/16"
@@ -576,12 +590,13 @@ func TestConfig_Load(t *testing.T) {
 			want: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					AddressSpace:     []string{"10.0.0.0/16"},
 					Subnets: []Subnet{
@@ -630,12 +645,13 @@ func TestConfig_Load(t *testing.T) {
 			json: []byte(`{
 	"meta": {
 		"kind": "azbiConfig",
-		"version": "v0.1.0",
+		"version": "v0.2.1",
 		"module_version": "v0.0.1"
 	},
 	"params": {
 		"location": "northeurope",
 		"name": "epiphany",
+		"admin_username": "operations", 
 		"rsa_pub_path": "some-file-name", 
 		"address_space": [
 			"10.0.0.0/16"
@@ -690,12 +706,13 @@ func TestConfig_Load(t *testing.T) {
 			want: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					AddressSpace:     []string{"10.0.0.0/16"},
 					Subnets: []Subnet{
@@ -748,12 +765,13 @@ func TestConfig_Load(t *testing.T) {
 			json: []byte(`{
 	"meta": {
 		"kind": "azbiConfig",
-		"version": "v0.1.0",
+		"version": "v0.2.1",
 		"module_version": "v0.0.1"
 	},
 	"params": {
 		"location": "northeurope",
 		"name": "epiphany",
+		"admin_username": "operations", 
 		"rsa_pub_path": "some-file-name",  
 		"address_space": [
 			"10.0.0.0/16"
@@ -814,12 +832,13 @@ func TestConfig_Load(t *testing.T) {
 			want: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					AddressSpace:     []string{"10.0.0.0/16"},
 					Subnets: []Subnet{
@@ -876,12 +895,13 @@ func TestConfig_Load(t *testing.T) {
 			json: []byte(`{
 	"meta": {
 		"kind": "azbiConfig",
-		"version": "v0.1.0",
+		"version": "v0.2.1",
 		"module_version": "v0.0.1"
 	},
 	"params": {
 		"location": "northeurope",
 		"name": "epiphany",
+		"admin_username": "operations", 
 		"rsa_pub_path": "some-file-name",  
 		"address_space": [
 			"10.0.0.0/16"
@@ -954,12 +974,13 @@ func TestConfig_Load(t *testing.T) {
 			want: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					AddressSpace:     []string{"10.0.0.0/16"},
 					Subnets: []Subnet{
@@ -1025,12 +1046,43 @@ func TestConfig_Load(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+		{
+			name: "old version exception",
+			json: []byte(`{
+	"meta": {
+		"kind": "azbiConfig",
+		"version": "v0.2.0",
+		"module_version": "v0.0.1"
+	},
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"rsa_pub_path": "some-file-name", 
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 1,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": false,
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			},
+			"data_disks": []
+		}]
+	}
+}
+`),
+			want:    nil,
+			wantErr: globals.OldVersionError{Version: "v0.2.0"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			a := assert.New(t)
 			r := require.New(t)
-			p, err := createTempDocumentFile("azbi-load", tt.json)
+			p, err := createTempDocumentFile("azbi-config-load", tt.json)
 			r.NoError(err)
 			got := &Config{}
 			err = got.Load(p)
@@ -1038,22 +1090,23 @@ func TestConfig_Load(t *testing.T) {
 				r.Error(err)
 				_, ok := err.(*validator.InvalidValidationError)
 				r.Equal(false, ok)
-				_, ok = err.(validator.ValidationErrors)
-				r.Equal(true, ok)
-				errs := err.(validator.ValidationErrors)
-				a.Equal(len(tt.wantErr.(test.TestValidationErrors)), len(errs))
-
-				for _, e := range errs {
-					found := false
-					for _, we := range tt.wantErr.(test.TestValidationErrors) {
-						if we.Key == e.Namespace() && we.Tag == e.Tag() && we.Field == e.Field() {
-							found = true
-							break
+				errs, ok := err.(validator.ValidationErrors)
+				if ok {
+					for _, e := range errs {
+						found := false
+						for _, we := range tt.wantErr.(test.TestValidationErrors) {
+							if we.Key == e.Namespace() && we.Tag == e.Tag() && we.Field == e.Field() {
+								found = true
+								break
+							}
+						}
+						if !found {
+							t.Errorf("Got unknown error:\n%s\nAll expected errors: \n%s", e.Error(), tt.wantErr.Error())
 						}
 					}
-					if !found {
-						t.Errorf("Got unknown error:\n%s\nAll expected errors: \n%s", e.Error(), tt.wantErr.Error())
-					}
+					a.Equal(len(tt.wantErr.(test.TestValidationErrors)), len(errs))
+				} else {
+					a.Equal(tt.wantErr, err)
 				}
 			} else {
 				a.NoError(err)
@@ -1079,12 +1132,13 @@ func TestConfig_Save(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					VmGroups: []VmGroup{
 						{
@@ -1107,7 +1161,7 @@ func TestConfig_Save(t *testing.T) {
 			want: []byte(`{
 	"meta": {
 		"kind": "azbiConfig",
-		"version": "v0.1.0",
+		"version": "v0.2.1",
 		"module_version": "v0.0.1"
 	},
 	"params": {
@@ -1131,6 +1185,7 @@ func TestConfig_Save(t *testing.T) {
 				"data_disks": []
 			}
 		],
+		"admin_username": "operations",
 		"rsa_pub_path": "some-file-name"
 	}
 }`),
@@ -1146,7 +1201,7 @@ func TestConfig_Save(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			a := assert.New(t)
-			p, err := createTempDirectory("azbi-save")
+			p, err := createTempDirectory("azbi-config-save")
 			a.NoError(err)
 
 			err = tt.config.Save(filepath.Join(p, "file.json"))
@@ -1175,12 +1230,13 @@ func TestConfig_Print(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					VmGroups: []VmGroup{
 						{
@@ -1203,7 +1259,7 @@ func TestConfig_Print(t *testing.T) {
 			want: []byte(`{
 	"meta": {
 		"kind": "azbiConfig",
-		"version": "v0.1.0",
+		"version": "v0.2.1",
 		"module_version": "v0.0.1"
 	},
 	"params": {
@@ -1227,6 +1283,7 @@ func TestConfig_Print(t *testing.T) {
 				"data_disks": []
 			}
 		],
+		"admin_username": "operations",
 		"rsa_pub_path": "some-file-name"
 	}
 }`),
@@ -1264,12 +1321,13 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					VmGroups: []VmGroup{
 						{
@@ -1313,6 +1371,7 @@ func TestConfig_Valid(t *testing.T) {
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					VmGroups: []VmGroup{
 						{
@@ -1351,6 +1410,7 @@ func TestConfig_Valid(t *testing.T) {
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					VmGroups: []VmGroup{
 						{
@@ -1389,6 +1449,7 @@ func TestConfig_Valid(t *testing.T) {
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					VmGroups: []VmGroup{
 						{
@@ -1421,6 +1482,7 @@ func TestConfig_Valid(t *testing.T) {
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					VmGroups: []VmGroup{
 						{
@@ -1447,7 +1509,7 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
@@ -1485,6 +1547,11 @@ func TestConfig_Valid(t *testing.T) {
 					Field: "RsaPublicKeyPath",
 					Tag:   "required",
 				},
+				test.TestValidationError{
+					Key:   "Config.Params.AdminUsername",
+					Field: "AdminUsername",
+					Tag:   "required",
+				},
 			},
 		},
 		{
@@ -1492,12 +1559,13 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					VmGroups: []VmGroup{
 						{
@@ -1531,12 +1599,13 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					AddressSpace:     []string{"10.0.0.0/16"},
 					Subnets:          []Subnet{},
@@ -1571,12 +1640,13 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					Subnets: []Subnet{
 						{
@@ -1615,12 +1685,13 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					AddressSpace:     []string{"10.0.0.0/16"},
 					VmGroups: []VmGroup{
@@ -1654,12 +1725,13 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					AddressSpace:     []string{"10.0.0.0/16"},
 					Subnets: []Subnet{
@@ -1701,12 +1773,13 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					AddressSpace:     []string{"10.0.0.0/16"},
 					Subnets: []Subnet{
@@ -1751,12 +1824,13 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					AddressSpace:     []string{"10.0.0.0/16"},
 					Subnets: []Subnet{
@@ -1805,12 +1879,13 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					AddressSpace:     []string{},
 					Subnets: []Subnet{
@@ -1850,12 +1925,13 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("some-file-name"),
 					AddressSpace:     []string{"", "10.0.1.0"},
 					Subnets: []Subnet{
@@ -1896,7 +1972,7 @@ func TestConfig_Valid(t *testing.T) {
 			},
 		},
 		{
-			name: "empty rsa_pub_path name and location",
+			name: "empty name location admin_username and rsa_pub_path ",
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
@@ -1906,6 +1982,7 @@ func TestConfig_Valid(t *testing.T) {
 				Params: &Params{
 					Location:         to.StrPtr(""),
 					Name:             to.StrPtr(""),
+					AdminUsername:    to.StrPtr(""),
 					RsaPublicKeyPath: to.StrPtr(""),
 					VmGroups: []VmGroup{
 						{
@@ -1941,6 +2018,11 @@ func TestConfig_Valid(t *testing.T) {
 					Field: "Location",
 					Tag:   "min",
 				},
+				test.TestValidationError{
+					Key:   "Config.Params.AdminUsername",
+					Field: "AdminUsername",
+					Tag:   "min",
+				},
 			},
 		},
 		{
@@ -1948,13 +2030,14 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
 					AddressSpace:     []string{"10.0.0.0/16"},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 					Subnets: []Subnet{
 						{
@@ -1978,13 +2061,14 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
 					AddressSpace:     []string{"10.0.0.0/16"},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 					Subnets: []Subnet{
 						{
@@ -2003,13 +2087,14 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
 					AddressSpace:     []string{"10.0.0.0/16"},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 					Subnets: []Subnet{
 						{
@@ -2061,13 +2146,14 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
 					AddressSpace:     []string{"10.0.0.0/16"},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 					Subnets: []Subnet{
 						{
@@ -2154,13 +2240,14 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
 					AddressSpace:     []string{"10.0.0.0/16"},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 					Subnets: []Subnet{
 						{
@@ -2215,13 +2302,14 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
 					AddressSpace:     []string{"10.0.0.0/16"},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 					Subnets: []Subnet{
 						{
@@ -2268,13 +2356,14 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
 					AddressSpace:     []string{"10.0.0.0/16"},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 					Subnets: []Subnet{
 						{
@@ -2338,13 +2427,14 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
 					AddressSpace:     []string{"10.0.0.0/16"},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 					Subnets: []Subnet{
 						{
@@ -2399,13 +2489,14 @@ func TestConfig_Valid(t *testing.T) {
 			config: &Config{
 				Meta: &Meta{
 					Kind:          to.StrPtr("azbiConfig"),
-					Version:       to.StrPtr("v0.1.0"),
+					Version:       to.StrPtr("v0.2.1"),
 					ModuleVersion: to.StrPtr("v0.0.1"),
 				},
 				Params: &Params{
 					Location:         to.StrPtr("northeurope"),
 					Name:             to.StrPtr("epiphany"),
 					AddressSpace:     []string{"10.0.0.0/16"},
+					AdminUsername:    to.StrPtr("operations"),
 					RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 					Subnets: []Subnet{
 						{
@@ -2489,6 +2580,229 @@ func TestConfig_Valid(t *testing.T) {
 				}
 			} else {
 				a.NoError(err)
+			}
+		})
+	}
+}
+
+func TestConfig_Upgrade(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    []byte
+		want    *Config
+		wantErr error
+	}{
+		{
+			name: "happy path nothing to upgrade",
+			json: []byte(`{
+	"meta": {
+		"kind": "azbiConfig",
+		"version": "v0.2.1",
+		"module_version": "v0.0.1"
+	},
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"admin_username": "operations", 
+		"rsa_pub_path": "some-file-name", 
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 1,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": false,
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			},
+			"data_disks": []
+		}]
+	}
+}
+`),
+			want: &Config{
+				Meta: &Meta{
+					Kind:          to.StrPtr("azbiConfig"),
+					Version:       to.StrPtr("v0.2.1"),
+					ModuleVersion: to.StrPtr("v0.0.1"),
+				},
+				Params: &Params{
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
+					VmGroups: []VmGroup{
+						{
+							Name:        to.StrPtr("vm-group0"),
+							VmCount:     to.IntPtr(1),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(false),
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+					},
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "ensure that validation is also performed in upgrade",
+			json: []byte(`{
+	"meta": {
+		"kind": "azbiConfig",
+		"version": "v0.2.1",
+		"module_version": "v0.0.1"
+	},
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"rsa_pub_path": "some-file-name", 
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 1,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": false,
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			},
+			"data_disks": []
+		}]
+	}
+}
+`),
+			want: nil,
+			wantErr: test.TestValidationErrors{
+				test.TestValidationError{
+					Key:   "Config.Params.AdminUsername",
+					Field: "AdminUsername",
+					Tag:   "required",
+				},
+			},
+		},
+		{
+			name: "upgrade v0.2.0 to v0.2.1",
+			json: []byte(`{
+	"meta": {
+		"kind": "azbiConfig",
+		"version": "v0.2.0",
+		"module_version": "v0.0.1"
+	},
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany",
+		"rsa_pub_path": "some-file-name", 
+		"vm_groups": [{
+			"name": "vm-group0",
+			"vm_count": 1,
+			"vm_size": "Standard_DS2_v2",
+			"use_public_ip": false,
+			"vm_image": {
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "18.04-LTS",
+				"version": "18.04.202006101"
+			},
+			"data_disks": []
+		}]
+	}
+}
+`),
+			want: &Config{
+				Meta: &Meta{
+					Kind:          to.StrPtr("azbiConfig"),
+					Version:       to.StrPtr("v0.2.1"),
+					ModuleVersion: to.StrPtr("v0.0.1"),
+				},
+				Params: &Params{
+					Location:         to.StrPtr("northeurope"),
+					Name:             to.StrPtr("epiphany"),
+					AdminUsername:    to.StrPtr("operations"),
+					RsaPublicKeyPath: to.StrPtr("some-file-name"),
+					VmGroups: []VmGroup{
+						{
+							Name:        to.StrPtr("vm-group0"),
+							VmCount:     to.IntPtr(1),
+							VmSize:      to.StrPtr("Standard_DS2_v2"),
+							UsePublicIP: to.BooPtr(false),
+							VmImage: &VmImage{
+								Publisher: to.StrPtr("Canonical"),
+								Offer:     to.StrPtr("UbuntuServer"),
+								Sku:       to.StrPtr("18.04-LTS"),
+								Version:   to.StrPtr("18.04.202006101"),
+							},
+							DataDisks: []DataDisk{},
+						},
+					},
+				},
+				Unused: []string{},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "some unknown version",
+			json: []byte(`{
+	"meta": {
+		"kind": "azbiConfig",
+		"version": "v0.0.1",
+		"module_version": "v0.0.1"
+	},
+	"params": {
+		"location": "northeurope",
+		"name": "epiphany"
+	}
+}
+`),
+			want:    nil,
+			wantErr: errors.New("unknown version to upgrade"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := assert.New(t)
+			r := require.New(t)
+			p, err := createTempDocumentFile("azbi-config-load", tt.json)
+			r.NoError(err)
+			got := &Config{}
+			err = got.Upgrade(p)
+			if tt.wantErr != nil {
+				r.Error(err)
+				_, ok := err.(*validator.InvalidValidationError)
+				r.Equal(false, ok)
+				errs, ok := err.(validator.ValidationErrors)
+				if ok {
+					for _, e := range errs {
+						found := false
+						for _, we := range tt.wantErr.(test.TestValidationErrors) {
+							if we.Key == e.Namespace() && we.Tag == e.Tag() && we.Field == e.Field() {
+								found = true
+								break
+							}
+						}
+						if !found {
+							t.Errorf("Got unknown error:\n%s\nAll expected errors: \n%s", e.Error(), tt.wantErr.Error())
+						}
+					}
+					a.Equal(len(tt.wantErr.(test.TestValidationErrors)), len(errs))
+				} else {
+					a.Equal(tt.wantErr, err)
+				}
+			} else {
+				a.NoError(err)
+				wj, err2 := tt.want.Print()
+				a.NoError(err2)
+				gj, err2 := got.Print()
+				a.NoError(err2)
+				a.Equal(string(wj), string(gj))
 			}
 		})
 	}

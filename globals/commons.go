@@ -2,6 +2,8 @@ package globals
 
 import (
 	"encoding/json"
+	"fmt"
+	maps "github.com/mitchellh/mapstructure"
 	"io/ioutil"
 	"os"
 )
@@ -36,4 +38,106 @@ func Print(v Validator) ([]byte, error) {
 		return nil, err
 	}
 	return json.MarshalIndent(v, "", "\t")
+}
+
+func Load(i interface{}, path, version string) (interface{}, error) {
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return nil, err
+	}
+
+	// TODO backup raw here
+
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var input map[string]interface{}
+	err = json.Unmarshal(b, &input)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := checkVersion(input, version); err != nil {
+		return nil, err
+	}
+
+	var md maps.Metadata
+	d, err := maps.NewDecoder(&maps.DecoderConfig{Metadata: &md, TagName: "json", Result: &i})
+	if err != nil {
+		return nil, err
+	}
+	err = d.Decode(input)
+	if err != nil {
+		return nil, err
+	}
+	if u, ok := i.(WithUnused); ok {
+		u.SetUnused(md.Unused)
+	}
+
+	return i, nil
+}
+
+func Upgrade(i interface{}, path string, f func(map[string]interface{}) error) (interface{}, error) {
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return nil, err
+	}
+
+	// TODO backup raw here
+
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var input map[string]interface{}
+	err = json.Unmarshal(b, &input)
+	if err != nil {
+		return nil, err
+	}
+
+	err = f(input)
+	if err != nil {
+		return nil, err
+	}
+
+	var md maps.Metadata
+	d, err := maps.NewDecoder(&maps.DecoderConfig{Metadata: &md, TagName: "json", Result: &i})
+	if err != nil {
+		return nil, err
+	}
+	err = d.Decode(input)
+	if err != nil {
+		return nil, err
+	}
+	if u, ok := i.(WithUnused); ok {
+		u.SetUnused(md.Unused)
+	}
+
+	return i, nil
+}
+
+func GetVersion(input map[string]interface{}) (string, error) {
+	meta, ok := input["meta"].(map[string]interface{})
+	if !ok {
+		return "", fmt.Errorf("structure doesn't look like one we can understand - does not have meta object")
+	}
+	v, ok := meta["version"].(string)
+	if !ok {
+		return "", fmt.Errorf("structure doesn't look like one we can understand - meta object does not have version field")
+	}
+	return v, nil
+}
+
+func checkVersion(input map[string]interface{}, version string) error {
+	v, err := GetVersion(input)
+	if err != nil {
+		return err
+	}
+	if version != v {
+		return OldVersionError{Version: v}
+	}
+	return nil
 }

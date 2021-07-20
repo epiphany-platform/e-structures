@@ -27,9 +27,6 @@ func State(path string) (*st.State, error) {
 		}
 
 		// TODO temporary code because of before mentioned issue
-		if state.GetAzBIState() != nil && state.GetAzBIState().Status == "" {
-			state.AzBI = nil
-		}
 		if state.GetAzKSState() != nil && state.GetAzKSState().Status == "" {
 			state.AzKS = nil
 		}

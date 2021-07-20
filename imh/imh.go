@@ -1,6 +1,7 @@
 package imh
 
 import (
+	"errors"
 	"fmt"
 	"github.com/epiphany-platform/e-structures/globals"
 	"os"
@@ -16,6 +17,7 @@ type Modulator interface {
 	globals.Printer
 	globals.Validator
 	globals.Upgrader
+	globals.WithUnused
 }
 
 const (
@@ -30,6 +32,7 @@ type InfrastructureModuleHelper struct {
 }
 
 func (h InfrastructureModuleHelper) Initialize(config Modulator, state Modulator) (Modulator, Modulator, error) {
+	// TODO test
 	// check if required fields are set
 	if h.ModuleDirectoryPath == "" {
 		return nil, nil, fmt.Errorf("setup module directory path first")
@@ -53,6 +56,12 @@ func (h InfrastructureModuleHelper) Initialize(config Modulator, state Modulator
 	if os.IsNotExist(err) {
 		// if no state loaded then init it
 		state.Init(h.ModuleVersion)
+	} else if errors.Is(err, globals.OldVersionError{}) {
+		// if old version was found try to upgrade it
+		err2 := state.Upgrade(stateFilePath)
+		if err2 != nil {
+			return nil, nil, err2
+		}
 	} else if err != nil {
 		return nil, nil, fmt.Errorf("load config failed: %v", err)
 	}
@@ -61,6 +70,12 @@ func (h InfrastructureModuleHelper) Initialize(config Modulator, state Modulator
 	if os.IsNotExist(err) {
 		// if no config loaded then init it
 		config.Init(h.ModuleVersion)
+	} else if errors.Is(err, globals.OldVersionError{}) {
+		// if old version was found try to upgrade it
+		err2 := config.Upgrade(configFilePath)
+		if err2 != nil {
+			return nil, nil, err2
+		}
 	} else if err != nil {
 		return nil, nil, fmt.Errorf("load state failed: %v", err)
 	}
@@ -75,6 +90,7 @@ func (h InfrastructureModuleHelper) Initialize(config Modulator, state Modulator
 }
 
 func (h InfrastructureModuleHelper) Load(config Modulator, state Modulator) (Modulator, Modulator, error) {
+	// TODO test
 	// check if required fields are set
 	if h.ModuleDirectoryPath == "" {
 		return nil, nil, fmt.Errorf("setup module directory path first")
@@ -95,12 +111,24 @@ func (h InfrastructureModuleHelper) Load(config Modulator, state Modulator) (Mod
 
 	// load state file
 	err = state.Load(stateFilePath)
-	if err != nil {
+	if errors.Is(err, globals.OldVersionError{}) {
+		// if old version was found try to upgrade it
+		err2 := state.Upgrade(stateFilePath)
+		if err2 != nil {
+			return nil, nil, err2
+		}
+	} else if err != nil {
 		return nil, nil, fmt.Errorf("load config failed: %v", err)
 	}
 	// load config file
 	err = config.Load(configFilePath)
-	if err != nil {
+	if errors.Is(err, globals.OldVersionError{}) {
+		// if old version was found try to upgrade it
+		err2 := config.Upgrade(configFilePath)
+		if err2 != nil {
+			return nil, nil, err2
+		}
+	} else if err != nil {
 		return nil, nil, fmt.Errorf("load state failed: %v", err)
 	}
 
@@ -114,6 +142,7 @@ func (h InfrastructureModuleHelper) Load(config Modulator, state Modulator) (Mod
 }
 
 func (h InfrastructureModuleHelper) Save(config Modulator, state Modulator) error {
+	// TODO test
 	// check if required fields are set
 	if h.ModuleDirectoryPath == "" {
 		return fmt.Errorf("setup module directory path first")

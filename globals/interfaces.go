@@ -10,7 +10,7 @@ type Backuper interface { // TODO that name is not a real word
 
 	// Backup is responsible for storing current version of structure in new file. It MUST fail if there is
 	// file already in place pointed by path.
-	Backup(path string) error // TODO this should not take path as string
+	Backup(path string) error // TODO this should not argument, but backup location should be unified
 	// TODO add BackupRaw() method
 }
 
@@ -50,7 +50,13 @@ type Validator interface {
 type Upgrader interface {
 
 	// Upgrade is responsible for upgrading structure to current version. It is designed to be a fallback
-	// method after Loader.Load wasn't able to load structure from file and returned with incorrect version
-	// error.
+	// method after Loader.Load wasn't able to load structure from file and returned with OldVersionError.
 	Upgrade(path string) error
+}
+
+type WithUnused interface {
+
+	// SetUnused is responsible for setting list of strings indicating that some found fields are unknown to
+	// structure.
+	SetUnused([]string)
 }

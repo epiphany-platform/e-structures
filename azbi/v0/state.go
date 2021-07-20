@@ -1,15 +1,11 @@
 package v0
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/epiphany-platform/e-structures/globals"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
-	maps "github.com/mitchellh/mapstructure"
-	"io/ioutil"
-	"os"
 )
 
 type State struct {
@@ -39,47 +35,18 @@ func (s *State) Backup(path string) error {
 }
 
 func (s *State) Load(path string) error {
-	_, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return err
-	}
-
-	// TODO backup raw here
-
-	b, err := ioutil.ReadFile(path)
+	i, err := globals.Load(s, path, stateVersion)
 	if err != nil {
 		return err
 	}
-
-	var input map[string]interface{}
-	err = json.Unmarshal(b, &input)
+	state, ok := i.(*State)
+	if !ok {
+		return errors.New("incorrect casting")
+	}
+	err = state.Valid() // TODO rethink if validation should be done here
 	if err != nil {
 		return err
 	}
-
-	// TODO check if current version here
-
-	state := &State{}
-	var md maps.Metadata
-	d, err := maps.NewDecoder(&maps.DecoderConfig{Metadata: &md, TagName: "json", Result: &state})
-	if err != nil {
-		return err
-	}
-
-	err = d.Decode(input)
-	if err != nil {
-		return err
-	}
-
-	state.Unused = md.Unused
-
-	// TODO rethink if validation should be done here
-
-	err = state.Valid()
-	if err != nil {
-		return err
-	}
-
 	*s = *state
 	return nil
 }
@@ -112,7 +79,11 @@ func (s *State) Valid() error {
 }
 
 func (s *State) Upgrade(_ string) error {
-	return nil
+	return errors.New("unexpected upgrade call")
+}
+
+func (s *State) SetUnused(unused []string) {
+	s.Unused = unused
 }
 
 type Output struct {

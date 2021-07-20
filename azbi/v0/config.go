@@ -1,15 +1,11 @@
 package v0
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/epiphany-platform/e-structures/globals"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
-	maps "github.com/mitchellh/mapstructure"
-	"io/ioutil"
-	"os"
 )
 
 type Config struct {
@@ -29,6 +25,7 @@ func (c *Config) Init(moduleVersion string) {
 			Name:             to.StrPtr("unknown"),
 			Location:         to.StrPtr("northeurope"),
 			AddressSpace:     []string{"10.0.0.0/16"},
+			AdminUsername:    to.StrPtr("operations"),
 			RsaPublicKeyPath: to.StrPtr("/shared/vms_rsa.pub"),
 			Subnets: []Subnet{
 				{
@@ -68,47 +65,19 @@ func (c *Config) Backup(path string) error {
 }
 
 func (c *Config) Load(path string) error {
-	_, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return err
-	}
-
-	// TODO backup raw here
-
-	b, err := ioutil.ReadFile(path)
+	i, err := globals.Load(c, path, configVersion)
 	if err != nil {
 		return err
 	}
-
-	var input map[string]interface{}
-	err = json.Unmarshal(b, &input)
-	if err != nil {
-		return err
+	config, ok := i.(*Config)
+	if !ok {
+		return errors.New("incorrect casting")
 	}
-
-	// TODO check if current version here
-
-	config := &Config{}
-	var md maps.Metadata
-	d, err := maps.NewDecoder(&maps.DecoderConfig{Metadata: &md, TagName: "json", Result: &config})
-	if err != nil {
-		return err
-	}
-
-	err = d.Decode(input)
-	if err != nil {
-		return err
-	}
-
-	config.Unused = md.Unused
-
 	err = config.Valid() // TODO rethink if validation should be done here
 	if err != nil {
 		return err
 	}
-
 	*c = *config
-
 	return nil
 }
 
@@ -141,9 +110,60 @@ func (c *Config) Valid() error {
 	return nil
 }
 
-func (c *Config) Upgrade(_ string) error {
-	// add tests after implementation of first upgrade process
+func (c *Config) Upgrade(path string) error {
+	i, err := globals.Upgrade(c, path,
+		func(input map[string]interface{}) error {
+			upgraded := false
+			for !upgraded {
+				v, err := globals.GetVersion(input)
+				if err != nil {
+					return err
+				}
+				switch v {
+				case "v0.2.0":
+					meta, ok := input["meta"].(map[string]interface{})
+					if !ok {
+						return errors.New("incorrect casting")
+					}
+					meta["version"] = "v0.2.1"
+					input["meta"] = meta
+
+					params, ok := input["params"].(map[string]interface{})
+					if !ok {
+						return errors.New("incorrect casting")
+					}
+					params["admin_username"] = "operations"
+					input["params"] = params
+				default:
+					v, err2 := globals.GetVersion(input)
+					if err2 != nil {
+						return err2
+					}
+					if v != configVersion {
+						return errors.New("unknown version to upgrade")
+					}
+					upgraded = true
+				}
+			}
+			return nil
+		})
+	if err != nil {
+		return err
+	}
+	config, ok := i.(*Config)
+	if !ok {
+		return errors.New("incorrect casting")
+	}
+	err = config.Valid() // TODO rethink if validation should be done here
+	if err != nil {
+		return err
+	}
+	*c = *config
 	return nil
+}
+
+func (c *Config) SetUnused(unused []string) {
+	c.Unused = unused
 }
 
 type Meta struct {
@@ -158,6 +178,7 @@ type Params struct {
 	AddressSpace     []string  `json:"address_space" validate:"omitempty,min=1,dive,min=1,cidr"`
 	Subnets          []Subnet  `json:"subnets" validate:"required_with=AddressSpace,excluded_without=AddressSpace,omitempty,min=1,dive,required"` // TODO custom validator that subnets are in AddressSpaces
 	VmGroups         []VmGroup `json:"vm_groups" validate:"required,dive"`
+	AdminUsername    *string   `json:"admin_username" validate:"required,min=1"`
 	RsaPublicKeyPath *string   `json:"rsa_pub_path" validate:"required,min=1"`
 }
 
