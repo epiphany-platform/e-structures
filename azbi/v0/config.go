@@ -111,42 +111,7 @@ func (c *Config) Valid() error {
 }
 
 func (c *Config) Upgrade(path string) error {
-	i, err := globals.Upgrade(c, path,
-		func(input map[string]interface{}) error {
-			upgraded := false
-			for !upgraded {
-				v, err := globals.GetVersion(input)
-				if err != nil {
-					return err
-				}
-				switch v {
-				case "v0.2.0":
-					meta, ok := input["meta"].(map[string]interface{})
-					if !ok {
-						return errors.New("incorrect casting")
-					}
-					meta["version"] = "v0.2.1"
-					input["meta"] = meta
-
-					params, ok := input["params"].(map[string]interface{})
-					if !ok {
-						return errors.New("incorrect casting")
-					}
-					params["admin_username"] = "operations"
-					input["params"] = params
-				default:
-					v, err2 := globals.GetVersion(input)
-					if err2 != nil {
-						return err2
-					}
-					if v != configVersion {
-						return errors.New("unknown version to upgrade")
-					}
-					upgraded = true
-				}
-			}
-			return nil
-		})
+	i, err := globals.Upgrade(c, path)
 	if err != nil {
 		return err
 	}
@@ -159,6 +124,42 @@ func (c *Config) Upgrade(path string) error {
 		return err
 	}
 	*c = *config
+	return nil
+}
+
+func (c *Config) UpgradeFunc(input map[string]interface{}) error {
+	upgraded := false
+	for !upgraded {
+		v, err := globals.GetVersion(input)
+		if err != nil {
+			return err
+		}
+		switch v {
+		case "v0.2.0":
+			meta, ok := input["meta"].(map[string]interface{})
+			if !ok {
+				return errors.New("incorrect casting")
+			}
+			meta["version"] = "v0.2.1"
+			input["meta"] = meta
+
+			params, ok := input["params"].(map[string]interface{})
+			if !ok {
+				return errors.New("incorrect casting")
+			}
+			params["admin_username"] = "operations"
+			input["params"] = params
+		default:
+			v, err2 := globals.GetVersion(input)
+			if err2 != nil {
+				return err2
+			}
+			if v != configVersion {
+				return errors.New("unknown version to upgrade")
+			}
+			upgraded = true
+		}
+	}
 	return nil
 }
 

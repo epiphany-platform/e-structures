@@ -78,13 +78,68 @@ func (s *State) Valid() error {
 	return nil
 }
 
-func (s *State) Upgrade(_ string) error {
-	return errors.New("unexpected upgrade call")
+func (s *State) Upgrade(path string) error {
+	i, err := globals.Upgrade(s, path)
+	if err != nil {
+		return err
+	}
+	state, ok := i.(*State)
+	if !ok {
+		return errors.New("incorrect casting")
+	}
+	err = state.Valid() // TODO rethink if validation should be done here
+	if err != nil {
+		return err
+	}
+	*s = *state
+	return nil
+}
+
+func (s *State) UpgradeFunc(input map[string]interface{}) error {
+	upgraded := false
+	for !upgraded {
+		v, err := globals.GetVersion(input)
+		if err != nil {
+			return err
+		}
+		switch v {
+		case "v0.0.1":
+			meta, ok := input["meta"].(map[string]interface{})
+			if !ok {
+				return errors.New("incorrect casting")
+			}
+			meta["version"] = "v0.0.2"
+			input["meta"] = meta
+
+			configSubtree, ok := input["config"].(map[string]interface{})
+			if !ok {
+				return errors.New("incorrect casting")
+			}
+			c := Config{}
+			err = c.UpgradeFunc(configSubtree)
+			if err != nil {
+				return err
+			}
+			input["config"] = configSubtree
+		default:
+			v, err2 := globals.GetVersion(input)
+			if err2 != nil {
+				return err2
+			}
+			if v != stateVersion {
+				return errors.New("unknown version to upgrade")
+			}
+			upgraded = true
+		}
+	}
+	return nil
 }
 
 func (s *State) SetUnused(unused []string) {
 	s.Unused = unused
 }
+
+// TODO consider validation in output ... but really think about it hard. It might not be desired.
 
 type Output struct {
 	RgName   *string         `json:"rg_name"`

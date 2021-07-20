@@ -79,7 +79,7 @@ func Load(i interface{}, path, version string) (interface{}, error) {
 	return i, nil
 }
 
-func Upgrade(i interface{}, path string, f func(map[string]interface{}) error) (interface{}, error) {
+func Upgrade(u Upgrader, path string) (interface{}, error) {
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return nil, err
@@ -98,13 +98,13 @@ func Upgrade(i interface{}, path string, f func(map[string]interface{}) error) (
 		return nil, err
 	}
 
-	err = f(input)
+	err = u.UpgradeFunc(input)
 	if err != nil {
 		return nil, err
 	}
 
 	var md maps.Metadata
-	d, err := maps.NewDecoder(&maps.DecoderConfig{Metadata: &md, TagName: "json", Result: &i})
+	d, err := maps.NewDecoder(&maps.DecoderConfig{Metadata: &md, TagName: "json", Result: &u})
 	if err != nil {
 		return nil, err
 	}
@@ -112,11 +112,11 @@ func Upgrade(i interface{}, path string, f func(map[string]interface{}) error) (
 	if err != nil {
 		return nil, err
 	}
-	if u, ok := i.(WithUnused); ok {
+	if u, ok := u.(WithUnused); ok {
 		u.SetUnused(md.Unused)
 	}
 
-	return i, nil
+	return u, nil
 }
 
 func GetVersion(input map[string]interface{}) (string, error) {

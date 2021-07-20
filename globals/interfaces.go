@@ -51,7 +51,10 @@ type Upgrader interface {
 
 	// Upgrade is responsible for upgrading structure to current version. It is designed to be a fallback
 	// method after Loader.Load wasn't able to load structure from file and returned with NotCurrentVersionError.
-	Upgrade(path string) error
+	Upgrade(string) error
+
+	// UpgradeFunc method is responsible for delivery of structure upgrading function.
+	UpgradeFunc(map[string]interface{}) error
 }
 
 type WithUnused interface {
