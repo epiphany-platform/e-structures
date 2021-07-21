@@ -47,7 +47,7 @@ func TestConfig_Init(t *testing.T) {
 							Name:        to.StrPtr("vm-group-0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"main"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -189,7 +189,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"main"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -279,7 +279,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"main"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -365,7 +365,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -454,7 +454,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"main"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -513,7 +513,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -610,7 +610,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("first"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"first"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -624,7 +624,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("second"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"first"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -730,7 +730,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("first"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"first"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -744,7 +744,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("second"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"second"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -860,7 +860,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("first"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"first", "third"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -874,7 +874,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("second"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"second", "third"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -998,7 +998,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("first"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"first"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -1021,7 +1021,7 @@ func TestConfig_Load(t *testing.T) {
 							Name:        to.StrPtr("second"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"second"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -1145,7 +1145,7 @@ func TestConfig_Save(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1275,7 +1275,7 @@ func TestConfig_Print(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1366,7 +1366,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1410,7 +1410,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1449,7 +1449,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1488,7 +1488,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1521,7 +1521,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1550,7 +1550,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1605,7 +1605,7 @@ func TestConfig_Valid(t *testing.T) {
 							VmCount:     to.IntPtr(1),
 							SubnetNames: []string{"main"},
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1646,7 +1646,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1691,7 +1691,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1731,7 +1731,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1774,7 +1774,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1825,7 +1825,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1880,7 +1880,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1931,7 +1931,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -1977,7 +1977,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -2021,7 +2021,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -2292,7 +2292,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(-1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{""},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -2354,7 +2354,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"main"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -2408,7 +2408,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"main"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
@@ -2479,7 +2479,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"main"},
 							VmImage:     &VmImage{},
 							DataDisks: []DataDisk{
@@ -2541,7 +2541,7 @@ func TestConfig_Valid(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(3),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(true),
+							UsePublicIP: to.BoolPtr(true),
 							SubnetNames: []string{"main"},
 							VmImage: &VmImage{
 								Publisher: to.StrPtr(""),
@@ -2669,7 +2669,7 @@ func TestConfig_Upgrade(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),
@@ -2765,7 +2765,7 @@ func TestConfig_Upgrade(t *testing.T) {
 							Name:        to.StrPtr("vm-group0"),
 							VmCount:     to.IntPtr(1),
 							VmSize:      to.StrPtr("Standard_DS2_v2"),
-							UsePublicIP: to.BooPtr(false),
+							UsePublicIP: to.BoolPtr(false),
 							VmImage: &VmImage{
 								Publisher: to.StrPtr("Canonical"),
 								Offer:     to.StrPtr("UbuntuServer"),

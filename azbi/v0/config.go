@@ -38,7 +38,7 @@ func (c *Config) Init(moduleVersion string) {
 					Name:        to.StrPtr("vm-group-0"),
 					VmCount:     to.IntPtr(1),
 					VmSize:      to.StrPtr("Standard_DS2_v2"),
-					UsePublicIP: to.BooPtr(true),
+					UsePublicIP: to.BoolPtr(true),
 					SubnetNames: []string{"main"},
 					VmImage: &VmImage{
 						Publisher: to.StrPtr("Canonical"),
