@@ -58,28 +58,28 @@ func (h InfrastructureModuleHelper) Initialize(config Modulator, state Modulator
 	if os.IsNotExist(err) {
 		// if no state loaded then init it
 		state.Init(h.ModuleVersion)
-	} else if errors.Is(err, ncverr) {
+	} else if errors.As(err, &ncverr) {
 		// if old version was found try to upgrade it
 		err2 := state.Upgrade(stateFilePath)
 		if err2 != nil {
 			return nil, nil, err2
 		}
 	} else if err != nil {
-		return nil, nil, fmt.Errorf("load config failed: %v", err)
+		return nil, nil, fmt.Errorf("load state failed: %v", err)
 	}
 	// load config file
 	err = config.Load(configFilePath)
 	if os.IsNotExist(err) {
 		// if no config loaded then init it
 		config.Init(h.ModuleVersion)
-	} else if errors.Is(err, ncverr) {
+	} else if errors.As(err, &ncverr) {
 		// if old version was found try to upgrade it
 		err2 := config.Upgrade(configFilePath)
 		if err2 != nil {
 			return nil, nil, err2
 		}
 	} else if err != nil {
-		return nil, nil, fmt.Errorf("load state failed: %v", err)
+		return nil, nil, fmt.Errorf("load config failed: %v", err)
 	}
 
 	// backup
@@ -113,25 +113,25 @@ func (h InfrastructureModuleHelper) Load(config Modulator, state Modulator) (Mod
 
 	// load state file
 	err = state.Load(stateFilePath)
-	if errors.Is(err, ncverr) {
+	if errors.As(err, &ncverr) {
 		// if old version was found try to upgrade it
 		err2 := state.Upgrade(stateFilePath)
 		if err2 != nil {
 			return nil, nil, err2
 		}
 	} else if err != nil {
-		return nil, nil, fmt.Errorf("load config failed: %v", err)
+		return nil, nil, fmt.Errorf("load state failed: %v", err)
 	}
 	// load config file
 	err = config.Load(configFilePath)
-	if errors.Is(err, ncverr) {
+	if errors.As(err, &ncverr) {
 		// if old version was found try to upgrade it
 		err2 := config.Upgrade(configFilePath)
 		if err2 != nil {
 			return nil, nil, err2
 		}
 	} else if err != nil {
-		return nil, nil, fmt.Errorf("load state failed: %v", err)
+		return nil, nil, fmt.Errorf("load config failed: %v", err)
 	}
 
 	// backup
