@@ -6,7 +6,7 @@ type Initializer interface {
 	Init(moduleVersion string)
 }
 
-type Backuper interface { // TODO that name is not a real word
+type Backupper interface {
 
 	// Backup is responsible for storing current version of structure in new file. It MUST fail if there is
 	// file already in place pointed by path.
@@ -22,14 +22,14 @@ type Loader interface {
 	// - if validation of loaded structure failed
 	//
 	// In case of incorrect version fallback to Upgrader.Upgrade method should be applied by module.
-	// In case of failed validation (provided by Validator.Valid method) it should be considered
+	// In case of failed validation (provided by Validator.Validate method) it should be considered
 	// panic situation and usually user is forced to fix file.
 	Load(path string) error
 }
 
 type Saver interface {
 
-	// Save is responsible for storing structure into file. It must always use Validator.Valid method
+	// Save is responsible for storing structure into file. It must always use Validator.Validate method
 	// to ensure that saved file is not corrupted. It should (but not must) use Printer.Print method
 	// to produce structure JSON.
 	Save(path string) error
@@ -43,8 +43,8 @@ type Printer interface {
 
 type Validator interface {
 
-	// Valid is responsible for checking that structure is correct with all custom validation rules.
-	Valid() error
+	// Validate is responsible for checking that structure is correct with all custom validation rules.
+	Validate() error
 }
 
 type Upgrader interface {

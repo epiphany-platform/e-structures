@@ -11,7 +11,7 @@ import (
 
 type Modulator interface {
 	globals.Initializer
-	globals.Backuper
+	globals.Backupper
 	globals.Loader
 	globals.Saver
 	globals.Printer

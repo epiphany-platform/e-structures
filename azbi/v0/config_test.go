@@ -2588,7 +2588,7 @@ func TestConfig_Valid(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			a := assert.New(t)
 			r := require.New(t)
-			err := tt.config.Valid()
+			err := tt.config.Validate()
 			if tt.wantErr != nil {
 				r.Error(err)
 				_, ok := err.(*validator.InvalidValidationError)

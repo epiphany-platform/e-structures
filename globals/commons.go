@@ -34,7 +34,7 @@ func Save(p Printer, path string) error {
 }
 
 func Print(v Validator) ([]byte, error) {
-	if err := v.Valid(); err != nil {
+	if err := v.Validate(); err != nil {
 		return nil, err
 	}
 	return json.MarshalIndent(v, "", "\t")

@@ -57,7 +57,7 @@ func (c *Config) Init(moduleVersion string) {
 		},
 		Unused: []string{},
 	}
-	// TODO consider if we should call Valid() here
+	// TODO consider if we should call Validate() here
 }
 
 func (c *Config) Backup(path string) error {
@@ -73,7 +73,7 @@ func (c *Config) Load(path string) error {
 	if !ok {
 		return errors.New("incorrect casting")
 	}
-	err = config.Valid() // TODO rethink if validation should be done here
+	err = config.Validate() // TODO rethink if validation should be done here
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (c *Config) Print() ([]byte, error) {
 	return globals.Print(c)
 }
 
-func (c *Config) Valid() error {
+func (c *Config) Validate() error {
 	if c == nil {
 		return errors.New("expected config is nil")
 	}
@@ -119,7 +119,7 @@ func (c *Config) Upgrade(path string) error {
 	if !ok {
 		return errors.New("incorrect casting")
 	}
-	err = config.Valid() // TODO rethink if validation should be done here
+	err = config.Validate() // TODO rethink if validation should be done here
 	if err != nil {
 		return err
 	}

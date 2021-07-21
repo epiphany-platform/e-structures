@@ -825,7 +825,7 @@ func TestState_Valid(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			a := assert.New(t)
 			r := require.New(t)
-			err := tt.state.Valid()
+			err := tt.state.Validate()
 			if tt.wantErr != nil {
 				r.Error(err)
 				_, ok := err.(*validator.InvalidValidationError)

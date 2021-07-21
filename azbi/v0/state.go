@@ -43,7 +43,7 @@ func (s *State) Load(path string) error {
 	if !ok {
 		return errors.New("incorrect casting")
 	}
-	err = state.Valid() // TODO rethink if validation should be done here
+	err = state.Validate() // TODO rethink if validation should be done here
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (s *State) Print() ([]byte, error) {
 	return globals.Print(s)
 }
 
-func (s *State) Valid() error {
+func (s *State) Validate() error {
 	if s == nil {
 		return errors.New("expected state is nil")
 	}
@@ -87,7 +87,7 @@ func (s *State) Upgrade(path string) error {
 	if !ok {
 		return errors.New("incorrect casting")
 	}
-	err = state.Valid() // TODO rethink if validation should be done here
+	err = state.Validate() // TODO rethink if validation should be done here
 	if err != nil {
 		return err
 	}
