@@ -3,7 +3,7 @@ package v0
 import (
 	"errors"
 	"fmt"
-	"github.com/epiphany-platform/e-structures/globals"
+	"github.com/epiphany-platform/e-structures/shared"
 	"github.com/epiphany-platform/e-structures/utils/test"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/go-playground/validator/v10"
@@ -1075,7 +1075,7 @@ func TestConfig_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: globals.NotCurrentVersionError{Version: "v0.2.0"},
+			wantErr: shared.NotCurrentVersionError{Version: "v0.2.0"},
 		},
 	}
 	for _, tt := range tests {

@@ -2,18 +2,18 @@ package v0
 
 import (
 	"errors"
-	"github.com/epiphany-platform/e-structures/globals"
+	"github.com/epiphany-platform/e-structures/shared"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
 )
 
 type State struct {
-	Meta   *Meta          `json:"meta" validate:"required"`
-	Status globals.Status `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
-	Config *Config        `json:"config" validate:"omitempty"`
-	Output *Output        `json:"output" validate:"omitempty"`
-	Unused []string       `json:"-"`
+	Meta   *Meta         `json:"meta" validate:"required"`
+	Status shared.Status `json:"status" validate:"required,eq=initialized|eq=applied|eq=destroyed"`
+	Config *Config       `json:"config" validate:"omitempty"`
+	Output *Output       `json:"output" validate:"omitempty"`
+	Unused []string      `json:"-"`
 }
 
 func (s *State) Init(moduleVersion string) {
@@ -23,7 +23,7 @@ func (s *State) Init(moduleVersion string) {
 			Version:       to.StrPtr(stateVersion),
 			ModuleVersion: to.StrPtr(moduleVersion),
 		},
-		Status: globals.Initialized,
+		Status: shared.Initialized,
 		Config: nil, // TODO should it be nil?
 		Output: nil, // TODO should it be nil?
 		Unused: []string{},
@@ -31,11 +31,11 @@ func (s *State) Init(moduleVersion string) {
 }
 
 func (s *State) Backup(path string) error {
-	return globals.Backup(s, path)
+	return shared.Backup(s, path)
 }
 
 func (s *State) Load(path string) error {
-	i, err := globals.Load(s, path, stateVersion)
+	i, err := shared.Load(s, path, stateVersion)
 	if err != nil {
 		return err
 	}
@@ -52,11 +52,11 @@ func (s *State) Load(path string) error {
 }
 
 func (s *State) Save(path string) error {
-	return globals.Save(s, path)
+	return shared.Save(s, path)
 }
 
 func (s *State) Print() ([]byte, error) {
-	return globals.Print(s)
+	return shared.Print(s)
 }
 
 func (s *State) Validate() error {
@@ -79,7 +79,7 @@ func (s *State) Validate() error {
 }
 
 func (s *State) Upgrade(path string) error {
-	i, err := globals.Upgrade(s, path)
+	i, err := shared.Upgrade(s, path)
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func (s *State) Upgrade(path string) error {
 func (s *State) UpgradeFunc(input map[string]interface{}) error {
 	upgraded := false
 	for !upgraded {
-		v, err := globals.GetVersion(input)
+		v, err := shared.GetVersion(input)
 		if err != nil {
 			return err
 		}
@@ -122,7 +122,7 @@ func (s *State) UpgradeFunc(input map[string]interface{}) error {
 			}
 			input["config"] = configSubtree
 		default:
-			v, err2 := globals.GetVersion(input)
+			v, err2 := shared.GetVersion(input)
 			if err2 != nil {
 				return err2
 			}

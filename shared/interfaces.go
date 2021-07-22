@@ -1,4 +1,4 @@
-package globals
+package shared
 
 type Initializer interface {
 

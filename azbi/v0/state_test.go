@@ -2,7 +2,7 @@ package v0
 
 import (
 	"errors"
-	"github.com/epiphany-platform/e-structures/globals"
+	"github.com/epiphany-platform/e-structures/shared"
 	"github.com/epiphany-platform/e-structures/utils/test"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/go-playground/validator/v10"
@@ -29,7 +29,7 @@ func TestState_Init(t *testing.T) {
 					Version:       to.StrPtr("v0.0.2"),
 					ModuleVersion: to.StrPtr("v1.1.1"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Unused: []string{},
 			},
 		},
@@ -107,7 +107,7 @@ func TestState_Load(t *testing.T) {
 					Version:       to.StrPtr("v0.0.2"),
 					ModuleVersion: to.StrPtr("dev"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Unused: []string{},
 			},
 			wantErr: nil,
@@ -203,7 +203,7 @@ func TestState_Load(t *testing.T) {
 					Version:       to.StrPtr("v0.0.2"),
 					ModuleVersion: to.StrPtr("v1.1.1"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Config: &Config{
 					Meta: &Meta{
 						Kind:          to.StrPtr("azbiConfig"),
@@ -294,7 +294,7 @@ func TestState_Load(t *testing.T) {
 					Version:       to.StrPtr("v0.0.2"),
 					ModuleVersion: to.StrPtr("dev"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Unused: []string{},
 			},
 			wantErr: nil,
@@ -311,7 +311,7 @@ func TestState_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: globals.NotCurrentVersionError{Version: "v100.0.0"},
+			wantErr: shared.NotCurrentVersionError{Version: "v100.0.0"},
 		},
 		{
 			name: "old version",
@@ -325,7 +325,7 @@ func TestState_Load(t *testing.T) {
 }
 `),
 			want:    nil,
-			wantErr: globals.NotCurrentVersionError{Version: "v0.0.1"},
+			wantErr: shared.NotCurrentVersionError{Version: "v0.0.1"},
 		},
 	}
 	for _, tt := range tests {
@@ -386,7 +386,7 @@ func TestState_Save(t *testing.T) {
 					Version:       to.StrPtr("v0.0.2"),
 					ModuleVersion: to.StrPtr("dev"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Unused: []string{},
 			},
 			want: []byte(`{
@@ -475,7 +475,7 @@ func TestState_Print(t *testing.T) {
 					Version:       to.StrPtr("v0.0.2"),
 					ModuleVersion: to.StrPtr("v1.1.1"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Config: &Config{
 					Meta: &Meta{
 						Kind:          to.StrPtr("azbiConfig"),
@@ -695,7 +695,7 @@ func TestState_Valid(t *testing.T) {
 					Version:       to.StrPtr("v0.0.2"),
 					ModuleVersion: to.StrPtr("v1.1.1"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Unused: []string{},
 			},
 			wantErr: nil,
@@ -719,7 +719,7 @@ func TestState_Valid(t *testing.T) {
 		{
 			name: "meta missing",
 			state: &State{
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Unused: []string{},
 			},
 			wantErr: test.TestValidationErrors{
@@ -738,7 +738,7 @@ func TestState_Valid(t *testing.T) {
 					Version:       to.StrPtr("v100.0.0"),
 					ModuleVersion: to.StrPtr("v1.1.1"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Unused: []string{},
 			},
 			wantErr: test.TestValidationErrors{
@@ -757,7 +757,7 @@ func TestState_Valid(t *testing.T) {
 					Version:       to.StrPtr("v0.100.0"),
 					ModuleVersion: to.StrPtr("v1.1.1"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Unused: []string{},
 			},
 			wantErr: nil,
@@ -770,7 +770,7 @@ func TestState_Valid(t *testing.T) {
 					Version:       to.StrPtr("v0.0.100"),
 					ModuleVersion: to.StrPtr("v1.1.1"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Unused: []string{},
 			},
 			wantErr: nil,
@@ -802,7 +802,7 @@ func TestState_Valid(t *testing.T) {
 					Version:       to.StrPtr("v0.0.2"),
 					ModuleVersion: to.StrPtr("v1.1.1"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Config: &Config{},
 				Output: &Output{},
 				Unused: []string{},
@@ -880,7 +880,7 @@ func TestState_Upgrade(t *testing.T) {
 					Version:       to.StrPtr("v0.0.2"),
 					ModuleVersion: to.StrPtr("dev"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Unused: []string{},
 			},
 			wantErr: nil,
@@ -972,7 +972,7 @@ func TestState_Upgrade(t *testing.T) {
 					Version:       to.StrPtr("v0.0.2"),
 					ModuleVersion: to.StrPtr("v1.1.1"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Config: &Config{
 					Meta: &Meta{
 						Kind:          to.StrPtr("azbiConfig"),
@@ -1121,7 +1121,7 @@ func TestState_Upgrade(t *testing.T) {
 					Version:       to.StrPtr("v0.0.2"),
 					ModuleVersion: to.StrPtr("v1.1.1"),
 				},
-				Status: globals.Initialized,
+				Status: shared.Initialized,
 				Config: &Config{
 					Meta: &Meta{
 						Kind:          to.StrPtr("azbiConfig"),

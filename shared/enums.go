@@ -1,4 +1,4 @@
-package globals
+package shared
 
 type Status string
 

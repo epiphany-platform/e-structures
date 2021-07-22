@@ -2,7 +2,7 @@ package v0
 
 import (
 	"errors"
-	"github.com/epiphany-platform/e-structures/globals"
+	"github.com/epiphany-platform/e-structures/shared"
 	"github.com/epiphany-platform/e-structures/utils/to"
 	"github.com/epiphany-platform/e-structures/utils/validators"
 	"github.com/go-playground/validator/v10"
@@ -61,11 +61,11 @@ func (c *Config) Init(moduleVersion string) {
 }
 
 func (c *Config) Backup(path string) error {
-	return globals.Backup(c, path)
+	return shared.Backup(c, path)
 }
 
 func (c *Config) Load(path string) error {
-	i, err := globals.Load(c, path, configVersion)
+	i, err := shared.Load(c, path, configVersion)
 	if err != nil {
 		return err
 	}
@@ -82,11 +82,11 @@ func (c *Config) Load(path string) error {
 }
 
 func (c *Config) Save(path string) error {
-	return globals.Save(c, path)
+	return shared.Save(c, path)
 }
 
 func (c *Config) Print() ([]byte, error) {
-	return globals.Print(c)
+	return shared.Print(c)
 }
 
 func (c *Config) Validate() error {
@@ -111,7 +111,7 @@ func (c *Config) Validate() error {
 }
 
 func (c *Config) Upgrade(path string) error {
-	i, err := globals.Upgrade(c, path)
+	i, err := shared.Upgrade(c, path)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func (c *Config) Upgrade(path string) error {
 func (c *Config) UpgradeFunc(input map[string]interface{}) error {
 	upgraded := false
 	for !upgraded {
-		v, err := globals.GetVersion(input)
+		v, err := shared.GetVersion(input)
 		if err != nil {
 			return err
 		}
@@ -150,7 +150,7 @@ func (c *Config) UpgradeFunc(input map[string]interface{}) error {
 			params["admin_username"] = "operations"
 			input["params"] = params
 		default:
-			v, err2 := globals.GetVersion(input)
+			v, err2 := shared.GetVersion(input)
 			if err2 != nil {
 				return err2
 			}

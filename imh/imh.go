@@ -3,21 +3,21 @@ package imh
 import (
 	"errors"
 	"fmt"
-	"github.com/epiphany-platform/e-structures/globals"
+	"github.com/epiphany-platform/e-structures/shared"
 	"os"
 	"path/filepath"
 	"time"
 )
 
 type Modulator interface {
-	globals.Initializer
-	globals.Backupper
-	globals.Loader
-	globals.Saver
-	globals.Printer
-	globals.Validator
-	globals.Upgrader
-	globals.WithUnused
+	shared.Initializer
+	shared.Backupper
+	shared.Loader
+	shared.Saver
+	shared.Printer
+	shared.Validator
+	shared.Upgrader
+	shared.WithUnused
 }
 
 const (
@@ -26,7 +26,7 @@ const (
 	backupDirectoryName = "backup"
 )
 
-var ncverr globals.NotCurrentVersionError
+var ncverr shared.NotCurrentVersionError
 
 type InfrastructureModuleHelper struct {
 	ModuleDirectoryPath string
